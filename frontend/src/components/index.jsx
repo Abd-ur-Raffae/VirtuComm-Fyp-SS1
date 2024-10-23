@@ -1,7 +1,60 @@
 import React, { Component } from 'react';
+import { Navigate } from 'react-router-dom';
+import axios from 'axios';
 
 class Index extends Component {
+  state = {
+    isAuthenticated: true,
+    redirectToLogin: false,
+    csrfToken: '', // Store the CSRF token here
+  };
+
+  componentDidMount() {
+    this.checkLoginStatus();
+    this.fetchCsrfToken();
+  }
+
+  checkLoginStatus = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/check-login/', { withCredentials: true });
+      this.setState({ isAuthenticated: response.data.isAuthenticated });
+    } catch (error) {
+      this.setState({ isAuthenticated: false });
+    }
+  };
+
+  fetchCsrfToken = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/csrf-token/', { withCredentials: true });
+      this.setState({ csrfToken: response.data.csrfToken });
+    } catch (error) {
+      console.error('Error fetching CSRF token:', error);
+    }
+  };
+
+  logoutUser = async () => {
+    try {
+      // Send the logout request to the backend
+      const response = await axios.post('http://localhost:8000/api/logout/', {}, {
+        headers: {
+          'X-CSRFToken': this.state.csrfToken, // Use the CSRF token stored in state
+        },
+        withCredentials: true, // Include cookies for CSRF validation
+      });
+  
+      console.log(response.data.message); // Optionally log the success message
+  
+      // Update the authentication state and redirect
+      this.setState({ isAuthenticated: false, redirectToLogin: true });
+    } catch (error) {
+      console.error('Logout error:', error.response?.data?.error || error.message);
+    }
+  };
+
     render() {
+      if (this.state.redirectToLogin || !this.state.isAuthenticated) {
+        return <Navigate to="/login" />;
+      }
       return (
         <div>
           <meta charSet="utf-8" />
@@ -66,6 +119,8 @@ class Index extends Component {
                     <a href="/about" className="nav-item nav-link">About</a>
                     <a href="/projects" className="nav-item nav-link">Projects</a>
                     <a href="/contact" className="nav-item nav-link">Contact</a>
+                    <button onClick={this.logoutUser} className="nav-item nav-button">Sign Out</button>
+
                   </div>
                   <butaton type="button" className="btn text-white p-0 d-none d-lg-block" data-bs-toggle="modal" data-bs-target="#searchModal"><i className="fa fa-search" /></butaton>
                 </div>
