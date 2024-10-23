@@ -1,0 +1,12 @@
+1
+00:00:00,200 --> 00:00:03,846
+Greetings. We are developing a project named Virtucom as our final year project.
+
+2
+00:00:03,958 --> 00:00:07,382
+We are very excited in simulation the real life communication scenarios and
+
+3
+00:00:07,406 --> 00:00:09,750
+developing a communication learning platform for different domains.
+

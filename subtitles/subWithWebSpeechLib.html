@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Player with Dynamic Subtitles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #subtitles {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #333;
+            min-height: 30px; /* To prevent jumpiness when text length changes */
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio Player with Dynamic Subtitles</h1>
+    <div class="audio-player">
+        <audio id="audioPlayer" controls>
+            <source src="Greetings.mp3" type="audio/mpeg"> <!-- Replace with your audio file path -->
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    <div id="subtitles"></div>
+
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const subtitlesDiv = document.getElementById('subtitles');
+
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.interimResults = true; // Show interim results for live feedback
+        recognition.continuous = true; // Keep recognizing continuously
+
+        let currentWords = []; // To hold the current displayed words
+        const maxWords = 8; // Max words to display at once
+
+        // Handle results from the SpeechRecognition
+        recognition.onresult = (event) => {
+            const transcript = Array.from(event.results)
+                .map(result => result[0])
+                .map(result => result.transcript)
+                .join('');
+
+            // Split transcript into individual words
+            const newWords = transcript.split(' ');
+
+            // Update the current words list, only keeping the latest few words
+            currentWords = newWords.slice(-maxWords); // Only keep the last 5 words
+            
+            // Display the updated words
+            subtitlesDiv.innerText = currentWords.join(' ');
+        };
+
+        // Restart recognition when it ends
+        recognition.onend = () => {
+            if (!audioPlayer.paused) {
+                recognition.start(); // Restart if audio is playing
+            }
+        };
+
+        // Start recognition when the audio starts playing
+        audioPlayer.addEventListener('play', () => {
+            // Clear subtitles and start recognition
+            subtitlesDiv.innerText = ''; // Clear previous subtitles
+            currentWords = []; // Reset current words
+            recognition.start(); // Start recognition
+        });
+
+        // Stop recognition when the audio is paused or ended
+        audioPlayer.addEventListener('pause', () => {
+            recognition.stop();
+        });
+        
+        audioPlayer.addEventListener('ended', () => {
+            recognition.stop();
+            subtitlesDiv.innerText = ''; // Clear subtitles at the end
+        });
+
+    </script>
+</body>
+</html>
