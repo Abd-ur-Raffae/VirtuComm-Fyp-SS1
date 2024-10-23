@@ -70,7 +70,7 @@ export function Avatar(props) {
 
     handlePlay();
 
-    // Cleanup
+    
     return () => {
       audio.pause();
       setAnimation('Idle');
