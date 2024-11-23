@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
+import 'swiper/css';
+import MySwiper from './swiper';
+
 
 class Index extends Component {
   state = {
@@ -83,11 +86,15 @@ class Index extends Component {
           
           {/* Customized Bootstrap Stylesheet */}
           <link href="/css/bootstrap.min.css" rel="stylesheet" />
+          <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
           
           {/* Template Stylesheet */}
           <link href="/css/style.css" rel="stylesheet" />
 
           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" defer></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js" defer></script>
           <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
           <script src="/lib/wow/wow.min.js" ></script>
           <script src="/lib/easing/easing.min.js"></script>
@@ -165,7 +172,7 @@ class Index extends Component {
             </div>
           </div>
           {/* Full Screen Search End */}
-
+          
           {/* Case Start */}
           <div className="container-fluid bg-light py-5">
             <div className="container py-5">
@@ -174,6 +181,8 @@ class Index extends Component {
                 <h1 className="mb-4">Our Recent Project working</h1>
               </div>
               <div className="row g-4">
+                <MySwiper />
+                {/* Part 2 start
                 <div className="col-lg-2 wow fadeIn" data-wow-delay="0.3s">
                   <div className="case-item position-relative overflow-hidden rounded mb-2">
                   </div>
@@ -182,8 +191,8 @@ class Index extends Component {
                   <div className="case-item position-relative overflow-hidden rounded mb-2">
                     <img className="img-fluid" src="/img/banda.png" alt="" />
                     <a className="case-overlay text-decoration-none" href>
-                      <small>Phase 1.1</small>
-                      <h5 className="lh-base text-white mb-3">Basic AI 3D Model 
+                      <small>Phase 1.2</small>
+                      <h5 className="lh-base text-white mb-3">Basic Dual 3D Model 
                       </h5>
                       <a className="btn btn-square btn-primary" href='/projects'><i className="fa fa-arrow-right" /></a>
                     </a>
@@ -192,7 +201,8 @@ class Index extends Component {
                 <div className="col-lg-2 wow fadeIn" data-wow-delay="0.7s">
                   <div className="case-item position-relative overflow-hidden rounded mb-2">
                   </div>
-                </div>
+                </div> */}
+                {/* Part 2 end */}
               </div>
             </div>
           </div>
