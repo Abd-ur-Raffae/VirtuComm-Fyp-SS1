@@ -1,6 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { Experience } from "./Experience";
 import React from 'react';
+import { Experience_2 } from "./1.2Experience";
+
 
 
 
@@ -86,11 +88,20 @@ const Project = () => {
 
         
 
-            <div style={styles.container}>
+            {/* <div style={styles.container}>
                 <div style={styles.canvasContainer}>
                     <Canvas shadows camera={{ position: [0, 3, 8], fov: 35 }}>
                         <color attach="background" args={["#ececec"]} />
                         <Experience />
+                    </Canvas>
+                </div>
+            </div> */}
+
+            <div style={styles.container}>
+                <div style={styles.canvasContainer}>
+                    <Canvas shadows camera={{ position: [0, 3, 8], fov: 35 }}>
+                        <color attach="background" args={["#ececec"]} />
+                        <Experience_2 />
                     </Canvas>
                 </div>
             </div>
