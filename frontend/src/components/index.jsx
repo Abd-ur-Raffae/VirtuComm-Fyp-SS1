@@ -124,7 +124,7 @@ class Index extends Component {
                   <div className="navbar-nav ms-auto">
                     <a href="/home" className="nav-item nav-link active">Home</a>
                     <a href="/about" className="nav-item nav-link">About</a>
-                    <a href="/projects" className="nav-item nav-link">Projects</a>
+                    {/* <a href="/projects" className="nav-item nav-link">Projects</a> */}
                     <a href="/contact" className="nav-item nav-link">Contact</a>
                     <button onClick={this.logoutUser} className="nav-item nav-button">Sign Out</button>
 
