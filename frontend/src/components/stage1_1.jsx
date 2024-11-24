@@ -30,8 +30,8 @@ const styles = {
         height: '80vh', // Reduced height so footer is visible
     },
     canvasContainer: {
-        width: '80%',
-        height: '80%', // Keep this to adjust canvas size
+        width: '100%',
+        height: '160%', // Keep this to adjust canvas size
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
