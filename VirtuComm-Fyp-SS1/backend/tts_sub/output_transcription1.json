@@ -1,0 +1,90 @@
+{
+    "segments": [
+        {
+            "start_time": 0.0,
+            "end_time": 1.66,
+            "text": " Hello, brother. What do you up to?",
+            "words": [
+                {
+                    "word": " Hello,",
+                    "start_time": 0.0,
+                    "end_time": 0.22,
+                    "duration": 0.22
+                },
+                {
+                    "word": " brother.",
+                    "start_time": 0.34,
+                    "end_time": 0.56,
+                    "duration": 0.22000000000000003
+                },
+                {
+                    "word": " What",
+                    "start_time": 0.8,
+                    "end_time": 0.92,
+                    "duration": 0.12
+                },
+                {
+                    "word": " do",
+                    "start_time": 0.92,
+                    "end_time": 1.06,
+                    "duration": 0.14
+                },
+                {
+                    "word": " you",
+                    "start_time": 1.06,
+                    "end_time": 1.28,
+                    "duration": 0.21999999999999997
+                },
+                {
+                    "word": " up",
+                    "start_time": 1.28,
+                    "end_time": 1.4,
+                    "duration": 0.11999999999999988
+                },
+                {
+                    "word": " to?",
+                    "start_time": 1.4,
+                    "end_time": 1.66,
+                    "duration": 0.26
+                }
+            ]
+        },
+        {
+            "start_time": 1.86,
+            "end_time": 3.16,
+            "text": " Nothing special. What about you?",
+            "words": [
+                {
+                    "word": " Nothing",
+                    "start_time": 1.86,
+                    "end_time": 2.04,
+                    "duration": 0.17999999999999994
+                },
+                {
+                    "word": " special.",
+                    "start_time": 2.04,
+                    "end_time": 2.44,
+                    "duration": 0.3999999999999999
+                },
+                {
+                    "word": " What",
+                    "start_time": 2.62,
+                    "end_time": 2.72,
+                    "duration": 0.10000000000000009
+                },
+                {
+                    "word": " about",
+                    "start_time": 2.72,
+                    "end_time": 2.92,
+                    "duration": 0.19999999999999973
+                },
+                {
+                    "word": " you?",
+                    "start_time": 2.92,
+                    "end_time": 3.16,
+                    "duration": 0.2400000000000002
+                }
+            ]
+        }
+    ]
+}

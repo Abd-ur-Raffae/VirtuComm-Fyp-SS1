@@ -23,7 +23,7 @@ def transcription_to_json(result):
         json_data["segments"].append(segment_data)
     return json_data
 
-def save_json(data, file_name="output_transcription1.json"):
+def save_json(data, file_name="tts_sub/output_transcription1.json"):
     import json
     with open(file_name, "w", encoding="utf-8") as json_file:
         json.dump(data, json_file, ensure_ascii=False, indent=4)
