@@ -1,0 +1,135 @@
+/* Apply box-sizing to all elements */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0e4ea7;
+    background-image: url('../img/bg-hero.png');
+    background-repeat: no-repeat;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.main {
+    background-color: #b3c2dbbc;
+    width: 400px; /* Fixed width for the container */
+    height: auto; /* Allow height to adjust based on content */
+    margin: 7em auto; /* Center the container */
+    border-radius: 1.5em;
+    box-shadow: 0px 11px 35px 2px rgba(0, 0, 0, 0.14);
+    padding: 20px; /* Added padding to avoid overflow */
+}
+
+.sign {
+    padding-top: 40px;
+    color: #111c53;
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: bold;
+    font-size: 23px;
+    text-align: center; /* Center align the title */
+}
+
+.un,
+.pass {
+    width: calc(100% - 40px); /* Adjust width to fit within padding */
+    color: rgb(38, 50, 56);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    background: rgba(136, 126, 126, 0.04);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    outline: none;
+    border: 2px solid rgba(0, 0, 0, 0.02);
+    margin: 0 auto 27px auto; /* Center the inputs with auto margins */
+    display: block; /* Ensure inputs are block elements */
+}
+
+form.form1 {
+    padding-top: 40px;
+}
+
+.un:focus,
+.pass:focus {
+    border: 2px solid rgba(0, 0, 0, 0.18) !important;
+}
+
+.submit {
+    cursor: pointer;
+    border-radius: 5em;
+    color: #fff;
+    background: linear-gradient(to right, #102ca5, #4075fb);
+    border: 0;
+    padding: 10px 20px; /* Adjust padding to make button fit better */
+    font-family: 'Ubuntu', sans-serif;
+    width: calc(100% - 40px); /* Ensure the button fits within the container */
+    margin: 20px auto; /* Center align the button */
+    font-size: 13px;
+    box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.04);
+    display: block; /* Make the button a block element */
+}
+
+.forgot {
+    text-shadow: 0px 0px 3px rgba(19, 20, 91, 0.12);
+    color: #0d075b;
+    padding-top: 15px;
+    text-align: center; /* Center align forgot password text */
+}
+
+a {
+    text-shadow: 0px 0px 3px rgba(117, 117, 117, 0.12);
+    color: #061c6a;
+    text-decoration: none;
+}
+
+button:hover {
+  background: linear-gradient(to right, #4075fb, #102ca5);
+
+}
+
+/* General styles remain the same */
+
+@media (max-width: 768px) {
+    /* For tablet screens and smaller */
+    .main {
+      width: 90%; /* Adjust width */
+      height: auto; /* Let height adjust automatically */
+      margin: 5em auto; /* Reduce top margin */
+      padding: 20px; /* Add some padding */
+    }
+  
+    .un, .pass {
+      width: 90%; /* Full width for input fields */
+      margin-left: 5%; /* Center the fields */
+    }
+  
+    .submit {
+      width: 90%;
+      margin-left: 5%; /* Adjust submit button */
+    }
+  
+    .sign {
+      font-size: 20px; /* Reduce font size for title */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    /* For mobile screens */
+    .main {
+      width: 95%; /* More flexibility for smaller screens */
+      padding: 15px;
+    }
+  
+    .un, .pass, .submit {
+      width: 100%;
+      margin-left: 0; /* Full width for form fields and button */
+    }
+  
+    .sign {
+      font-size: 18px; /* Further reduce the font size for title */
+    }
+  }
+  
