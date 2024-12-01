@@ -9,6 +9,7 @@ import LoginPage from './components/loginpage.jsx';
 import RegisterPage from './components/registerpage.jsx';
 import Stage1_1 from './components/stage1_1.jsx';
 import Stage1_2 from './components/stage1_2.jsx';
+import Stage1_3 from './components/stage1_3.jsx';
 import User_tts from './components/tts.jsx'
 
 
@@ -26,6 +27,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/stage1_1" element={<Stage1_1 />} />
           <Route path="/stage1_2" element={<Stage1_2 />} />
+          <Route path="/stage1_3" element={<Stage1_3 />} />
           <Route path='/tts' element={<User_tts />} />
         </Routes>
       </div>
