@@ -46,7 +46,7 @@ const MySwiper = () => {
        {/* Third Slide */}
        <SwiperSlide>
         <div className="case-item position-relative overflow-hidden rounded mb-2" style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <img className="img-fluid" src="/img/banda1.2.png" alt="Sitting Dual 3D Model" style={{ width: '100%', height: 'auto' }} />
+          <img className="img-fluid" src="/img/phase3img.png" alt="Sitting Dual 3D Model" style={{ width: '100%', height: 'auto' }} />
           <a className="case-overlay text-decoration-none" href="#!">
             <small>Phase 1.3</small>
             <h5 className="lh-base text-white mb-3">Sitting Dual 3D Model </h5>
