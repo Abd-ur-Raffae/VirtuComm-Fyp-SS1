@@ -1,39 +1,28 @@
-from django.apps import AppConfig
-import os
-import onnxruntime as ort
-import yaml
+from gradio_client import Client
+import whisper
+
+class AppResources:
+    def __init__(self):
+        # Preload the Gradio clients
+        print("Initializing Gradio clients...")
+        self.convo_client = Client("jawwad1234/convo")
+        self.tts_client = Client("jawwad1234/Edge-TTS-Text-to-Speech")
+        print("Gradio clients initialized.")
+
+        # Preload the Whisper model
+        print("Loading Whisper model...")
+        self.whisper_model = whisper.load_model("base")
+        print("Whisper model loaded.")
+
+    def get_convo_client(self):
+        return self.convo_client
+
+    def get_tts_client(self):
+        return self.tts_client
+
+    def get_whisper_model(self):
+        return self.whisper_model
 
 
-class TtsSubConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'tts_sub'
-
-    def ready(self):
-        global ONNX_MODEL
-        global CONFIG
-
-        try:
-            # Resolve the app directory
-            app_dir = os.path.dirname(os.path.abspath(__file__))
-
-            # Load the ONNX model
-            model_path = os.path.join(app_dir, "vctk-vits-onnx", "model.onnx")
-            print(f"Resolved model path: {model_path}")
-            if not os.path.exists(model_path):
-                raise FileNotFoundError(f"ONNX model not found at {model_path}")
-
-            ONNX_MODEL = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
-            print("ONNX model loaded successfully.")
-
-            # Load the YAML configuration
-            config_path = os.path.join(app_dir, "vctk-vits-onnx", "config.yaml")
-            print(f"Resolved config path: {config_path}")
-            if not os.path.exists(config_path):
-                raise FileNotFoundError(f"Configuration file not found at {config_path}")
-
-            with open(config_path, "r", encoding="utf-8") as f:
-                CONFIG = yaml.safe_load(f)
-            print("Configuration loaded successfully.")
-
-        except Exception as e:
-            print(f"Error in TtsSubConfig.ready(): {e}")
+# Create a global instance to be used across the app
+resources = AppResources()

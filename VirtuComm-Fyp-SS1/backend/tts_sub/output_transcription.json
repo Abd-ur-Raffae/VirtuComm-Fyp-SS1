@@ -1,0 +1,922 @@
+{
+    "segments": [
+        {
+            "start_time": 0.0,
+            "end_time": 3.44,
+            "text": "I've heard a lot about string theory, but it seems so complex.",
+            "words": [
+                {
+                    "word": " I've",
+                    "start_time": 0.0,
+                    "end_time": 0.34,
+                    "duration": 0.34
+                },
+                {
+                    "word": " heard",
+                    "start_time": 0.34,
+                    "end_time": 0.46,
+                    "duration": 0.12
+                },
+                {
+                    "word": " a",
+                    "start_time": 0.46,
+                    "end_time": 0.56,
+                    "duration": 0.10000000000000003
+                },
+                {
+                    "word": " lot",
+                    "start_time": 0.56,
+                    "end_time": 0.74,
+                    "duration": 0.17999999999999994
+                },
+                {
+                    "word": " about",
+                    "start_time": 0.74,
+                    "end_time": 1.04,
+                    "duration": 0.30000000000000004
+                },
+                {
+                    "word": " string",
+                    "start_time": 1.04,
+                    "end_time": 1.26,
+                    "duration": 0.21999999999999997
+                },
+                {
+                    "word": " theory,",
+                    "start_time": 1.26,
+                    "end_time": 1.6,
+                    "duration": 0.3400000000000001
+                },
+                {
+                    "word": " but",
+                    "start_time": 2.1,
+                    "end_time": 2.36,
+                    "duration": 0.2599999999999998
+                },
+                {
+                    "word": " it",
+                    "start_time": 2.36,
+                    "end_time": 2.48,
+                    "duration": 0.1200000000000001
+                },
+                {
+                    "word": " seems",
+                    "start_time": 2.48,
+                    "end_time": 2.7,
+                    "duration": 0.2200000000000002
+                },
+                {
+                    "word": " so",
+                    "start_time": 2.7,
+                    "end_time": 2.98,
+                    "duration": 0.2799999999999998
+                },
+                {
+                    "word": " complex.",
+                    "start_time": 2.98,
+                    "end_time": 3.44,
+                    "duration": 0.45999999999999996
+                }
+            ],
+            "speaker": "student"
+        },
+        {
+            "start_time": 4.0,
+            "end_time": 5.46,
+            "text": "Can you break it down for me?",
+            "words": [
+                {
+                    "word": " Can",
+                    "start_time": 4.0,
+                    "end_time": 4.38,
+                    "duration": 0.3799999999999999
+                },
+                {
+                    "word": " you",
+                    "start_time": 4.38,
+                    "end_time": 4.5,
+                    "duration": 0.1200000000000001
+                },
+                {
+                    "word": " break",
+                    "start_time": 4.5,
+                    "end_time": 4.7,
+                    "duration": 0.20000000000000018
+                },
+                {
+                    "word": " it",
+                    "start_time": 4.7,
+                    "end_time": 4.84,
+                    "duration": 0.13999999999999968
+                },
+                {
+                    "word": " down",
+                    "start_time": 4.84,
+                    "end_time": 5.08,
+                    "duration": 0.2400000000000002
+                },
+                {
+                    "word": " for",
+                    "start_time": 5.08,
+                    "end_time": 5.28,
+                    "duration": 0.20000000000000018
+                },
+                {
+                    "word": " me?",
+                    "start_time": 5.28,
+                    "end_time": 5.46,
+                    "duration": 0.17999999999999972
+                }
+            ],
+            "speaker": "student"
+        },
+        {
+            "start_time": 6.56,
+            "end_time": 6.88,
+            "text": "Sure.",
+            "words": [
+                {
+                    "word": " Sure.",
+                    "start_time": 6.56,
+                    "end_time": 6.88,
+                    "duration": 0.3200000000000003
+                }
+            ],
+            "speaker": "student"
+        },
+        {
+            "start_time": 7.86,
+            "end_time": 12.74,
+            "text": "String theory suggests that the basic building blocks of the universe are tiny, vibrating strings.",
+            "words": [
+                {
+                    "word": " String",
+                    "start_time": 7.86,
+                    "end_time": 8.3,
+                    "duration": 0.4400000000000004
+                },
+                {
+                    "word": " theory",
+                    "start_time": 8.3,
+                    "end_time": 8.56,
+                    "duration": 0.2599999999999998
+                },
+                {
+                    "word": " suggests",
+                    "start_time": 8.56,
+                    "end_time": 8.96,
+                    "duration": 0.40000000000000036
+                },
+                {
+                    "word": " that",
+                    "start_time": 8.96,
+                    "end_time": 9.36,
+                    "duration": 0.3999999999999986
+                },
+                {
+                    "word": " the",
+                    "start_time": 9.36,
+                    "end_time": 9.5,
+                    "duration": 0.14000000000000057
+                },
+                {
+                    "word": " basic",
+                    "start_time": 9.5,
+                    "end_time": 9.8,
+                    "duration": 0.3000000000000007
+                },
+                {
+                    "word": " building",
+                    "start_time": 9.8,
+                    "end_time": 10.18,
+                    "duration": 0.379999999999999
+                },
+                {
+                    "word": " blocks",
+                    "start_time": 10.18,
+                    "end_time": 10.46,
+                    "duration": 0.28000000000000114
+                },
+                {
+                    "word": " of",
+                    "start_time": 10.46,
+                    "end_time": 10.68,
+                    "duration": 0.21999999999999886
+                },
+                {
+                    "word": " the",
+                    "start_time": 10.68,
+                    "end_time": 10.82,
+                    "duration": 0.14000000000000057
+                },
+                {
+                    "word": " universe",
+                    "start_time": 10.82,
+                    "end_time": 11.16,
+                    "duration": 0.33999999999999986
+                },
+                {
+                    "word": " are",
+                    "start_time": 11.16,
+                    "end_time": 11.42,
+                    "duration": 0.2599999999999998
+                },
+                {
+                    "word": " tiny,",
+                    "start_time": 11.42,
+                    "end_time": 11.74,
+                    "duration": 0.3200000000000003
+                },
+                {
+                    "word": " vibrating",
+                    "start_time": 11.98,
+                    "end_time": 12.34,
+                    "duration": 0.35999999999999943
+                },
+                {
+                    "word": " strings.",
+                    "start_time": 12.34,
+                    "end_time": 12.74,
+                    "duration": 0.40000000000000036
+                }
+            ],
+            "speaker": "teacher"
+        },
+        {
+            "start_time": 13.86,
+            "end_time": 17.72,
+            "text": "And these strings are responsible for all the particles and forces we observe.",
+            "words": [
+                {
+                    "word": " And",
+                    "start_time": 13.86,
+                    "end_time": 14.12,
+                    "duration": 0.2599999999999998
+                },
+                {
+                    "word": " these",
+                    "start_time": 14.12,
+                    "end_time": 14.3,
+                    "duration": 0.1800000000000015
+                },
+                {
+                    "word": " strings",
+                    "start_time": 14.3,
+                    "end_time": 14.58,
+                    "duration": 0.27999999999999936
+                },
+                {
+                    "word": " are",
+                    "start_time": 14.58,
+                    "end_time": 14.82,
+                    "duration": 0.2400000000000002
+                },
+                {
+                    "word": " responsible",
+                    "start_time": 14.82,
+                    "end_time": 15.36,
+                    "duration": 0.5399999999999991
+                },
+                {
+                    "word": " for",
+                    "start_time": 15.36,
+                    "end_time": 15.62,
+                    "duration": 0.2599999999999998
+                },
+                {
+                    "word": " all",
+                    "start_time": 15.62,
+                    "end_time": 15.88,
+                    "duration": 0.26000000000000156
+                },
+                {
+                    "word": " the",
+                    "start_time": 15.88,
+                    "end_time": 16.02,
+                    "duration": 0.1399999999999988
+                },
+                {
+                    "word": " particles",
+                    "start_time": 16.02,
+                    "end_time": 16.38,
+                    "duration": 0.35999999999999943
+                },
+                {
+                    "word": " and",
+                    "start_time": 16.38,
+                    "end_time": 16.78,
+                    "duration": 0.40000000000000213
+                },
+                {
+                    "word": " forces",
+                    "start_time": 16.78,
+                    "end_time": 17.12,
+                    "duration": 0.33999999999999986
+                },
+                {
+                    "word": " we",
+                    "start_time": 17.12,
+                    "end_time": 17.34,
+                    "duration": 0.21999999999999886
+                },
+                {
+                    "word": " observe.",
+                    "start_time": 17.34,
+                    "end_time": 17.72,
+                    "duration": 0.379999999999999
+                }
+            ],
+            "speaker": "student"
+        },
+        {
+            "start_time": 18.8,
+            "end_time": 19.24,
+            "text": "Exactly.",
+            "words": [
+                {
+                    "word": " Exactly.",
+                    "start_time": 18.8,
+                    "end_time": 19.24,
+                    "duration": 0.4399999999999977
+                }
+            ],
+            "speaker": "teacher"
+        },
+        {
+            "start_time": 20.54,
+            "end_time": 24.64,
+            "text": "The different vibrations of these strings correspond to different particles and forces.",
+            "words": [
+                {
+                    "word": " The",
+                    "start_time": 20.54,
+                    "end_time": 20.64,
+                    "duration": 0.10000000000000142
+                },
+                {
+                    "word": " different",
+                    "start_time": 20.64,
+                    "end_time": 20.94,
+                    "duration": 0.3000000000000007
+                },
+                {
+                    "word": " vibrations",
+                    "start_time": 20.94,
+                    "end_time": 21.52,
+                    "duration": 0.5799999999999983
+                },
+                {
+                    "word": " of",
+                    "start_time": 21.52,
+                    "end_time": 21.78,
+                    "duration": 0.26000000000000156
+                },
+                {
+                    "word": " these",
+                    "start_time": 21.78,
+                    "end_time": 21.92,
+                    "duration": 0.14000000000000057
+                },
+                {
+                    "word": " strings",
+                    "start_time": 21.92,
+                    "end_time": 22.3,
+                    "duration": 0.379999999999999
+                },
+                {
+                    "word": " correspond",
+                    "start_time": 22.3,
+                    "end_time": 22.84,
+                    "duration": 0.5399999999999991
+                },
+                {
+                    "word": " to",
+                    "start_time": 22.84,
+                    "end_time": 23.14,
+                    "duration": 0.3000000000000007
+                },
+                {
+                    "word": " different",
+                    "start_time": 23.14,
+                    "end_time": 23.42,
+                    "duration": 0.28000000000000114
+                },
+                {
+                    "word": " particles",
+                    "start_time": 23.42,
+                    "end_time": 23.96,
+                    "duration": 0.5399999999999991
+                },
+                {
+                    "word": " and",
+                    "start_time": 23.96,
+                    "end_time": 24.26,
+                    "duration": 0.3000000000000007
+                },
+                {
+                    "word": " forces.",
+                    "start_time": 24.26,
+                    "end_time": 24.64,
+                    "duration": 0.379999999999999
+                }
+            ],
+            "speaker": "teacher"
+        },
+        {
+            "start_time": 25.7,
+            "end_time": 27.9,
+            "text": "But how does it fit with what we know about physics?",
+            "words": [
+                {
+                    "word": " But",
+                    "start_time": 25.7,
+                    "end_time": 25.96,
+                    "duration": 0.26000000000000156
+                },
+                {
+                    "word": " how",
+                    "start_time": 25.96,
+                    "end_time": 26.12,
+                    "duration": 0.16000000000000014
+                },
+                {
+                    "word": " does",
+                    "start_time": 26.12,
+                    "end_time": 26.28,
+                    "duration": 0.16000000000000014
+                },
+                {
+                    "word": " it",
+                    "start_time": 26.28,
+                    "end_time": 26.42,
+                    "duration": 0.14000000000000057
+                },
+                {
+                    "word": " fit",
+                    "start_time": 26.42,
+                    "end_time": 26.6,
+                    "duration": 0.17999999999999972
+                },
+                {
+                    "word": " with",
+                    "start_time": 26.6,
+                    "end_time": 26.82,
+                    "duration": 0.21999999999999886
+                },
+                {
+                    "word": " what",
+                    "start_time": 26.82,
+                    "end_time": 27.0,
+                    "duration": 0.17999999999999972
+                },
+                {
+                    "word": " we",
+                    "start_time": 27.0,
+                    "end_time": 27.12,
+                    "duration": 0.120000000000001
+                },
+                {
+                    "word": " know",
+                    "start_time": 27.12,
+                    "end_time": 27.3,
+                    "duration": 0.17999999999999972
+                },
+                {
+                    "word": " about",
+                    "start_time": 27.3,
+                    "end_time": 27.56,
+                    "duration": 0.259999999999998
+                },
+                {
+                    "word": " physics?",
+                    "start_time": 27.56,
+                    "end_time": 27.9,
+                    "duration": 0.33999999999999986
+                }
+            ],
+            "speaker": "student"
+        },
+        {
+            "start_time": 28.56,
+            "end_time": 34.04,
+            "text": "It aims to unify quantum mechanics in general relativity, which are currently incompatible.",
+            "words": [
+                {
+                    "word": " It",
+                    "start_time": 28.56,
+                    "end_time": 29.2,
+                    "duration": 0.6400000000000006
+                },
+                {
+                    "word": " aims",
+                    "start_time": 29.2,
+                    "end_time": 29.4,
+                    "duration": 0.1999999999999993
+                },
+                {
+                    "word": " to",
+                    "start_time": 29.4,
+                    "end_time": 29.6,
+                    "duration": 0.20000000000000284
+                },
+                {
+                    "word": " unify",
+                    "start_time": 29.6,
+                    "end_time": 30.02,
+                    "duration": 0.41999999999999815
+                },
+                {
+                    "word": " quantum",
+                    "start_time": 30.02,
+                    "end_time": 30.44,
+                    "duration": 0.4200000000000017
+                },
+                {
+                    "word": " mechanics",
+                    "start_time": 30.44,
+                    "end_time": 30.88,
+                    "duration": 0.4399999999999977
+                },
+                {
+                    "word": " in",
+                    "start_time": 30.88,
+                    "end_time": 31.16,
+                    "duration": 0.28000000000000114
+                },
+                {
+                    "word": " general",
+                    "start_time": 31.16,
+                    "end_time": 31.48,
+                    "duration": 0.3200000000000003
+                },
+                {
+                    "word": " relativity,",
+                    "start_time": 31.48,
+                    "end_time": 32.08,
+                    "duration": 0.5999999999999979
+                },
+                {
+                    "word": " which",
+                    "start_time": 32.46,
+                    "end_time": 32.64,
+                    "duration": 0.17999999999999972
+                },
+                {
+                    "word": " are",
+                    "start_time": 32.64,
+                    "end_time": 32.74,
+                    "duration": 0.10000000000000142
+                },
+                {
+                    "word": " currently",
+                    "start_time": 32.74,
+                    "end_time": 33.16,
+                    "duration": 0.4199999999999946
+                },
+                {
+                    "word": " incompatible.",
+                    "start_time": 33.16,
+                    "end_time": 34.04,
+                    "duration": 0.8800000000000026
+                }
+            ],
+            "speaker": "teacher"
+        },
+        {
+            "start_time": 34.68,
+            "end_time": 36.38,
+            "text": "That sounds revolutionary.",
+            "words": [
+                {
+                    "word": " That",
+                    "start_time": 34.68,
+                    "end_time": 35.24,
+                    "duration": 0.5600000000000023
+                },
+                {
+                    "word": " sounds",
+                    "start_time": 35.24,
+                    "end_time": 35.66,
+                    "duration": 0.4199999999999946
+                },
+                {
+                    "word": " revolutionary.",
+                    "start_time": 35.66,
+                    "end_time": 36.38,
+                    "duration": 0.720000000000006
+                }
+            ],
+            "speaker": "student"
+        },
+        {
+            "start_time": 37.1,
+            "end_time": 39.38,
+            "text": "But is there any experimental evidence for it?",
+            "words": [
+                {
+                    "word": " But",
+                    "start_time": 37.1,
+                    "end_time": 37.34,
+                    "duration": 0.240000000000002
+                },
+                {
+                    "word": " is",
+                    "start_time": 37.34,
+                    "end_time": 37.48,
+                    "duration": 0.13999999999999346
+                },
+                {
+                    "word": " there",
+                    "start_time": 37.48,
+                    "end_time": 37.62,
+                    "duration": 0.14000000000000057
+                },
+                {
+                    "word": " any",
+                    "start_time": 37.62,
+                    "end_time": 37.82,
+                    "duration": 0.20000000000000284
+                },
+                {
+                    "word": " experimental",
+                    "start_time": 37.82,
+                    "end_time": 38.42,
+                    "duration": 0.6000000000000014
+                },
+                {
+                    "word": " evidence",
+                    "start_time": 38.42,
+                    "end_time": 38.84,
+                    "duration": 0.4200000000000017
+                },
+                {
+                    "word": " for",
+                    "start_time": 38.84,
+                    "end_time": 39.18,
+                    "duration": 0.3399999999999963
+                },
+                {
+                    "word": " it?",
+                    "start_time": 39.18,
+                    "end_time": 39.38,
+                    "duration": 0.20000000000000284
+                }
+            ],
+            "speaker": "student"
+        },
+        {
+            "start_time": 40.24,
+            "end_time": 40.9,
+            "text": "Not yet.",
+            "words": [
+                {
+                    "word": " Not",
+                    "start_time": 40.24,
+                    "end_time": 40.54,
+                    "duration": 0.29999999999999716
+                },
+                {
+                    "word": " yet.",
+                    "start_time": 40.54,
+                    "end_time": 40.9,
+                    "duration": 0.35999999999999943
+                }
+            ],
+            "speaker": "student"
+        },
+        {
+            "start_time": 41.9,
+            "end_time": 45.56,
+            "text": "The strings are so small that current technology can't detect them directly.",
+            "words": [
+                {
+                    "word": " The",
+                    "start_time": 41.9,
+                    "end_time": 42.08,
+                    "duration": 0.17999999999999972
+                },
+                {
+                    "word": " strings",
+                    "start_time": 42.08,
+                    "end_time": 42.36,
+                    "duration": 0.28000000000000114
+                },
+                {
+                    "word": " are",
+                    "start_time": 42.36,
+                    "end_time": 42.56,
+                    "duration": 0.20000000000000284
+                },
+                {
+                    "word": " so",
+                    "start_time": 42.56,
+                    "end_time": 42.76,
+                    "duration": 0.19999999999999574
+                },
+                {
+                    "word": " small",
+                    "start_time": 42.76,
+                    "end_time": 43.1,
+                    "duration": 0.3400000000000034
+                },
+                {
+                    "word": " that",
+                    "start_time": 43.1,
+                    "end_time": 43.28,
+                    "duration": 0.17999999999999972
+                },
+                {
+                    "word": " current",
+                    "start_time": 43.28,
+                    "end_time": 43.56,
+                    "duration": 0.28000000000000114
+                },
+                {
+                    "word": " technology",
+                    "start_time": 43.56,
+                    "end_time": 44.22,
+                    "duration": 0.6599999999999966
+                },
+                {
+                    "word": " can't",
+                    "start_time": 44.22,
+                    "end_time": 44.64,
+                    "duration": 0.4200000000000017
+                },
+                {
+                    "word": " detect",
+                    "start_time": 44.64,
+                    "end_time": 44.84,
+                    "duration": 0.20000000000000284
+                },
+                {
+                    "word": " them",
+                    "start_time": 44.84,
+                    "end_time": 45.14,
+                    "duration": 0.29999999999999716
+                },
+                {
+                    "word": " directly.",
+                    "start_time": 45.14,
+                    "end_time": 45.56,
+                    "duration": 0.4200000000000017
+                }
+            ],
+            "speaker": "teacher"
+        },
+        {
+            "start_time": 46.62,
+            "end_time": 49.52,
+            "text": "So, it's more of a theoretical framework for now.",
+            "words": [
+                {
+                    "word": " So,",
+                    "start_time": 46.62,
+                    "end_time": 46.98,
+                    "duration": 0.35999999999999943
+                },
+                {
+                    "word": " it's",
+                    "start_time": 47.3,
+                    "end_time": 47.66,
+                    "duration": 0.35999999999999943
+                },
+                {
+                    "word": " more",
+                    "start_time": 47.66,
+                    "end_time": 47.84,
+                    "duration": 0.18000000000000682
+                },
+                {
+                    "word": " of",
+                    "start_time": 47.84,
+                    "end_time": 48.0,
+                    "duration": 0.1599999999999966
+                },
+                {
+                    "word": " a",
+                    "start_time": 48.0,
+                    "end_time": 48.1,
+                    "duration": 0.10000000000000142
+                },
+                {
+                    "word": " theoretical",
+                    "start_time": 48.1,
+                    "end_time": 48.56,
+                    "duration": 0.46000000000000085
+                },
+                {
+                    "word": " framework",
+                    "start_time": 48.56,
+                    "end_time": 49.0,
+                    "duration": 0.4399999999999977
+                },
+                {
+                    "word": " for",
+                    "start_time": 49.0,
+                    "end_time": 49.28,
+                    "duration": 0.28000000000000114
+                },
+                {
+                    "word": " now.",
+                    "start_time": 49.28,
+                    "end_time": 49.52,
+                    "duration": 0.240000000000002
+                }
+            ],
+            "speaker": "student"
+        },
+        {
+            "start_time": 50.5,
+            "end_time": 54.58,
+            "text": "Yes, but it's a framework that could potentially explain a lot about the universe.",
+            "words": [
+                {
+                    "word": " Yes,",
+                    "start_time": 50.5,
+                    "end_time": 50.86,
+                    "duration": 0.35999999999999943
+                },
+                {
+                    "word": " but",
+                    "start_time": 51.18,
+                    "end_time": 51.3,
+                    "duration": 0.11999999999999744
+                },
+                {
+                    "word": " it's",
+                    "start_time": 51.3,
+                    "end_time": 51.5,
+                    "duration": 0.20000000000000284
+                },
+                {
+                    "word": " a",
+                    "start_time": 51.5,
+                    "end_time": 51.56,
+                    "duration": 0.060000000000002274
+                },
+                {
+                    "word": " framework",
+                    "start_time": 51.56,
+                    "end_time": 51.9,
+                    "duration": 0.3399999999999963
+                },
+                {
+                    "word": " that",
+                    "start_time": 51.9,
+                    "end_time": 52.2,
+                    "duration": 0.30000000000000426
+                },
+                {
+                    "word": " could",
+                    "start_time": 52.2,
+                    "end_time": 52.36,
+                    "duration": 0.1599999999999966
+                },
+                {
+                    "word": " potentially",
+                    "start_time": 52.36,
+                    "end_time": 52.88,
+                    "duration": 0.5200000000000031
+                },
+                {
+                    "word": " explain",
+                    "start_time": 52.88,
+                    "end_time": 53.34,
+                    "duration": 0.46000000000000085
+                },
+                {
+                    "word": " a",
+                    "start_time": 53.34,
+                    "end_time": 53.56,
+                    "duration": 0.21999999999999886
+                },
+                {
+                    "word": " lot",
+                    "start_time": 53.56,
+                    "end_time": 53.76,
+                    "duration": 0.19999999999999574
+                },
+                {
+                    "word": " about",
+                    "start_time": 53.76,
+                    "end_time": 54.06,
+                    "duration": 0.30000000000000426
+                },
+                {
+                    "word": " the",
+                    "start_time": 54.06,
+                    "end_time": 54.22,
+                    "duration": 0.1599999999999966
+                },
+                {
+                    "word": " universe.",
+                    "start_time": 54.22,
+                    "end_time": 54.58,
+                    "duration": 0.35999999999999943
+                }
+            ],
+            "speaker": "teacher"
+        }
+    ]
+}

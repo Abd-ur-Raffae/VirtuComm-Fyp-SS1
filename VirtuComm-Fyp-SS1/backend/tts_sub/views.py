@@ -1,98 +1,70 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from tts_sub.apps import ONNX_MODEL, CONFIG  # Import the globals
-import numpy as np
-from ttstokenizer import TTSTokenizer
-import os
-import re
-import soundfile as sf
+from tts_sub.apps import resources  # Import preloaded resources
+from tts_sub.audio_to_json import audio_to_json  # Import transcription function
+from .text_to_audio import generate_audio_from_text  # Import audio generation pipeline
 from pydub import AudioSegment
-from .audio_to_subtitle import audio_to_json
+import os
+import time
+
 
 @api_view(['POST'])
 def text_to_audio(request):
     if request.method == 'POST':
         try:
-            # Extract text from the request
+            # Extract text input from the request
             text = request.data.get("text", "")
-          #
             if not text:
                 return Response({"error": "No text provided"}, status=400)
 
-            # Create tokenizer using the loaded CONFIG
-            tokenizer = TTSTokenizer(CONFIG["token"]["list"])
+            # Check if input text is a topic or preformatted dialogue
+            if "[" not in text or "]" not in text:
+                # Use the preloaded convo_client to generate dialogue from a topic
+                convo_client = resources.get_convo_client()
+                result = convo_client.predict(
+                    message=text,
+                    system_message="""You are a chatbot which only replies shortly, you give different results every time and in the form of a dialogue 
+                    between two characters talking about the given topic in just 10 lines. When starting
+                    each person's dialogue, only start it with: '[student]' or '[teacher]' if you have to mention the names again, don't use brackets, 
+                    brackets only come when starting the sentence.
+                    """,
+                    max_tokens=512,
+                    temperature=0.7,
+                    top_p=0.95,
+                    api_name="/chat"
+                )
+                text = result.strip()
+                print(f"Generated dialogue: {text}")
 
-            # Define speaker IDs
-            person_1_sid = 9  # Speaker ID for Person 1
-            person_2_sid = 92  # Speaker ID for Person 2
+            # Step 2: Generate audio and metadata
+            output_audio_path = "tts_sub/final_conversation.wav"
+            metadata = generate_audio_from_text(text, output_path=output_audio_path)
 
-            # Parse conversation text
-            def text_to_conversation_with_tags(text):
-                # Ensure input is split into manageable chunks based on speaker tags
-                split_text = re.split(r'(\[[^\]]+\])', text)
-                
-                conversation = []
-                current_speaker = None
-                
-                for chunk in split_text:
-                    if chunk.startswith("[") and chunk.endswith("]"):
-                        current_speaker = chunk.strip("[]").lower()
-                    elif current_speaker and chunk.strip():
-                        conversation.append((current_speaker, chunk.strip()))
-                
-                return conversation
+            # Verify the audio file exists
+            if not os.path.exists(output_audio_path):
+                raise FileNotFoundError(f"Audio file not found: {output_audio_path}")
+            
+            # Step 3: Ensure audio format compatibility
+            print("Converting audio to standard .wav format...")
+            audio = AudioSegment.from_file(output_audio_path)
+            audio.export(output_audio_path, format="wav", parameters=["-ar", "22050"])
 
+            # Step 4: Wait to ensure file availability
+             # Allow time for the file system to stabilize
 
-            conversation = text_to_conversation_with_tags(text)
+            # Step 5: Transcribe audio and generate JSON
+            transcription_path = "tts_sub/output_transcription.json"
+            audio_to_json(output_audio_path, metadata, resources.get_whisper_model(), transcription_path)
 
-            # Directory to save individual audio lines
-            output_dir = "tts_sub/conversation_audio1"
-            os.makedirs(output_dir, exist_ok=True)
-
-            # Generate speech for each line
-            for i, (speaker, line_text) in enumerate(conversation):
-                try:
-                    if speaker == "person 1":
-                        sid = person_1_sid
-                    elif speaker == "person 2":
-                        sid = person_2_sid
-                    else:
-                        raise ValueError(f"Unknown speaker tag: {speaker}")
-                    inputs = tokenizer(line_text)
-                    #print(f"Tokenizer output for line {i}: {inputs}")
-
-                    outputs = ONNX_MODEL.run(None, {"text": inputs, "sids": np.array([sid])})
-                    #print(f"Model output for line {i}: {outputs}")
-
-                    if not outputs or len(outputs[0]) == 0:
-                        raise ValueError(f"No audio generated for line {i}")
-                    
-                    output_file = os.path.join(output_dir, f"line_{i}.wav")
-                    sf.write(output_file, outputs[0], 22050)
-                    print(f"Generated: {output_file}")
-                except Exception as e:
-                    print(f"Error generating audio for line {i}: {e}")
-
-            # Concatenate the audio files into a full conversation
-            conversation_audio = AudioSegment.empty()
-            audio_files = sorted([os.path.join(output_dir, f) for f in os.listdir(output_dir) if f.endswith(".wav")])
-
-            for file in audio_files:
-                conversation_audio += AudioSegment.from_file(file)
-
-            final_audio_path = "tts_sub/final_conversation1.wav"
-            conversation_audio.export(final_audio_path, format="wav", parameters=["-ar", "22050"])
-            print(f"Final conversation audio saved as: {final_audio_path}")
-
-            # Check if final conversation audio is created and clean up
-            if os.path.exists(final_audio_path):
-                print("Final conversation audio created successfully.")
-                for file in audio_files:
-                    os.remove(file)
-                os.rmdir(output_dir)
-
-            audio_to_json(final_audio_path)
-            return Response({"message": "Audio generated successfully", "audio_path": final_audio_path})
+            return Response({
+                "message": "Pipeline executed successfully",
+                "audio_path": output_audio_path,
+                "transcription_path": transcription_path,
+                "metadata": metadata
+            })
+        except FileNotFoundError as fnfe:
+            print(f"File error: {fnfe}")
+            return Response({"error": str(fnfe)}, status=500)
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error in pipeline: {e}")
             return Response({"error": str(e)}, status=500)
