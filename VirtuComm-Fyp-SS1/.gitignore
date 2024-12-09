@@ -2,3 +2,5 @@ node_modules
 config.yaml
 model.onnx
 _pycache_
+final_conversation.wav
+output_transcription.json

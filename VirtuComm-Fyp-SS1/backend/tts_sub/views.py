@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from tts_sub.apps import resources  # Import preloaded resources
 from tts_sub.audio_to_json import audio_to_json  # Import transcription function
-from .text_to_audio import generate_audio_from_text  # Import audio generation pipeline
+from .text_to_audio import generate_audio_from_text,cleanup_generated_files  # Import audio generation pipeline
 from pydub import AudioSegment
 import os
 import time
@@ -24,7 +24,7 @@ def text_to_audio(request):
                 result = convo_client.predict(
                     message=text,
                     system_message="""You are a chatbot which only replies shortly, you give different results every time and in the form of a dialogue 
-                    between two characters talking about the given topic in just 10 lines. When starting
+                    between two characters talking about the given topic in just 10  to 15  lines. When starting
                     each person's dialogue, only start it with: '[student]' or '[teacher]' if you have to mention the names again, don't use brackets, 
                     brackets only come when starting the sentence.
                     """,
@@ -60,7 +60,6 @@ def text_to_audio(request):
                 "message": "Pipeline executed successfully",
                 "audio_path": output_audio_path,
                 "transcription_path": transcription_path,
-                "metadata": metadata
             })
         except FileNotFoundError as fnfe:
             print(f"File error: {fnfe}")
