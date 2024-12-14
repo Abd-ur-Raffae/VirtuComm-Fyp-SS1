@@ -1,5 +1,6 @@
 from gradio_client import Client
 import whisper
+import os
 
 class AppResources:
     def __init__(self):
@@ -23,6 +24,6 @@ class AppResources:
     def get_whisper_model(self):
         return self.whisper_model
 
-
-# Create a global instance to be used across the app
-resources = AppResources()
+if os.environ.get("RUN_MAIN") == "true":
+    # Create a global instance to be used across the app
+    resources = AppResources()

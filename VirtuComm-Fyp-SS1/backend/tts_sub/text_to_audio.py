@@ -38,7 +38,7 @@ def generate_audio_for_sentence(speaker, line_text, i, output_dir):
             return None
 
         # Check if the generated file exists
-        retries = 3
+        retries = 5
         for _ in range(retries):
             if os.path.exists(generated_file):
                 shutil.move(generated_file, temp_file)
@@ -52,7 +52,6 @@ def generate_audio_for_sentence(speaker, line_text, i, output_dir):
     except Exception as e:
         print(f"Error generating audio for {speaker}: {e}")
     return None
-
 
 def generate_audio_from_text(text, output_path="final_conversation_withAPI.wav"):
     """
@@ -68,6 +67,25 @@ def generate_audio_from_text(text, output_path="final_conversation_withAPI.wav")
 
     metadata = []  # To store speaker, text, and file info
     failed_lines = []  # To log failed lines
+
+    def retry_failed_lines(failed_lines, output_dir):
+        """
+        Retry generating audio for failed lines.
+        """
+        retries_metadata = []
+        for speaker, line_text, i in failed_lines:
+            print(f"Retrying failed line {i}: {speaker}: {line_text}")
+            result = generate_audio_for_sentence(speaker, line_text, i, output_dir)
+            if result:
+                retries_metadata.append({
+                    "file": result,
+                    "speaker": speaker,
+                    "text": line_text,
+                    "index": i
+                })
+            else:
+                print(f"Retry failed again for line {i}: {speaker}: {line_text}")
+        return retries_metadata
 
     # Create a thread pool executor for parallel processing
     with ThreadPoolExecutor() as executor:
@@ -94,6 +112,11 @@ def generate_audio_from_text(text, output_path="final_conversation_withAPI.wav")
                 print(f"Error processing a future for line {i}: {e}")
                 failed_lines.append((speaker, line_text, i))
 
+    # Retry for failed lines
+    if failed_lines:
+        retry_metadata = retry_failed_lines(failed_lines, output_dir)
+        metadata.extend(retry_metadata)
+
     # Ensure metadata is sorted by index
     metadata.sort(key=lambda x: x["index"])
 
@@ -113,7 +136,7 @@ def generate_audio_from_text(text, output_path="final_conversation_withAPI.wav")
         print(f"Error exporting final audio: {e}")
 
     if failed_lines:
-        print("The following lines failed to generate audio:")
+        print("The following lines failed even after retries:")
         for speaker, line_text, i in failed_lines:
             print(f"Line {i}: {speaker}: {line_text}")
 
