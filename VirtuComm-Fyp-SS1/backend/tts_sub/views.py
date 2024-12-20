@@ -34,7 +34,7 @@ def text_to_audio(request):
                 print(f"Generated dialogue: {text}")
 
             # Generate audio and metadata
-            output_audio_path = "tts_sub/final_conversation.wav"
+            output_audio_path = "media/final_conversation.wav"
             metadata = generate_audio_from_text(text, output_path=output_audio_path)
 
             # Verify the audio file exists
@@ -46,7 +46,7 @@ def text_to_audio(request):
             audio.export(output_audio_path, format="wav", parameters=["-ar", "22050"])
 
             # Transcribe audio and generate JSON
-            transcription_path = "tts_sub/output_transcription.json"
+            transcription_path = "media/output_transcription.json"
             audio_to_json(output_audio_path, metadata, resources.get_whisper_model(), transcription_path)
 
             return Response({
