@@ -85,6 +85,9 @@ export function Avatar(props) {
     };
   }, [animation, actions]);
 
+  console.log(nodes.Wolf3D_Head.morphTargetDictionary);
+  console.log(nodes.Wolf3D_Teeth.morphTargetDictionary);
+
   return (
     <group {...props} dispose={null} ref={group}>
       <primitive object={nodes.Hips} />

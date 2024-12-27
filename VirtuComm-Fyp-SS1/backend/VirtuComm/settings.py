@@ -166,3 +166,7 @@ LOGIN_URL = 'sign_in'
 
 # settings.py
 AUTH_USER_MODEL = 'ourApp.User'  # Replace 'your_app_name' with the actual name of your Django app
+
+
+# Rhubarb lip-sync path
+RHUBARB_PATH = os.path.join(BASE_DIR, 'Rhubarb-Lip-Sync-1.13.0-Windows', 'rhubarb')
