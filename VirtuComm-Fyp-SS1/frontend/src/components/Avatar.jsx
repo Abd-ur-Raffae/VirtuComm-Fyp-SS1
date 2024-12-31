@@ -25,25 +25,69 @@ export function Avatar(props) {
     },
   });
 
-  const audio = useMemo(() => new Audio(`/audios/${script}.mp3`), [script]);
-  const jsonFile = useLoader(THREE.FileLoader, `audios/${script}.json`);
-  const lipsync = JSON.parse(jsonFile);
+  const [jsonFile, setJsonData] = useState(null); // JSON transcription data
+  const [audio, setAudio] = useState(null); // Audio element
+  const [lipsync, setLipSyncData] = useState(null); // LipSync JSON data
 
+  const baseMediaUrl = 'http://localhost:8000/api_tts/media/';
+  const jsonFileName = 'output_transcription.json';
+  const wavFileName = 'final_conversation.wav';
+  const lipSyncFileName = 'final_conversation.json';
+
+  useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const timestamp = new Date().getTime(); // Unique identifier for cache-busting
+
+            // Fetch transcription JSON
+            const jsonResponse = await fetch(`${baseMediaUrl}${jsonFileName}?t=${timestamp}`);
+            if (!jsonResponse.ok) throw new Error('Failed to fetch JSON file');
+            const jsonData = await jsonResponse.json();
+            setJsonData(jsonData);
+
+            // Fetch LipSync JSON
+            const lipSyncResponse = await fetch(`${baseMediaUrl}${lipSyncFileName}?t=${timestamp}`);
+            if (!lipSyncResponse.ok) throw new Error('Failed to fetch LipSync JSON file');
+            const lipSyncData = await lipSyncResponse.json();
+            setLipSyncData(lipSyncData);
+
+            // Load and set WAV audio
+            const audioElement = new Audio(`${baseMediaUrl}${wavFileName}?t=${timestamp}`);
+            setAudio(audioElement);
+        } catch (error) {
+            console.error(error.message);
+        }
+    };
+
+    fetchData();
+}, []);
+
+  
+  // Morph target updates for lip-sync
   useFrame(() => {
+    if (!audio || !lipsync || !audio.currentTime) return;
+
     const currentAudioTime = audio.currentTime;
+
     Object.values(matchSound).forEach((value) => {
-      nodes.Wolf3D_Head.morphTargetInfluences[nodes.Wolf3D_Head.morphTargetDictionary[value]] = 0;
-      nodes.Wolf3D_Teeth.morphTargetInfluences[nodes.Wolf3D_Teeth.morphTargetDictionary[value]] = 0;
+      nodes.Wolf3D_Head.morphTargetInfluences[
+        nodes.Wolf3D_Head.morphTargetDictionary[value]
+      ] = 0;
+      nodes.Wolf3D_Teeth.morphTargetInfluences[
+        nodes.Wolf3D_Teeth.morphTargetDictionary[value]
+      ] = 0;
     });
-    for (let i = 0; i < lipsync.mouthCues.length; i++) {
-      const mouthCue = lipsync.mouthCues[i];
+
+    lipsync.mouthCues.forEach((mouthCue) => {
       if (currentAudioTime >= mouthCue.start && currentAudioTime <= mouthCue.end) {
-        console.log(mouthCue.value);
-        nodes.Wolf3D_Head.morphTargetInfluences[nodes.Wolf3D_Head.morphTargetDictionary[matchSound[mouthCue.value]]] = 1;
-        nodes.Wolf3D_Teeth.morphTargetInfluences[nodes.Wolf3D_Teeth.morphTargetDictionary[matchSound[mouthCue.value]]] = 1;
-        break;
+        nodes.Wolf3D_Head.morphTargetInfluences[
+          nodes.Wolf3D_Head.morphTargetDictionary[matchSound[mouthCue.value]]
+        ] = 1;
+        nodes.Wolf3D_Teeth.morphTargetInfluences[
+          nodes.Wolf3D_Teeth.morphTargetDictionary[matchSound[mouthCue.value]]
+        ] = 1;
       }
-    }
+    });
   });
 
   const { nodes, materials } = useGLTF('/models/me.glb');
@@ -59,23 +103,26 @@ export function Avatar(props) {
 
   useEffect(() => {
     const handlePlay = () => {
-      if (playAudio) {
-        audio.play();
-        setAnimation('Talk');
-      } else {
-        audio.pause();
-        setAnimation('Idle');
-      }
+        if (audio) { // Check if audio is defined
+            if (playAudio) {
+                audio.play();
+                setAnimation('Talk');
+            } else {
+                audio.pause();
+                setAnimation('Idle');
+            }
+        }
     };
-
     handlePlay();
-
-    
     return () => {
-      audio.pause();
-      setAnimation('Idle');
+        if (audio) {
+            audio.pause(); // Ensure cleanup doesn't error out
+        }
+        setAnimation('Idle');
     };
   }, [playAudio, script, audio, actions]);
+
+
 
   useEffect(() => {
     actions[animation].reset().fadeIn(0.5).play();

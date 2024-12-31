@@ -53,7 +53,7 @@ def text_to_audio(request):
                 "message": "Pipeline executed successfully",
                 "audio_path": output_audio_path,
                 "transcription_path": transcription_path,
-            })
+            }, status=201)
         except FileNotFoundError as fnfe:
             print(f"File error: {fnfe}")
             return Response({"error": str(fnfe)}, status=500)

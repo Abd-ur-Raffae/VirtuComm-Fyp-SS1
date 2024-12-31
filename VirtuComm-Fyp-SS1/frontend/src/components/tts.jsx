@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const User_tts = () => {
-    const [formData, setFormData] = useState({
-        text: '',
-        
-    });
-
+    const [formData, setFormData] = useState({ text: '' });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [csrfToken, setCsrfToken] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [fadeOut, setFadeOut] = useState(false); // To trigger the fade-out animation
 
     // Fetch CSRF token on component mount
     useEffect(() => {
@@ -30,66 +28,60 @@ const User_tts = () => {
         setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
-
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    e.preventDefault();
+    setError('');
+    setFadeOut(true); // Trigger fade-out animation
+    setLoading(true); // Show loading screen
 
-        try {
-            const response = await axios.post('http://localhost:8000/api_tts/TextToAudio/', formData, {
-                withCredentials: true,
-                headers: {
-                    'X-CSRFToken': csrfToken,  // Include CSRF token in the headers
-                },
-            });
-        } catch(error) {
-        console.log('Ghar jao')
+    try {
+        console.log('Submitting form data:', formData);
+        const response = await axios.post('http://localhost:8000/api_tts/TextToAudio/', formData, {
+            withCredentials: true,
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+        });
+        console.log('Response:', response);
+        if (response.status === 201) {
+            setSuccess('Text converted to audio successfully!');
+        } else {
+            console.error('Unexpected response status:', response.status);
+            setError('Something went wrong. Please try again.');
+        }
+    } catch (error) {
+        console.error('Submit Error:', error.response || error.message);
+        setError('An error occurred while submitting the form.');
+    } finally {
+        setTimeout(() => setLoading(false), 20000); // Simulate 20 seconds of loading
     }
-
-
-        // try {
-        //     const response = await axios.post('http://localhost:8000/api_tts/TextToAudio/', formData, {
-        //         withCredentials: true,
-        //         headers: {
-        //             'X-CSRFToken': csrfToken,  // Include CSRF token in the headers
-        //         },
-        //     });
-
-        //     if (response.status === 201) {
-        //         console.log('User registered and logged in:', response.data);
-        //         navigate('/home'); 
-        //     }
-        // } catch (error) {
-        //     if (error.response && error.response.data) {
-        //         setError(error.response.data.error || 'Registration failed. Please try again.');
-        //         console.error('Registration error:', error.response.data);
-        //     } else {
-        //         setError('Network error. Please try again later.');
-        //         console.error('Network error:', error);
-        //     }
-        // }
 };
+
 
     return (
         <div className="container">
-            <link rel="stylesheet" href="/css/RegisterPage.css" />
-            <h2>Text</h2>
+            <link rel="stylesheet" href="/css/User_tts.css" />
+            <h2>Text-to-Speech</h2>
             {error && <p className="error">{error}</p>}
             {success && <p className="success">{success}</p>}
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="text">Text:</label>
-                <input
-                    type="text"
-                    name="text"
-                    value={formData.text}
-                    onChange={handleChange}
-                    required
-                />
-                <button type="submit">Submit</button>
-            </form>
+            {!loading && (
+                <form className={fadeOut ? 'fade-out' : ''} onSubmit={handleSubmit}>
+                    <label htmlFor="text">Text:</label>
+                    <input
+                        type="text"
+                        name="text"
+                        value={formData.text}
+                        onChange={handleChange}
+                        required
+                    />
+                    <button type="submit">Submit</button>
+                </form>
+            )}
+            {loading && (
+                <div className="loading-circle"></div>
+            )}
         </div>
     );
 };
-
 
 export default User_tts;

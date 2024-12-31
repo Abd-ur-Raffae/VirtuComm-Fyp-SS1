@@ -26,29 +26,32 @@ export function Avatar({ onComplete, isListening, dialogue, ...props }) {
   // Fetch JSON and WAV files
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        // Fetch transcription JSON
-        const jsonResponse = await fetch(`${baseMediaUrl}${jsonFileName}`);
-        if (!jsonResponse.ok) throw new Error('Failed to fetch JSON file');
-        const jsonData = await jsonResponse.json();
-        setJsonData(jsonData);
+        try {
+            const timestamp = new Date().getTime(); // Unique identifier for cache-busting
 
-        // Fetch LipSync JSON
-        const lipSyncResponse = await fetch(`${baseMediaUrl}${lipSyncFileName}`);
-        if (!lipSyncResponse.ok) throw new Error('Failed to fetch LipSync JSON file');
-        const lipSyncData = await lipSyncResponse.json();
-        setLipSyncData(lipSyncData);
+            // Fetch transcription JSON
+            const jsonResponse = await fetch(`${baseMediaUrl}${jsonFileName}?t=${timestamp}`);
+            if (!jsonResponse.ok) throw new Error('Failed to fetch JSON file');
+            const jsonData = await jsonResponse.json();
+            setJsonData(jsonData);
 
-        // Load and set WAV audio
-        const audioElement = new Audio(`${baseMediaUrl}${wavFileName}`);
-        setAudio(audioElement);
-      } catch (error) {
-        console.error(error.message);
-      }
+            // Fetch LipSync JSON
+            const lipSyncResponse = await fetch(`${baseMediaUrl}${lipSyncFileName}?t=${timestamp}`);
+            if (!lipSyncResponse.ok) throw new Error('Failed to fetch LipSync JSON file');
+            const lipSyncData = await lipSyncResponse.json();
+            setLipSyncData(lipSyncData);
+
+            // Load and set WAV audio
+            const audioElement = new Audio(`${baseMediaUrl}${wavFileName}?t=${timestamp}`);
+            setAudio(audioElement);
+        } catch (error) {
+            console.error(error.message);
+        }
     };
 
     fetchData();
-  }, []);
+}, []);
+
 
   const matchSound = {
     A: 'viseme_PP',
