@@ -136,7 +136,10 @@ export function Avatar(props) {
   console.log(nodes.Wolf3D_Teeth.morphTargetDictionary);
 
   return (
-    <group {...props} dispose={null} ref={group}>
+    <group {...props} 
+    scale={.95}
+    position={[0,.75,5]}
+    dispose={null} ref={group}>
       <primitive object={nodes.Hips} />
       <skinnedMesh geometry={nodes.Wolf3D_Hair.geometry} material={materials.Wolf3D_Hair} skeleton={nodes.Wolf3D_Hair.skeleton} />
       <skinnedMesh geometry={nodes.Wolf3D_Body.geometry} material={materials.Wolf3D_Body} skeleton={nodes.Wolf3D_Body.skeleton} />

@@ -29,7 +29,7 @@ function App() {
           <Route path="/stage1_2" element={<Stage1_2 />} />
           <Route path="/stage1_3" element={<Stage1_3 />} />
           <Route path='/tts' element={<User_tts />} />
-          <Route path='/ghar' element={<FetchJsonAndWav />} />
+          <Route path='/subtitles_output' element={<FetchJsonAndWav />} />
         </Routes>
       </div>
     </Router>
