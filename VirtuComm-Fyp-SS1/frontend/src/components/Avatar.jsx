@@ -4,6 +4,8 @@ import { useAnimations, useFBX, useGLTF } from '@react-three/drei';
 import { SkeletonUtils } from 'three-stdlib';
 import { useControls } from 'leva';
 import * as THREE from 'three';
+import { useAudio } from './AudioContext';
+
 
 const matchSound = {
   A: 'viseme_PP',
@@ -18,15 +20,15 @@ const matchSound = {
 };
 
 export function Avatar(props) {
-  const { playAudio, script } = useControls({
+  const{audioPlaying ,setAudioPlaying,audioRef,setSubtitleData} = useAudio();
+  const{ playAudio, script } = useControls({
     playAudio: false,
     script: {
       value: 'Greetings'
     },
   });
 
-  const [jsonFile, setJsonData] = useState(null); // JSON transcription data
-  const [audio, setAudio] = useState(null); // Audio element
+  
   const [lipsync, setLipSyncData] = useState(null); // LipSync JSON data
 
   const baseMediaUrl = 'http://localhost:8000/api_tts/media/';
@@ -36,38 +38,31 @@ export function Avatar(props) {
 
   useEffect(() => {
     const fetchData = async () => {
-        try {
-            const timestamp = new Date().getTime(); // Unique identifier for cache-busting
+      try {
+        const timestamp = new Date().getTime(); // Cache-busting
+        // Load LipSync JSON
+        const lipSyncResponse = await fetch(`${baseMediaUrl}${lipSyncFileName}?t=${timestamp}`);
+        if (!lipSyncResponse.ok) throw new Error('Failed to fetch LipSync JSON');
+        const lipSyncData = await lipSyncResponse.json();
+        setLipSyncData(lipSyncData);
 
-            // Fetch transcription JSON
-            const jsonResponse = await fetch(`${baseMediaUrl}${jsonFileName}?t=${timestamp}`);
-            if (!jsonResponse.ok) throw new Error('Failed to fetch JSON file');
-            const jsonData = await jsonResponse.json();
-            setJsonData(jsonData);
-
-            // Fetch LipSync JSON
-            const lipSyncResponse = await fetch(`${baseMediaUrl}${lipSyncFileName}?t=${timestamp}`);
-            if (!lipSyncResponse.ok) throw new Error('Failed to fetch LipSync JSON file');
-            const lipSyncData = await lipSyncResponse.json();
-            setLipSyncData(lipSyncData);
-
-            // Load and set WAV audio
-            const audioElement = new Audio(`${baseMediaUrl}${wavFileName}?t=${timestamp}`);
-            setAudio(audioElement);
-        } catch (error) {
-            console.error(error.message);
+        // Set WAV audio to shared audioRef
+        if (audioRef.current === null) {
+          audioRef.current = new Audio(`${baseMediaUrl}${wavFileName}?t=${timestamp}`);
         }
+      } catch (error) {
+        console.error(error.message);
+      }
     };
 
     fetchData();
-}, []);
-
+  }, [audioRef]);
   
   // Morph target updates for lip-sync
   useFrame(() => {
-    if (!audio || !lipsync || !audio.currentTime) return;
+    if (!audioRef.current || !lipsync || !audioRef.current.currentTime) return;
 
-    const currentAudioTime = audio.currentTime;
+    const currentAudioTime = audioRef.current.currentTime;
 
     Object.values(matchSound).forEach((value) => {
       nodes.Wolf3D_Head.morphTargetInfluences[
@@ -102,25 +97,28 @@ export function Avatar(props) {
   const { actions } = useAnimations([IdleAnim[0], TalkAnim[0]], group);
 
   useEffect(() => {
-    const handlePlay = () => {
-        if (audio) { // Check if audio is defined
+    const handlePlayPause = () => {
+        if (audioRef.current) { // Check if audio is defined
             if (playAudio) {
-                audio.play();
+                audioRef.current.play();
+                setAudioPlaying(true);
                 setAnimation('Talk');
             } else {
-                audio.pause();
+                audioRef.current.pause();
+                setAudioPlaying(false);
                 setAnimation('Idle');
             }
         }
     };
-    handlePlay();
+    handlePlayPause();
     return () => {
-        if (audio) {
-            audio.pause(); // Ensure cleanup doesn't error out
+        if (audioRef.current) {
+            audioRef.current.pause();
+            setAudioPlaying(false); // Ensure cleanup doesn't error out
         }
         setAnimation('Idle');
     };
-  }, [playAudio, script, audio, actions]);
+  }, [playAudio, audioRef, setAudioPlaying, actions]);
 
 
 
@@ -132,9 +130,7 @@ export function Avatar(props) {
     };
   }, [animation, actions]);
 
-  console.log(nodes.Wolf3D_Head.morphTargetDictionary);
-  console.log(nodes.Wolf3D_Teeth.morphTargetDictionary);
-
+  
   return (
     <group {...props} 
     scale={.95}

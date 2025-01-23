@@ -1,53 +1,53 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useAudio } from './AudioContext';
 
 const FetchJsonAndWav = () => {
-  const [jsonData, setJsonData] = useState(null); // State to hold JSON data
-  const [wavFileUrl, setWavFileUrl] = useState(""); // State for WAV file URL
-  const [error, setError] = useState(null); // Error handling
-  const [currentSegment, setCurrentSegment] = useState(null); // Current segment being displayed
-  const [currentWordIndex, setCurrentWordIndex] = useState(-1); // Index of the current word
-  const [isPlaying, setIsPlaying] = useState(false); // Track if audio is playing
+  const { audioPlaying,audioRef, subtitleData, setSubtitleData } = useAudio(); 
+   //const [jsonData, setJsonData] = useState(null);
+ // const [error, setError] = useState(null); 
+  const [currentSegment, setCurrentSegment] = useState(null);
+  const [currentWordIndex, setCurrentWordIndex] = useState(-1); 
+  //const [isPlaying, setIsPlaying] = useState(false); 
 
-  const baseMediaUrl = "http://localhost:8000/api_tts/media/"; // Base URL for media files
-  const jsonFileName = "output_transcription.json"; // Name of the JSON file
-  const wavFileName = "final_conversation.wav"; // Name of the WAV file
+  // const baseMediaUrl = "http://localhost:8000/api_tts/media/"; 
+  // const jsonFileName = "output_transcription.json";
+  // const wavFileName = "final_conversation.wav"; 
 
-  const audioRef = useRef(null); // Ref for the audio element
-  const subtitleIntervalRef = useRef(null); // Ref for managing intervals
+   //const audioRef = useRef(null); 
+   //const subtitleIntervalRef = useRef(null); 
 
   useEffect(() => {
-    const fetchJsonAndWav = async () => {
+    const fetchData = async () => {
       try {
-        // Fetch JSON file
-        const jsonResponse = await fetch(`${baseMediaUrl}${jsonFileName}`);
+        const timestamp = new Date().getTime();
+        const jsonResponse = await fetch(`http://localhost:8000/api_tts/media/output_transcription.json?timestamp=${timestamp}`);
+        //const jsonResponse = await fetch(`${baseMediaUrl}${jsonFileName}`);
         if (!jsonResponse.ok) {
           throw new Error("Failed to fetch JSON file");
         }
         const jsonData = await jsonResponse.json();
-        setJsonData(jsonData);
+        setSubtitleData(jsonData);
 
-        // Set WAV file URL directly
-        setWavFileUrl(`${baseMediaUrl}${wavFileName}`);
-      } catch (err) {
-        setError(err.message);
+      //  setWavFileUrl(`${baseMediaUrl}${wavFileName}`);
+      } catch (error) {
+        console.error(error.message);
       }
     };
 
-    fetchJsonAndWav();
-  }, []);
+    fetchData();
+  }, [setSubtitleData]);
+  let subtitleInterval = null;
 
   const updateSubtitles = () => {
-    const audioElement = audioRef.current;
-    const currentTime = audioElement.currentTime;
+    // const audioElement = audioRef.current;
+    // const currentTime = audioElement.currentTime;
 
-    if (!jsonData || !jsonData.segments) return;
-
-    // Find the current segment
-    for (const segment of jsonData.segments) {
+    if (!audioRef.current || !subtitleData || !subtitleData.segments) return;
+const currentTime = audioRef.current.currentTime;
+    for (const segment of subtitleData.segments) {
       if (currentTime >= segment.start_time && currentTime <= segment.end_time) {
         setCurrentSegment(segment);
 
-        // Find the currently spoken word within the segment
         const wordIndex = segment.words.findIndex(
           (word) =>
             currentTime >= word.start_time && currentTime <= word.end_time
@@ -59,47 +59,51 @@ const FetchJsonAndWav = () => {
     setCurrentSegment(null); // Clear segment when no match
     setCurrentWordIndex(-1); // Reset word index
   };
+if (audioPlaying) {
+    subtitleInterval = setInterval(updateSubtitles, 100);
+  } else if (subtitleInterval) {
+    clearInterval(subtitleInterval);
+  }
+  // const handlePlayPause = () => {
+  //   const audioElement = audioRef.current;
 
-  const handlePlayPause = () => {
-    const audioElement = audioRef.current;
+  //   if (!isPlaying) {
+  //     // Play audio
+  //     audioElement.play();
+  //     if (!subtitleIntervalRef.current) {
+  //       subtitleIntervalRef.current = setInterval(updateSubtitles, 100);
+  //     }
+  //     setIsPlaying(true);
+  //   } else {
+  //     // Pause audio
+  //     audioElement.pause();
+  //     clearInterval(subtitleIntervalRef.current);
+  //     subtitleIntervalRef.current = null;
+  //     setIsPlaying(false);
+  //   }
+  // };
 
-    if (!isPlaying) {
-      // Play audio
-      audioElement.play();
-      if (!subtitleIntervalRef.current) {
-        subtitleIntervalRef.current = setInterval(updateSubtitles, 100);
-      }
-      setIsPlaying(true);
-    } else {
-      // Pause audio
-      audioElement.pause();
-      clearInterval(subtitleIntervalRef.current);
-      subtitleIntervalRef.current = null;
-      setIsPlaying(false);
-    }
-  };
+  // const handleReset = () => {
+  //   const audioElement = audioRef.current;
 
-  const handleReset = () => {
-    const audioElement = audioRef.current;
-
-    // Stop audio and reset
-    audioElement.pause();
-    audioElement.currentTime = 0;
-    setCurrentSegment(null);
-    setCurrentWordIndex(-1);
-    clearInterval(subtitleIntervalRef.current);
-    subtitleIntervalRef.current = null;
-    setIsPlaying(false);
-  };
+  //   // Stop audio and reset
+  //   audioElement.pause();
+  //   audioElement.currentTime = 0;
+  //   setCurrentSegment(null);
+  //   setCurrentWordIndex(-1);
+  //   clearInterval(subtitleIntervalRef.current);
+  //   subtitleIntervalRef.current = null;
+  //   setIsPlaying(false);
+  // };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1>Audio Player with Synchronized Subtitles</h1>
+     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      
 
-      {/* Display Errors */}
+      {/* Display Errors
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
-      {/* Play/Pause Toggle Button and Reset Button */}
+     
       <div style={{ marginBottom: "20px" }}>
         <button
           onClick={handlePlayPause}
@@ -120,15 +124,15 @@ const FetchJsonAndWav = () => {
         >
           Reset
         </button>
-      </div>
+      </div> */}
 
-      {/* Hidden Audio Player */}
+      {/* Hidden Audio Player
       {wavFileUrl && (
         <audio ref={audioRef} style={{ display: "none" }}>
           <source src={wavFileUrl} type="audio/wav" />
           Your browser does not support the audio element.
         </audio>
-      )}
+      )} */}
 
       {/* Display Synchronized Subtitles */}
       <div

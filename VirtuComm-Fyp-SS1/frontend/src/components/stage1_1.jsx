@@ -2,13 +2,14 @@ import { Canvas } from "@react-three/fiber";
 import { Experience } from "./Experience";
 import React from 'react';
 import FetchJsonAndWav from './ghar.jsx';
+import { AudioProvider } from "./AudioContext.js";
 
 const Project1_1 = () => {
     return (
-        <>
+        
        
         <div style={styles.container}>
-        
+        <AudioProvider>
             
             <div style={styles.canvasContainer}>
            
@@ -22,31 +23,32 @@ const Project1_1 = () => {
                 <FetchJsonAndWav />
 
             </div>
+            </AudioProvider>
         </div>
+       
         
-        </>
     );
 };
 
 const styles = {
     container: {
         display: 'flex',
-        flexDirection: 'column', // Stack items vertically
+        flexDirection: 'column', 
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh',
-        width: '100vw', // Full screen width
+        height: '90vh',
+        width: '100vw',
       marginTop: '20px',
     },
     canvasContainer: {
        
-        width: '100vw', 
-        height: '100vh', 
+        width: '100%', 
+        height: '90%', 
         flex: '0 0 auto', 
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        border: '2px solid #ccc', // Optional debugging
+        border: '2px solid #ccc',
     },
     section: {
         
