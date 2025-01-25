@@ -1,40 +1,62 @@
 import { Canvas } from "@react-three/fiber";
 import { Experience } from "./Experience";
 import React from 'react';
+import FetchJsonAndWav from './ghar.jsx';
+import { AudioProvider } from "./AudioContext.js";
 
 const Project1_1 = () => {
     return (
-<div style={styles.container}>
-                <div style={styles.canvasContainer}>
-                    <Canvas shadows camera={{ position: [0, 3, 8], fov: 35 }}>
-                        <color attach="background" args={["#ececec"]} />
-                        <Experience />
-                    </Canvas>
-                </div>
+        
+       
+        <div style={styles.container}>
+        <AudioProvider>
+            
+            <div style={styles.canvasContainer}>
+           
+                <Canvas shadows camera={{ position: [0, 3, 8], fov: 35 }}>
+                    <color attach="background" args={["#ececec"]} />
+                    <Experience />
+                </Canvas>
             </div>
+          
+            <div style={styles.section}>
+                <FetchJsonAndWav />
+
+            </div>
+            </AudioProvider>
+        </div>
+       
+        
     );
 };
 
-
 const styles = {
-    header: {
-        backgroundColor: '#333',
-        color: '#fff',
-        padding: '10px 20px',
-        textAlign: 'center',
-    },
     container: {
         display: 'flex',
+        flexDirection: 'column', 
         justifyContent: 'center',
         alignItems: 'center',
-        height: '80vh', // Reduced height so footer is visible
+        height: '90vh',
+        width: '100vw',
+      marginTop: '20px',
     },
     canvasContainer: {
-        width: '100%',
-        height: '160%', // Keep this to adjust canvas size
+       
+        width: '100%', 
+        height: '90%', 
+        flex: '0 0 auto', 
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        border: '2px solid #ccc',
+    },
+    section: {
+        
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '10px',
     },
 };
 

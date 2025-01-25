@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 import 'swiper/css';
 import MySwiper from './swiper';
+import Navbar from './navbar';
 
 
 class Index extends Component {
@@ -110,31 +111,8 @@ class Index extends Component {
           </div> */}
           {/* Spinner End */}
 
-          {/* Navbar Start */}
-          <div className="container-fluid sticky-top">
-            <div className="container">
-              <nav className="navbar navbar-expand-lg navbar-dark p-0">
-                <a href="/home" className="navbar-brand">
-                  <h1 className="text-white">Virtu<span className="text-dark">Comm</span></h1>
-                </a>
-                <button title="ghar" type="button" className="navbar-toggler ms-auto me-0" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                  <span className="navbar-toggler-icon" />
-                </button>
-                <div className="collapse navbar-collapse" id="navbarCollapse">
-                  <div className="navbar-nav ms-auto">
-                    <a href="/home" className="nav-item nav-link active">Home</a>
-                    <a href="/about" className="nav-item nav-link">About</a>
-                    {/* <a href="/projects" className="nav-item nav-link">Projects</a> */}
-                    <a href="/contact" className="nav-item nav-link">Contact</a>
-                    <button onClick={this.logoutUser} className="nav-item nav-button">Sign Out</button>
-
-                  </div>
-                  <butaton type="button" className="btn text-white p-0 d-none d-lg-block" data-bs-toggle="modal" data-bs-target="#searchModal"><i className="fa fa-search" /></butaton>
-                </div>
-              </nav>
-            </div>
-          </div>
-          {/* Navbar End */}
+  
+       <Navbar />
 
           {/* Hero Start */}
           <div className="container-fluid pt-5 bg-primary hero-header mb-5">
@@ -182,27 +160,7 @@ class Index extends Component {
               </div>
               <div className="row g-4">
                 <MySwiper />
-                {/* Part 2 start
-                <div className="col-lg-2 wow fadeIn" data-wow-delay="0.3s">
-                  <div className="case-item position-relative overflow-hidden rounded mb-2">
-                  </div>
-                </div>
-                <div className="col-lg-8 wow fadeIn" data-wow-delay="0.5s">
-                  <div className="case-item position-relative overflow-hidden rounded mb-2">
-                    <img className="img-fluid" src="/img/banda.png" alt="" />
-                    <a className="case-overlay text-decoration-none" href>
-                      <small>Phase 1.2</small>
-                      <h5 className="lh-base text-white mb-3">Basic Dual 3D Model 
-                      </h5>
-                      <a className="btn btn-square btn-primary" href='/projects'><i className="fa fa-arrow-right" /></a>
-                    </a>
-                  </div>
-                </div>
-                <div className="col-lg-2 wow fadeIn" data-wow-delay="0.7s">
-                  <div className="case-item position-relative overflow-hidden rounded mb-2">
-                  </div>
-                </div> */}
-                {/* Part 2 end */}
+               
               </div>
             </div>
           </div>

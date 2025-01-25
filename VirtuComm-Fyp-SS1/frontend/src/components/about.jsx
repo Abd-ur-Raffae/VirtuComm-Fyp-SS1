@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Navbar from './navbar';
 
 
 class About extends Component{
@@ -43,30 +44,7 @@ class About extends Component{
           </div> */}
           {/* Spinner End */}
 
-          {/* Navbar Start */}
-          <div className="container-fluid sticky-top">
-            <div className="container">
-              <nav className="navbar navbar-expand-lg navbar-dark p-0">
-                <a href="./components/index.jsx" className="navbar-brand">
-                  <h1 className="text-white">Virtu<span className="text-dark">Comm</span></h1>
-                </a>
-                <button type="button" className="navbar-toggler ms-auto me-0" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                  <span className="navbar-toggler-icon" />
-                </button>
-                <div className="collapse navbar-collapse" id="navbarCollapse">
-                  <div className="navbar-nav ms-auto">
-                    <a href="/home" className="nav-item nav-link">Home</a>
-                    <a href="/about" className="nav-item nav-link active">About</a>
-                    <a href="/projects" className="nav-item nav-link">Projects</a>
-                    <a href="/contact" className="nav-item nav-link">Contact</a>
-                  </div>
-                  <button type="button" className="btn text-white p-0 d-none d-lg-block" data-bs-toggle="modal" data-bs-target="#searchModal"><i className="fa fa-search" /></button>
-                </div>
-              </nav>
-            </div>
-          </div>
-          {/* Navbar End */}
-
+          <Navbar />
           {/* Hero Start */}
           <div className="container-fluid pt-5 bg-primary hero-header">
             <div className="container pt-5">
