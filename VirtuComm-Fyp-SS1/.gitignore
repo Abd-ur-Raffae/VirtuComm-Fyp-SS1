@@ -1,7 +1,6 @@
 node_modules
 config.yaml
 model.onnx
-_pycache_
-final_conversation.wav
-output_transcription.json
+__pycache__
 media
+Rhubarb-Lip-Sync-1.13.0-Windows

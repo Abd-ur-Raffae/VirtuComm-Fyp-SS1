@@ -1,8 +1,9 @@
 import { Canvas } from "@react-three/fiber";
 import { Experience } from "./Experience";
 import React from 'react';
-import FetchJsonAndWav from './ghar.jsx';
+import { FetchJsonAndWavSingle } from './ghar.jsx';
 import { AudioProvider } from "./AudioContext.js";
+import { Single_user_tts } from './tts.jsx';
 
 const Project1_1 = () => {
     return (
@@ -20,8 +21,8 @@ const Project1_1 = () => {
             </div>
           
             <div style={styles.section}>
-                <FetchJsonAndWav />
-
+                <FetchJsonAndWavSingle />
+                <Single_user_tts />
             </div>
             </AudioProvider>
         </div>

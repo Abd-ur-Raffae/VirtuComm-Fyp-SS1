@@ -32,9 +32,9 @@ export function Avatar(props) {
   const [lipsync, setLipSyncData] = useState(null); // LipSync JSON data
 
   const baseMediaUrl = 'http://localhost:8000/api_tts/media/';
-  const jsonFileName = 'output_transcription.json';
-  const wavFileName = 'final_conversation.wav';
-  const lipSyncFileName = 'final_conversation.json';
+  const jsonFileName = 'output_transcription_single.json';
+  const wavFileName = 'final_single.wav';
+  const lipSyncFileName = 'final_single.json';
 
   useEffect(() => {
     const fetchData = async () => {

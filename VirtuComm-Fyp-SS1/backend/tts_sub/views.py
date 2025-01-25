@@ -4,6 +4,8 @@ from tts_sub.apps import resources  # Import preloaded resources
 from tts_sub.audio_to_json import audio_to_json  # Import transcription function
 from .text_to_audio import generate_audio_from_text  # Import audio generation pipeline
 from pydub import AudioSegment
+from .text_to_audio_single import generate_audio_from_plain_text
+from .audio_to_json_single import audio_to_json_single
 import os
 import time
 
@@ -48,6 +50,58 @@ def text_to_audio(request):
             # Transcribe audio and generate JSON
             transcription_path = "media/output_transcription.json"
             audio_to_json(output_audio_path, metadata, resources.get_whisper_model(), transcription_path)
+
+            return Response({
+                "message": "Pipeline executed successfully",
+                "audio_path": output_audio_path,
+                "transcription_path": transcription_path,
+            }, status=201)
+        except FileNotFoundError as fnfe:
+            print(f"File error: {fnfe}")
+            return Response({"error": str(fnfe)}, status=500)
+        except Exception as e:
+            print(f"Error in pipeline: {e}")
+            return Response({"error": str(e)}, status=500)
+        
+
+@api_view(['POST'])
+def single_model(request):
+    if request.method == 'POST':
+        try:
+            # Extract text input from the request
+            text = request.data.get("text", "")
+            if not text:
+                return Response({"error": "No text provided"}, status=400)
+
+            # Check if input text is a topic or preformatted dialogue
+            if "[" not in text or "]" not in text:
+                convo_client = resources.get_convo_client()
+                result = convo_client.predict(
+                    message=text,
+                    system_message="""You are a friendly chatbot named Smith which only exlpains shortly. You reply humanly""",
+                    max_tokens=512,
+                    temperature=0.7,
+                    top_p=0.95,
+                    api_name="/chat"
+                )
+                text = result.strip()
+                print(f"Generated dialogue: {text}")
+
+            # Generate audio
+            output_audio_path = "media/final_single.wav"
+            metadata = generate_audio_from_plain_text(text, output_path=output_audio_path)
+
+            # Verify the audio file exists
+            if not os.path.exists(output_audio_path):
+                raise FileNotFoundError(f"Audio file not found: {output_audio_path}")
+
+            # Ensure audio format compatibility
+            audio = AudioSegment.from_file(output_audio_path)
+            audio.export(output_audio_path, format="wav", parameters=["-ar", "22050"])
+
+            # Transcribe audio and generate JSON
+            transcription_path = "media/output_transcription_single.json"
+            audio_to_json_single(output_audio_path, resources.get_whisper_model(), transcription_path)
 
             return Response({
                 "message": "Pipeline executed successfully",
