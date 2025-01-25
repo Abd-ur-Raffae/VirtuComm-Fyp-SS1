@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Footer from './footer';
 
 export const User_tts = () => {
     const [formData, setFormData] = useState({ text: '' });

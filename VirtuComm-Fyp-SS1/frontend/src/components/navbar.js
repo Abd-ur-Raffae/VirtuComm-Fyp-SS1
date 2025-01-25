@@ -68,20 +68,12 @@ const Navbar = () => {
           </button>
           <div className="collapse navbar-collapse" id="navbarCollapse">
             <div className="navbar-nav ms-auto">
-              <Link to="/home" className="nav-item nav-link active">Home</Link>
-              <Link to="/about" className="nav-item nav-link">About</Link>
+              <Link to="/home" className="nav-item nav-link active mt-2">Home</Link>
+              <Link to="/about" className="nav-item nav-link mt-2">About</Link>
               
-              <Link to="/contact" className="nav-item nav-link">Contact</Link>
-              <button onClick={logoutUser} className="nav-item nav-button">Sign Out</button>
+              <Link to="/contact" className="nav-item nav-link mt-2">Contact</Link>
+              <button onClick={logoutUser} className="btn btn-primary rounded-pill px-2 mb-2">Sign Out</button>
             </div>
-            <button
-              type="button"
-              className="btn text-white p-0 d-none d-lg-block"
-              data-bs-toggle="modal"
-              data-bs-target="#searchModal"
-            >
-              <i className="fa fa-search" />
-            </button>
           </div>
         </nav>
       </div>
