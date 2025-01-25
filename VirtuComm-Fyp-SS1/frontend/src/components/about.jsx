@@ -76,13 +76,14 @@ class About extends Component{
                   <nav aria-label="breadcrumb">
                     <ol className="breadcrumb justify-content-center justify-content-lg-start mb-0">
                       <li className="breadcrumb-item"><a className="text-white" href="/home">Home</a></li>
-                      <li className="breadcrumb-item"><a className="text-white" href="#">Pages</a></li>
                       <li className="breadcrumb-item text-white active" aria-current="page">About Us</li>
                     </ol>
                   </nav>
                 </div>
                 <div className="col-lg-6 align-self-end text-center text-lg-end">
-                  <img className="img-fluid" src="/img/hero-img.png" alt="" style={{maxHeight: '300px'}} />
+                  <div style={{position:'relative', }}>
+                    <img className="img-fluid" src="/img/Pi7_group.png" alt="" style={{position:'relative',top:'20px', maxHeight: '300px'}} />
+                  </div>
                 </div>
               </div>
             </div>

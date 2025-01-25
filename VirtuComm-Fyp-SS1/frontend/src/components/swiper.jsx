@@ -6,7 +6,7 @@ import 'swiper/css/navigation'; // Import Swiper navigation styles
 const MySwiper = () => {
   return (
     <Swiper
-      spaceBetween={50}
+      spaceBetween={30}
       slidesPerView={1}
       navigation={{
         prevEl: '.swiper-button-prev', // Custom previous button

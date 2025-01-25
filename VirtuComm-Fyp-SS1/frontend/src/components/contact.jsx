@@ -79,7 +79,9 @@ class Contact extends Component {
                   </nav>
                 </div>
                 <div className="col-lg-6 align-self-end text-center text-lg-end">
-                  <img className="img-fluid" src="/img/hero-img.png" alt="" style={{maxHeight: '300px'}} />
+                  <div style={{position:'relative', }}>
+                    <img className="img-fluid" src="/img/Pi7_paper-plane.png" alt="" style={{position:'relative',top:'21px', maxHeight: '310px'}} />
+                  </div>
                 </div>
               </div>
             </div>
