@@ -74,7 +74,7 @@ export const User_tts = () => {
                         onChange={handleChange}
                         required
                     />
-                    <button type="submit">Single</button>
+                    <button type="submit">Submit</button>
                 </form>
             )}
             {loading && (
