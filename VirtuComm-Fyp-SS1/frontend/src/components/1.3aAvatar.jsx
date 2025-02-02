@@ -10,11 +10,11 @@ import { DialogueManager } from './1.3avatar_manager'; // Import the DialogueMan
 export function Avatar1({ isListening, ...props }) {
   const { 
     playAudio, 
-    pauseAudio, 
+    // pauseAudio, 
     updateLipSync, 
     jsonFile, 
     audio, 
-    lipsync 
+    // lipsync 
   } = DialogueManager({ dialogue: props.dialogue, isListening, onComplete: props.onComplete });
 
   // Load model and animations
@@ -29,36 +29,52 @@ export function Avatar1({ isListening, ...props }) {
 
   const group = useRef();
   const { actions } = useAnimations([idleAnimations[0], talkingAnimations[0]], group);
+  
 
-  // Control idle and talking animations
   useEffect(() => {
     const idleAction = actions['Idle'];
     const talkingAction = actions['Talking'];
-
-    if (idleAction) {
-      idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
+  
+    if (!idleAction || !talkingAction) {
+      console.error('Actions not found:', { idleAction, talkingAction });
+      return;
     }
-
-    if (isListening && talkingAction) {
-      talkingAction.reset().play();
-    } else {
-      talkingAction?.stop();
+  
+    idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
+    talkingAction.setLoop(THREE.LoopRepeat, Infinity);
+  
+    if (playAudio && jsonFile?.segments && audio) {
+      const currentSegment = jsonFile.segments.find(segment => 
+        audio.currentTime >= segment.start_time && audio.currentTime <= segment.end_time
+      );
+  
+      console.log('Current Segment:', currentSegment);
+  
+      if (currentSegment?.speaker === 'student') {
+        idleAction.stop();
+        talkingAction.reset().fadeIn(0.2).play();
+      } else {
+        talkingAction.fadeOut(0.2);
+        idleAction.reset().fadeIn(0.2).play();
+      }
     }
-
-    return () => {
-      idleAction?.stop();
-      talkingAction?.stop();
-    };
-  }, [isListening, actions]);
-
-  // LipSync logic in useFrame
+  }, [playAudio, jsonFile, audio, actions]);
+  
   useFrame(() => {
-    if (audio && audio.currentTime !== undefined) {
-      updateLipSync(audio.currentTime, nodes);
+    if (audio && audio.currentTime !== undefined && playAudio) {
+      const currentSegment = jsonFile?.segments?.find(segment => 
+        audio?.currentTime >= segment.start_time && audio?.currentTime <= segment.end_time
+      );
+  
+      if (currentSegment?.speaker === 'student') {
+        console.log('Updating Lip Sync:', audio.currentTime);
+        updateLipSync(audio.currentTime, nodes);
+      }
     }
   });
-
-  // Play or pause audio based on playAudio
+  
+  
+  
   useEffect(() => {
     if (audio) {
       if (playAudio) {
@@ -68,6 +84,7 @@ export function Avatar1({ isListening, ...props }) {
       }
     }
   }, [playAudio, audio]);
+  
 
   return (
     <group

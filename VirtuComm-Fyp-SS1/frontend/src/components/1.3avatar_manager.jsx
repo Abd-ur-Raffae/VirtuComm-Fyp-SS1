@@ -2,10 +2,13 @@
 import { useState, useEffect, useRef } from 'react';
 
 
-export function DialogueManager({ dialogue, isListening, onComplete }) {
+export function DialogueManager({ isListening, }) {
   const [audio, setAudio] = useState(null);
   const [lipsync, setLipSyncData] = useState(null);
   const [jsonFile, setJsonData] = useState(null);
+  
+  const [avatar1Listening, setAvatar1Listening] = useState(false);
+  const [avatar2Listening, setAvatar2Listening] = useState(false);
 
   const audioElement = useRef(null);
 

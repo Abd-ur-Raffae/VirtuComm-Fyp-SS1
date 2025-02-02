@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useFrame,useGraph } from '@react-three/fiber';
+import React, { useEffect, useRef } from 'react';
+import { useFrame, useGraph } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { useAnimations, useFBX } from '@react-three/drei';
@@ -9,77 +9,84 @@ import { DialogueManager } from './1.3avatar_manager'; // Import the DialogueMan
 export function Avatar2({ dialogue, isListening, onComplete, ...props }) {
   const { 
     playAudio, 
-    pauseAudio, 
+    // pauseAudio, 
     updateLipSync, 
     jsonFile, 
     audio, 
-    lipsync 
+    // lipsync 
   } = DialogueManager({ dialogue, isListening, onComplete });
 
-  const { scene } = useGLTF('/models/model2.glb');
+  const { scene } = useGLTF('/models/chacha.glb');
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { nodes, materials } = useGraph(clone);
+  console.log("Nodes:", nodes);
+  console.log(Object.keys(nodes))
 
-  const { animations: model2_br } = useFBX('/animations/Sitting Idle.fbx');
-  model2_br[0].name = "Idle2";
-  const { animations: model2_ta } = useFBX('/animations/Sitting Talking.fbx');
-  model2_ta[0].name = "Talking2";
 
-  const group = useRef();
-  const { actions } = useAnimations([model2_br[0], model2_ta[0]], group);
-
-  const [isTalking, setIsTalking] = useState(false);
-
-  // Control animation states
-  useEffect(() => {
-    actions[model2_br[0].name].play();
-    actions[model2_br[0].name].setLoop(THREE.LoopRepeat, Infinity);
-
-    return () => {
-      actions[model2_br[0].name]?.stop();
-      actions[model2_ta[0].name]?.stop();
-    };
-  }, [actions]);
-
-  useEffect(() => {
-    if (isTalking) {
-      actions[model2_ta[0].name].play();
-      actions[model2_ta[0].name].fadeOut(0.0);
-      actions[model2_br[0].name].play();
-      setIsTalking(false);
-      if (onComplete) onComplete();
-    }
-  }, [isTalking, actions, dialogue, onComplete]);
-
-  useEffect(() => {
-    if (isListening) {
-      setIsTalking(true);
-    }
-  }, [isListening]);
-
-  // LipSync logic in useFrame
-  useFrame(() => {
-    if (audio && audio.currentTime !== undefined) {
-      updateLipSync(audio.currentTime, nodes);
-    }
-  });
-  useEffect(() => {
-    if (dialogue && dialogue.segments) {
-      // Loop through the segments
-      dialogue.segments.forEach((segment) => {
-        if (segment.speaker === 'student') {
-          setIsTalking(true);  // Trigger talking animation for student
-        }
-      });
-    }
-  }, [dialogue]);
+  const { animations: idleAnimations } = useFBX('/animations/Sitting Idle.fbx');
+  idleAnimations[0].name = 'Idle';
+  const { animations: talkingAnimations } = useFBX('/animations/Sitting Talking.fbx');
+  talkingAnimations[0].name = 'Talking';
   
 
+  const group = useRef();
+  const { actions } = useAnimations([idleAnimations[0], talkingAnimations[0]], group);
+
+  useEffect(() => {
+    const idleAction = actions['Idle'];
+    const talkingAction = actions['Talking'];
+    if (idleAction) {
+      idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
+    }
+    if (talkingAction) {
+      talkingAction.setLoop(THREE.LoopRepeat, Infinity);
+    }
+  
+    if (playAudio && jsonFile?.segments && audio) {
+      const currentSegment = jsonFile.segments.find(segment => 
+        audio.currentTime >= segment.start_time && audio.currentTime <= segment.end_time
+      );
+  
+      if (currentSegment?.speaker === 'teacher') {
+        idleAction?.stop();
+        talkingAction?.reset().play();
+      } else {
+        talkingAction?.stop();
+        idleAction?.play();
+      }
+    }
+  
+    return () => {
+      idleAction?.stop();
+      talkingAction?.stop();
+    };
+  }, [playAudio, jsonFile, audio, actions]);
+  
+  useEffect(() => {
+    if (audio) {
+      if (playAudio) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    }
+  }, [playAudio, audio]);
+  
+  useFrame(() => {
+    if (audio && audio.currentTime !== undefined && playAudio) {
+      const currentSegment = jsonFile?.segments?.find(segment => 
+        audio?.currentTime >= segment.start_time && audio?.currentTime <= segment.end_time
+      );
+  
+      if (currentSegment?.speaker === 'teacher') {
+        updateLipSync(audio.currentTime, nodes);
+      }
+    }
+  });
   return (
     <group {...props} dispose={null} ref={group} position={[1.3, -0.7, 2.6]} rotation={[0, -.4, 0]} scale={1.1}>
       <primitive object={nodes.Hips} />
       <skinnedMesh geometry={nodes.Wolf3D_Hair.geometry} material={materials.Wolf3D_Hair} skeleton={nodes.Wolf3D_Hair.skeleton} />
-      <skinnedMesh geometry={nodes.Wolf3D_Glasses.geometry} material={materials.Wolf3D_Glasses} skeleton={nodes.Wolf3D_Glasses.skeleton} />
       <skinnedMesh geometry={nodes.Wolf3D_Outfit_Top.geometry} material={materials.Wolf3D_Outfit_Top} skeleton={nodes.Wolf3D_Outfit_Top.skeleton} />
       <skinnedMesh geometry={nodes.Wolf3D_Outfit_Bottom.geometry} material={materials.Wolf3D_Outfit_Bottom} skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton} />
       <skinnedMesh geometry={nodes.Wolf3D_Outfit_Footwear.geometry} material={materials.Wolf3D_Outfit_Footwear} skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton} />
@@ -92,5 +99,5 @@ export function Avatar2({ dialogue, isListening, onComplete, ...props }) {
   );
 }
 
-useGLTF.preload('/models/model2.glb');
+useGLTF.preload('/models/chacha.glb');
 export default Avatar2;
