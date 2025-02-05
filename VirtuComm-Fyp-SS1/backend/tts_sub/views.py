@@ -2,12 +2,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from tts_sub.apps import resources  # Import preloaded resources
 from tts_sub.audio_to_json import audio_to_json  # Import transcription function
-from .text_to_audio import generate_audio_from_text  # Import audio generation pipeline
+from .text_to_audio import generate_audio_from_text # Import audio generation pipeline
 from pydub import AudioSegment
 from .text_to_audio_single import generate_audio_from_plain_text
 from .audio_to_json_single import audio_to_json_single
-import os
-import time
+from .lipsing import generate_lipsync_json_for_final_audio
+from concurrent.futures import ThreadPoolExecutor
+import os,json
+
 
 @api_view(['POST'])
 def text_to_audio(request):
@@ -39,17 +41,29 @@ def text_to_audio(request):
             output_audio_path = "media/final_conversation.wav"
             metadata = generate_audio_from_text(text, output_path=output_audio_path)
 
+            # Generate Lip Sync JSON for final audio
+            
+
             # Verify the audio file exists
             if not os.path.exists(output_audio_path):
                 raise FileNotFoundError(f"Audio file not found: {output_audio_path}")
+            
+            # saving metadata:
+            file_name="media/metaDataDual.json"
+            with open(file_name,"w",encoding="utf-8") as json_file:
+                json.dump(metadata,json_file,ensure_ascii=False, indent=4)
+            print(f"metadata file saved as {file_name}")
 
             # Ensure audio format compatibility
             audio = AudioSegment.from_file(output_audio_path)
             audio.export(output_audio_path, format="wav", parameters=["-ar", "22050"])
 
-            # Transcribe audio and generate JSON
             transcription_path = "media/output_transcription.json"
-            audio_to_json(output_audio_path, metadata, resources.get_whisper_model(), transcription_path)
+            
+            #lipsing and subtitle geneartion running paralelly now:
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                executor.submit(generate_lipsync_json_for_final_audio, output_audio_path)
+                executor.submit(audio_to_json, output_audio_path, metadata, resources.get_whisper_model(), transcription_path)
 
             return Response({
                 "message": "Pipeline executed successfully",
@@ -78,7 +92,7 @@ def single_model(request):
                 convo_client = resources.get_convo_client()
                 result = convo_client.predict(
                     message=text,
-                    system_message="""You are a friendly chatbot named Smith which only exlpains shortly. You reply humanly""",
+                    system_message="""You are a friendly chatbot named Aslam which only exlpains shortly.You are part of a project VirtuComm in which different 3d models interact and communicate based on different scenarios given by the users. You reply humanly""",
                     max_tokens=512,
                     temperature=0.7,
                     top_p=0.95,
@@ -89,7 +103,7 @@ def single_model(request):
 
             # Generate audio
             output_audio_path = "media/final_single.wav"
-            metadata = generate_audio_from_plain_text(text, output_path=output_audio_path)
+            generate_audio_from_plain_text(text, output_path=output_audio_path)
 
             # Verify the audio file exists
             if not os.path.exists(output_audio_path):
@@ -99,9 +113,21 @@ def single_model(request):
             audio = AudioSegment.from_file(output_audio_path)
             audio.export(output_audio_path, format="wav", parameters=["-ar", "22050"])
 
-            # Transcribe audio and generate JSON
+            #creating metadata for single model
+            fileName = "media/metaDataSingle.json"
+            metadata = {"speaker": "Aslam", "text":text}
+            with open(fileName, "w", encoding="utf-8") as f:
+                json.dump(metadata, f, ensure_ascii=False, indent=4)
+            
+            #running lispin and subtitle geneartion parallely SHAYD
             transcription_path = "media/output_transcription_single.json"
-            audio_to_json_single(output_audio_path, resources.get_whisper_model(), transcription_path)
+            with ThreadPoolExecutor(max_workers=2) as exec:
+                exec.submit(generate_lipsync_json_for_final_audio,output_audio_path)
+                exec.submit(audio_to_json_single,resources.get_whisper_model(), transcription_path)
+            #generate_lipsync_json_for_final_audio(output_audio_path)
+            # Transcribe audio and generate JSON
+            
+            #audio_to_json_single(output_audio_path, resources.get_whisper_model(), transcription_path)
 
             return Response({
                 "message": "Pipeline executed successfully",
@@ -114,3 +140,4 @@ def single_model(request):
         except Exception as e:
             print(f"Error in pipeline: {e}")
             return Response({"error": str(e)}, status=500)
+        

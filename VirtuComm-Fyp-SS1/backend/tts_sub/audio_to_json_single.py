@@ -37,7 +37,8 @@ def transcription_to_json(result):
             "start_time": segment_start,
             "end_time": segment_end,
             "text": segment_text,
-            "words": word_data
+            "words": word_data,
+            "speaker":"Smith"
         }
         json_data["segments"].append(segment_data)
 
@@ -48,7 +49,6 @@ def save_json(data, file_name="output_transcription.json"):
     with open(file_name, "w", encoding="utf-8") as json_file:
         json.dump(data, json_file, ensure_ascii=False, indent=4)
     print(f"JSON file saved as '{file_name}'")
-
 
 def audio_to_json_single(audio_file, whisper_model, transcription_path):
     result = whisper_model.transcribe(audio_file, word_timestamps=True)
