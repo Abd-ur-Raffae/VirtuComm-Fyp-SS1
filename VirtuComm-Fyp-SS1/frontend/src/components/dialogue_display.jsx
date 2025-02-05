@@ -32,8 +32,8 @@ const ChatScreen = () => {
         <>
         {/* Display the user message */}
           <div style={styles.messageContainer}>
-            <div style={styles.speaker}>{jsonFile.speaker}</div>
-            <div style={styles.message}>{jsonFile.text}</div>
+            <div style={styles.speaker}>Me</div>
+            <div style={styles.message}>{jsonFile.prompt}</div>
           </div>
           <div style={styles.messageContainer}>
             <div style={styles.speaker}>{jsonFile.speaker}</div>

@@ -2,5 +2,8 @@ node_modules
 config.yaml
 model.onnx
 __pycache__
+backend/tts_sub/__pycache__
+backend/ourApp/__pycache__
+backend/VirtuComm/__pycache__
 media
 Rhubarb-Lip-Sync-1.13.0-Windows
