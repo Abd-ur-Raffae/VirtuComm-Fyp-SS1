@@ -256,14 +256,14 @@ if (audioPlaying) {
   style={{
     backgroundColor: "#222",
     color: "#fff",
-    padding: "10px",
-    fontSize: "24px",
+    padding: "7px",
+    fontSize: "14px",
     textAlign: "left", // Align content to the left
     minHeight: "50px",
     borderRadius: "8px",
     maxWidth: "80%",
     margin: "0 auto",
-    lineHeight: "50px",
+    lineHeight: "20px",
     overflow: "hidden",
     display: "flex", // Use flexbox to align the speaker and text
     alignItems: "center",

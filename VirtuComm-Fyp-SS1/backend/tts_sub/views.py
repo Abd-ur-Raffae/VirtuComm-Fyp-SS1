@@ -92,7 +92,7 @@ def single_model(request):
                 convo_client = resources.get_convo_client()
                 result = convo_client.predict(
                     message=text,
-                    system_message="""You are a friendly chatbot named Aslam which only exlpains shortly.You are part of a project VirtuComm in which different 3d models interact and communicate based on different scenarios given by the users. You reply humanly""",
+                    system_message="""You are a friendly chatbot named Smith which only exlpains shortly.You are part of a project VirtuComm in which different 3d models interact and communicate based on different scenarios given by the users. You reply humanly""",
                     max_tokens=512,
                     temperature=0.7,
                     top_p=0.95,
@@ -121,9 +121,11 @@ def single_model(request):
             
             #running lispin and subtitle geneartion parallely SHAYD
             transcription_path = "media/output_transcription_single.json"
-            with ThreadPoolExecutor(max_workers=2) as exec:
-                exec.submit(generate_lipsync_json_for_final_audio,output_audio_path)
-                exec.submit(audio_to_json_single,resources.get_whisper_model(), transcription_path)
+            with ThreadPoolExecutor(max_workers=2) as executer:
+                executer.submit(generate_lipsync_json_for_final_audio,output_audio_path)
+                executer.submit(audio_to_json_single, output_audio_path, resources.get_whisper_model(), transcription_path)
+            
+
             #generate_lipsync_json_for_final_audio(output_audio_path)
             # Transcribe audio and generate JSON
             
