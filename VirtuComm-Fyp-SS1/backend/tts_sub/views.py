@@ -34,12 +34,12 @@ def text_to_audio(request):
                     top_p=0.95,
                     api_name="/chat"
                 )
-                text = result.strip()
-                print(f"Generated dialogue: {text}")
+                result = result.strip()
+                print(f"Generated dialogue: {result}")
 
             # Generate audio and metadata
             output_audio_path = "media/final_conversation.wav"
-            metadata = generate_audio_from_text(text, output_path=output_audio_path)
+            metadata = generate_audio_from_text(result, output_path=output_audio_path)
 
             # Generate Lip Sync JSON for final audio
             
@@ -50,8 +50,12 @@ def text_to_audio(request):
             
             # saving metadata:
             file_name="media/metaDataDual.json"
+            finalData = {
+                "prompt": text,
+                "data":metadata
+            }
             with open(file_name,"w",encoding="utf-8") as json_file:
-                json.dump(metadata,json_file,ensure_ascii=False, indent=4)
+                json.dump(finalData,json_file,ensure_ascii=False, indent=4)
             print(f"metadata file saved as {file_name}")
 
             # Ensure audio format compatibility
@@ -83,6 +87,7 @@ def single_model(request):
     if request.method == 'POST':
         try:
             # Extract text input from the request
+            speaker = "Smith"
             text = request.data.get("text", "")
             if not text:
                 return Response({"error": "No text provided"}, status=400)
@@ -92,18 +97,18 @@ def single_model(request):
                 convo_client = resources.get_convo_client()
                 result = convo_client.predict(
                     message=text,
-                    system_message="""You are a friendly chatbot named Smith which only exlpains shortly.You are part of a project VirtuComm in which different 3d models interact and communicate based on different scenarios given by the users. You reply humanly""",
+                    system_message=f"""You are a friendly chatbot named {speaker} which only exlpains shortly.You are part of a project VirtuComm in which different 3d models interact and communicate based on different scenarios given by the users. You reply humanly""",
                     max_tokens=512,
                     temperature=0.7,
                     top_p=0.95,
                     api_name="/chat"
                 )
-                text = result.strip()
-                print(f"Generated dialogue: {text}")
+                result = result.strip()
+                print(f"Generated dialogue: {result}")
 
             # Generate audio
             output_audio_path = "media/final_single.wav"
-            generate_audio_from_plain_text(text, output_path=output_audio_path)
+            generate_audio_from_plain_text(result, output_path=output_audio_path)
 
             # Verify the audio file exists
             if not os.path.exists(output_audio_path):
@@ -115,9 +120,10 @@ def single_model(request):
 
             #creating metadata for single model
             fileName = "media/metaDataSingle.json"
-            metadata = {"speaker": "Aslam", "text":text}
+            metadata = {"speaker": speaker, "prompt":text, "text":result}
             with open(fileName, "w", encoding="utf-8") as f:
                 json.dump(metadata, f, ensure_ascii=False, indent=4)
+            print(f"metadata file saved as {fileName}")
             
             #running lispin and subtitle geneartion parallely SHAYD
             transcription_path = "media/output_transcription_single.json"
