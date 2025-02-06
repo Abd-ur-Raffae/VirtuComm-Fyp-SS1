@@ -8,16 +8,34 @@ import { useAudio } from './AudioContext';
 
 
 const matchSound = {
-  A: 'viseme_PP',
-  B: 'viseme_kk',
-  C: 'viseme_I',
-  D: 'viseme_AA',
-  E: 'viseme_O',
-  F: 'viseme_U',
-  G: 'viseme_FF',
-  H: 'viseme_TH',
-  X: 'viseme_PP',
+  A: 'aa',
+  B: 'kk',
+  C: 'ih',
+  D: 'CH',
+  E: 'E',
+  F: 'FF',
+  G: 'RR', // Closest available match
+  H: 'TH',
+  I: 'ih', // No exact match, using 'ih' as an approximation
+  J: 'CH', // 'J' sounds similar to 'CH'
+  K: 'kk',
+  L: 'RR', // 'L' is not available, 'RR' is the closest match
+  M: 'PP', // Approximate based on lip closure
+  N: 'nn',
+  O: 'oh',
+  P: 'PP',
+  Q: 'kk', // 'Q' has a similar sound to 'K'
+  R: 'RR',
+  S: 'SS',
+  T: 'TH', // 'T' is closer to 'TH'
+  U: 'ou', // No direct match, using 'ou' as a close approximation
+  V: 'FF', // 'V' and 'F' share similar lip movements
+  W: 'ou', // Similar rounded lip shape
+  X: 'SS', // 'X' often sounds like 'S'
+  Y: 'ih', // 'Y' as in "yes" is close to 'ih'
+  Z: 'SS', // 'Z' is close to 'S'
 };
+
 
 export function Avatar(props) {
   const{audioPlaying ,setAudioPlaying,audioRef,setSubtitleData} = useAudio();
@@ -65,29 +83,29 @@ export function Avatar(props) {
     const currentAudioTime = audioRef.current.currentTime;
 
     Object.values(matchSound).forEach((value) => {
-      nodes.Wolf3D_Head.morphTargetInfluences[
-        nodes.Wolf3D_Head.morphTargetDictionary[value]
+      nodes.AvatarHead.morphTargetInfluences[
+        nodes.AvatarHead.morphTargetDictionary[value]
       ] = 0;
-      nodes.Wolf3D_Teeth.morphTargetInfluences[
-        nodes.Wolf3D_Teeth.morphTargetDictionary[value]
-      ] = 0;
+       nodes.AvatarTeethLower.morphTargetInfluences[
+         nodes.AvatarTeethLower.morphTargetDictionary[value]
+       ] = 0;
     });
 
     lipsync.mouthCues.forEach((mouthCue) => {
       if (currentAudioTime >= mouthCue.start && currentAudioTime <= mouthCue.end) {
-        nodes.Wolf3D_Head.morphTargetInfluences[
-          nodes.Wolf3D_Head.morphTargetDictionary[matchSound[mouthCue.value]]
+        nodes.AvatarHead.morphTargetInfluences[
+          nodes.AvatarHead.morphTargetDictionary[matchSound[mouthCue.value]]
         ] = 1;
-        nodes.Wolf3D_Teeth.morphTargetInfluences[
-          nodes.Wolf3D_Teeth.morphTargetDictionary[matchSound[mouthCue.value]]
-        ] = 1;
+        nodes.AvatarTeethLower.morphTargetInfluences[
+        nodes.AvatarTeethLower.morphTargetDictionary[matchSound[mouthCue.value]]
+       ] = 1;
       }
     });
   });
 
-  const { nodes, materials } = useGLTF('/models/me.glb');
-  const { animations: IdleAnim } = useFBX('/animations/Breathing_Idle.fbx');
-  const { animations: TalkAnim } = useFBX('/animations/Talking.fbx');
+  const { nodes, materials } = useGLTF('/models/muslim_model.glb');
+  const { animations: IdleAnim } = useFBX('/animations/new_Standing Idle.fbx');
+  const { animations: TalkAnim } = useFBX('/animations/new_Standing Arguing.fbx');
 
   IdleAnim[0].name = 'Idle';
   TalkAnim[0].name = 'Talk';
@@ -98,7 +116,7 @@ export function Avatar(props) {
 
   useEffect(() => {
     const handlePlayPause = () => {
-        if (audioRef.current) { // Check if audio is defined
+        if (audioRef.current) { 
             if (playAudio) {
                 audioRef.current.play();
                 setAudioPlaying(true);
@@ -114,38 +132,40 @@ export function Avatar(props) {
     return () => {
         if (audioRef.current) {
             audioRef.current.pause();
-            setAudioPlaying(false); // Ensure cleanup doesn't error out
+            setAudioPlaying(false); 
+            setAnimation('Idle');
         }
-        setAnimation('Idle');
+      
     };
   }, [playAudio, audioRef, setAudioPlaying, actions]);
 
 
 
   useEffect(() => {
-    actions[animation].reset().fadeIn(0.5).play();
+    actions[animation].reset().play();
     // Cleanup
     return () => {
-      actions[animation].fadeOut(0.5);
+      actions[animation].stop();
     };
   }, [animation, actions]);
 
   
   return (
     <group {...props} 
-    scale={.95}
-    position={[0,.75,5]}
+    scale={1.25}
+    position={[0,.45,5]}
     dispose={null} ref={group}>
-      <primitive object={nodes.Hips} />
-      <skinnedMesh geometry={nodes.Wolf3D_Hair.geometry} material={materials.Wolf3D_Hair} skeleton={nodes.Wolf3D_Hair.skeleton} />
-      <skinnedMesh geometry={nodes.Wolf3D_Body.geometry} material={materials.Wolf3D_Body} skeleton={nodes.Wolf3D_Body.skeleton} />
-      <skinnedMesh geometry={nodes.Wolf3D_Outfit_Bottom.geometry} material={materials.Wolf3D_Outfit_Bottom} skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton} />
-      <skinnedMesh geometry={nodes.Wolf3D_Outfit_Footwear.geometry} material={materials.Wolf3D_Outfit_Footwear} skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton} />
-      <skinnedMesh geometry={nodes.Wolf3D_Outfit_Top.geometry} material={materials.Wolf3D_Outfit_Top} skeleton={nodes.Wolf3D_Outfit_Top.skeleton} />
-      <skinnedMesh name="EyeLeft" geometry={nodes.EyeLeft.geometry} material={materials.Wolf3D_Eye} skeleton={nodes.EyeLeft.skeleton} morphTargetDictionary={nodes.EyeLeft.morphTargetDictionary} morphTargetInfluences={nodes.EyeLeft.morphTargetInfluences} />
-      <skinnedMesh name="EyeRight" geometry={nodes.EyeRight.geometry} material={materials.Wolf3D_Eye} skeleton={nodes.EyeRight.skeleton} morphTargetDictionary={nodes.EyeRight.morphTargetDictionary} morphTargetInfluences={nodes.EyeRight.morphTargetInfluences} />
-      <skinnedMesh name="Wolf3D_Head" geometry={nodes.Wolf3D_Head.geometry} material={materials.Wolf3D_Skin} skeleton={nodes.Wolf3D_Head.skeleton} morphTargetDictionary={nodes.Wolf3D_Head.morphTargetDictionary} morphTargetInfluences={nodes.Wolf3D_Head.morphTargetInfluences} />
-      <skinnedMesh name="Wolf3D_Teeth" geometry={nodes.Wolf3D_Teeth.geometry} material={materials.Wolf3D_Teeth} skeleton={nodes.Wolf3D_Teeth.skeleton} morphTargetDictionary={nodes.Wolf3D_Teeth.morphTargetDictionary} morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences} />
+       <primitive object={nodes.Hips} />
+        <skinnedMesh geometry={nodes.AvatarBody.geometry} material={materials.AvatarBody} skeleton={nodes.AvatarBody.skeleton} />
+        <skinnedMesh geometry={nodes.AvatarLeftCornea.geometry} material={materials.AvatarLeftCornea} skeleton={nodes.AvatarLeftCornea.skeleton} />
+        <skinnedMesh geometry={nodes.AvatarLeftEyeball.geometry} material={materials.AvatarLeftEyeball} skeleton={nodes.AvatarLeftEyeball.skeleton} />
+        <skinnedMesh geometry={nodes.AvatarRightCornea.geometry} material={materials.AvatarRightCornea} skeleton={nodes.AvatarRightCornea.skeleton} />
+        <skinnedMesh geometry={nodes.AvatarRightEyeball.geometry} material={materials.AvatarRightEyeball} skeleton={nodes.AvatarRightEyeball.skeleton} />
+        <skinnedMesh geometry={nodes.AvatarTeethUpper.geometry} material={materials.AvatarTeethUpper} skeleton={nodes.AvatarTeethUpper.skeleton} />
+        <skinnedMesh geometry={nodes.outfit.geometry} material={materials.outfit} skeleton={nodes.outfit.skeleton} />
+        <skinnedMesh name="AvatarEyelashes" geometry={nodes.AvatarEyelashes.geometry} material={materials.AvatarEyelashes} skeleton={nodes.AvatarEyelashes.skeleton} morphTargetDictionary={nodes.AvatarEyelashes.morphTargetDictionary} morphTargetInfluences={nodes.AvatarEyelashes.morphTargetInfluences} />
+        <skinnedMesh name="AvatarHead" geometry={nodes.AvatarHead.geometry} material={materials.AvatarHead} skeleton={nodes.AvatarHead.skeleton} morphTargetDictionary={nodes.AvatarHead.morphTargetDictionary} morphTargetInfluences={nodes.AvatarHead.morphTargetInfluences} />
+        <skinnedMesh name="AvatarTeethLower" geometry={nodes.AvatarTeethLower.geometry} material={materials.AvatarTeethLower} skeleton={nodes.AvatarTeethLower.skeleton} morphTargetDictionary={nodes.AvatarTeethLower.morphTargetDictionary} morphTargetInfluences={nodes.AvatarTeethLower.morphTargetInfluences} />
     </group>
   );
 }
