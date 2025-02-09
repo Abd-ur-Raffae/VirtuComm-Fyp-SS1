@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import React from 'react';
 import { Experience_3 } from "./1.3Experience";
-import { FetchJsonAndWav } from './ghar.jsx';
+import AudioPlayerWithSubtitles from './temp.jsx';
 import { AudioProvider } from "./AudioContext.js";
 
 
@@ -17,7 +17,7 @@ const Project1_3 = () => {
                 </div>
 
                 <div style={styles.section}>
-                    <FetchJsonAndWav />
+                    <AudioPlayerWithSubtitles />
                 </div>
                 
                 </AudioProvider>

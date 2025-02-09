@@ -6,7 +6,7 @@ class AppResources:
     def __init__(self):
         # Preload the Gradio clients
         print("Initializing Gradio clients...")
-        self.convo_client = Client("jawwad1234/convo")
+        self.convo_client = Client("jawwad1234/gallKro")
         self.tts_client = Client("jawwad1234/Edge-TTS-Text-to-Speech")
         print("Gradio clients initialized.")
 

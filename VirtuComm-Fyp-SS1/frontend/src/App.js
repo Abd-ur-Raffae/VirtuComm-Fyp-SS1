@@ -12,6 +12,7 @@ import Stage1_2 from './components/stage1_2.jsx';
 import Stage1_3 from './components/stage1_3.jsx';
 import {User_tts} from './components/tts.jsx';
 import { FetchJsonAndWav } from './components/ghar.jsx';
+import AudioPlayerWithSubtitles from './components/temp.jsx';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/stage1_2" element={<Stage1_2 />} />
           <Route path="/stage1_3" element={<Stage1_3 />} />
           <Route path='/tts' element={<User_tts />} />
+          <Route path='/ghar' element={<AudioPlayerWithSubtitles />} />
           <Route path='/subtitles_output' element={<FetchJsonAndWav />} />
         </Routes>
       </div>

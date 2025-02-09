@@ -52,10 +52,10 @@ export function Avatar1({ isListening, ...props }) {
   
       if (currentSegment?.speaker === 'student') {
         idleAction.stop();
-        talkingAction.reset().fadeIn(0.2).play();
+        talkingAction.reset().play();
       } else {
-        talkingAction.fadeOut(0.2);
-        idleAction.reset().fadeIn(0.2).play();
+        talkingAction.stop();
+        idleAction.reset().play();
       }
     }
   }, [playAudio, jsonFile, audio, actions]);

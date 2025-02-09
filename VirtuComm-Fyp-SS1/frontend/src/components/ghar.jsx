@@ -120,32 +120,23 @@ export const FetchJsonAndWav = () => {
 
 export const FetchJsonAndWavSingle = () => {
   const { audioPlaying,audioRef, subtitleData, setSubtitleData } = useAudio(); 
-  //const [jsonData, setJsonData] = useState(null);
-  // const [error, setError] = useState(null); 
+
   const [currentSegment, setCurrentSegment] = useState(null);
   const [currentWordIndex, setCurrentWordIndex] = useState(-1); 
-  //const [isPlaying, setIsPlaying] = useState(false); 
-
-  // const baseMediaUrl = "http://localhost:8000/api_tts/media/"; 
-  // const jsonFileName = "output_transcription.json";
-  // const wavFileName = "final_conversation.wav"; 
-
-   //const audioRef = useRef(null); 
-   //const subtitleIntervalRef = useRef(null); 
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const timestamp = new Date().getTime();
         const jsonResponse = await fetch(`http://localhost:8000/api_tts/media/output_transcription_single.json?timestamp=${timestamp}`);
-        //const jsonResponse = await fetch(`${baseMediaUrl}${jsonFileName}`);
+
         if (!jsonResponse.ok) {
           throw new Error("Failed to fetch JSON file");
         }
         const jsonData = await jsonResponse.json();
         setSubtitleData(jsonData);
 
-      //  setWavFileUrl(`${baseMediaUrl}${wavFileName}`);
+
       } catch (error) {
         console.error(error.message);
       }
@@ -156,8 +147,6 @@ export const FetchJsonAndWavSingle = () => {
   let subtitleInterval = null;
 
   const updateSubtitles = () => {
-    // const audioElement = audioRef.current;
-    // const currentTime = audioElement.currentTime;
 
     if (!audioRef.current || !subtitleData || !subtitleData.segments) return;
 const currentTime = audioRef.current.currentTime;
@@ -215,43 +204,6 @@ if (audioPlaying) {
 
   return (
      <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      
-
-      {/* Display Errors
-      {error && <p style={{ color: "red" }}>Error: {error}</p>}
-
-     
-      <div style={{ marginBottom: "20px" }}>
-        <button
-          onClick={handlePlayPause}
-          style={{
-            padding: "10px 20px",
-            marginRight: "10px",
-            cursor: "pointer",
-          }}
-        >
-          {isPlaying ? "Pause" : "Play"}
-        </button>
-        <button
-          onClick={handleReset}
-          style={{
-            padding: "10px 20px",
-            cursor: "pointer",
-          }}
-        >
-          Reset
-        </button>
-      </div> */}
-
-      {/* Hidden Audio Player
-      {wavFileUrl && (
-        <audio ref={audioRef} style={{ display: "none" }}>
-          <source src={wavFileUrl} type="audio/wav" />
-          Your browser does not support the audio element.
-        </audio>
-      )} */}
-
-      {/* Display Synchronized Subtitles */}
       <div
   style={{
     backgroundColor: "#222",
