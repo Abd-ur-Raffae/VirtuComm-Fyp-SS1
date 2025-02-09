@@ -5,7 +5,7 @@ import { useAnimations, useFBX } from '@react-three/drei';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { SkeletonUtils } from 'three-stdlib';
-import { DialogueManager } from './1.3avatar_manager'; // Import the DialogueManager
+import { useDialogueManager } from './1.3avatar_manager'; // Import the DialogueManager
 
 export function Avatar1({ isListening, ...props }) {
   const { 
@@ -15,7 +15,7 @@ export function Avatar1({ isListening, ...props }) {
     jsonFile, 
     audio, 
     // lipsync 
-  } = DialogueManager({ dialogue: props.dialogue, isListening, onComplete: props.onComplete });
+  } = useDialogueManager({ dialogue: props.dialogue, isListening, onComplete: props.onComplete });
 
   // Load model and animations
   const { scene } = useGLTF('/models/me.glb');

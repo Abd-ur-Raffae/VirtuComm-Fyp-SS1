@@ -10,31 +10,35 @@ import RegisterPage from './components/registerpage.jsx';
 import Stage1_1 from './components/stage1_1.jsx';
 import Stage1_2 from './components/stage1_2.jsx';
 import Stage1_3 from './components/stage1_3.jsx';
-import {User_tts} from './components/tts.jsx';
+import { User_tts } from './components/tts.jsx';
 import { FetchJsonAndWav } from './components/ghar.jsx';
 import AudioPlayerWithSubtitles from './components/temp.jsx';
+import { AudioProvider } from "./components/1.3AudioContext.jsx";
+import { useDialogueManager } from "./components/1.3avatar_manager.jsx";
 
 function App() {
   return (
     <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" />} /> {/* Redirect to /login */}
-          <Route path="/home" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          {/* <Route path="/projects" element={<Projects />} /> */}
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/stage1_1" element={<Stage1_1 />} />
-          <Route path="/stage1_2" element={<Stage1_2 />} />
-          <Route path="/stage1_3" element={<Stage1_3 />} />
-          <Route path='/tts' element={<User_tts />} />
-          <Route path='/ghar' element={<AudioPlayerWithSubtitles />} />
-          <Route path='/subtitles_output' element={<FetchJsonAndWav />} />
-        </Routes>
-      </div>
-    </Router>
+  <AudioProvider> {/* ✅ Wrap your app inside AudioProvider */}
+    <div className="App">
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/home" element={<Index />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/stage1_1" element={<Stage1_1 />} />
+        <Route path="/stage1_2" element={<Stage1_2 />} />
+        <Route path="/stage1_3" element={<Stage1_3 />} />
+        <Route path="/tts" element={<User_tts />} />
+        <Route path="/ghar" element={<AudioPlayerWithSubtitles />} />
+        <Route path="/subtitles_output" element={<FetchJsonAndWav />} />
+      </Routes>
+    </div>
+  </AudioProvider> {/* ✅ Wrap closes here */}
+</Router>
+
   );
 }
 
