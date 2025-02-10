@@ -4,7 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { useAnimations, useFBX } from '@react-three/drei';
 import { SkeletonUtils } from 'three-stdlib';
-import { DialogueManager } from './1.3avatar_manager'; // Import the DialogueManager
+import { useDialogueManager } from './1.3avatar_manager'; // Import the DialogueManager
 
 export function Avatar2({ dialogue, isListening, onComplete, ...props }) {
   const { 
@@ -14,7 +14,7 @@ export function Avatar2({ dialogue, isListening, onComplete, ...props }) {
     jsonFile, 
     audio, 
     // lipsync 
-  } = DialogueManager({ dialogue, isListening, onComplete });
+  } = useDialogueManager({ dialogue, isListening, onComplete });
 
   const { scene } = useGLTF('/models/chacha.glb');
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
