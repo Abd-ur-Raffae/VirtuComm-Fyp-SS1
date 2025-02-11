@@ -15,7 +15,7 @@ export const Experience = () => {
       />
       {/* Increase scale for a zoom effect */}
       <Avatar position={[4, 4, 4]} scale={1.8} /> 
-      <Environment preset="sunset" />
+      <Environment preset="apartment" />
       <mesh>
         <planeGeometry args={[viewport.width + 5, viewport.height + 3]} />
         <meshBasicMaterial map={texture} />
