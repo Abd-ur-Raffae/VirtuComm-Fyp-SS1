@@ -14,26 +14,26 @@ const matchSound = {
   D: 'CH',
   E: 'E',
   F: 'FF',
-  G: 'RR', // Closest available match
+  G: 'RR', 
   H: 'TH',
-  I: 'ih', // No exact match, using 'ih' as an approximation
-  J: 'CH', // 'J' sounds similar to 'CH'
+  I: 'ih', 
+  J: 'CH', 
   K: 'kk',
-  L: 'RR', // 'L' is not available, 'RR' is the closest match
-  M: 'PP', // Approximate based on lip closure
+  L: 'RR', 
+  M: 'PP', 
   N: 'nn',
   O: 'oh',
   P: 'PP',
-  Q: 'kk', // 'Q' has a similar sound to 'K'
+  Q: 'kk', 
   R: 'RR',
   S: 'SS',
-  T: 'TH', // 'T' is closer to 'TH'
-  U: 'ou', // No direct match, using 'ou' as a close approximation
-  V: 'FF', // 'V' and 'F' share similar lip movements
-  W: 'ou', // Similar rounded lip shape
-  X: 'SS', // 'X' often sounds like 'S'
-  Y: 'ih', // 'Y' as in "yes" is close to 'ih'
-  Z: 'SS', // 'Z' is close to 'S'
+  T: 'TH', 
+  U: 'ou', 
+  V: 'FF', 
+  W: 'ou',
+  X: 'SS',
+  Y: 'ih',
+  Z: 'SS', 
 };
 
 

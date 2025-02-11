@@ -57,26 +57,43 @@ export function useDialogueManager() {
         if (!lipsync) return;
     
         const matchSound = {
-          A: "viseme_PP",
-          B: "viseme_kk",
-          C: "viseme_I",
-          D: "viseme_AA",
-          E: "viseme_O",
-          F: "viseme_U",
-          G: "viseme_FF",
-          H: "viseme_TH",
-          X: "viseme_PP",
-        };
-    
+            A: 'aa',
+            B: 'kk',
+            C: 'ih',
+            D: 'CH',
+            E: 'E',
+            F: 'FF',
+            G: 'RR', 
+            H: 'TH',
+            I: 'ih', 
+            J: 'CH', 
+            K: 'kk',
+            L: 'RR', 
+            M: 'PP', 
+            N: 'nn',
+            O: 'oh',
+            P: 'PP',
+            Q: 'kk', 
+            R: 'RR',
+            S: 'SS',
+            T: 'TH', 
+            U: 'ou', 
+            V: 'FF', 
+            W: 'ou',
+            X: 'SS',
+            Y: 'ih',
+            Z: 'SS', 
+          };
+          
         Object.values(matchSound).forEach((value) => {
-          nodes.Wolf3D_Head.morphTargetInfluences[nodes.Wolf3D_Head.morphTargetDictionary[value]] = 0;
-          nodes.Wolf3D_Teeth.morphTargetInfluences[nodes.Wolf3D_Teeth.morphTargetDictionary[value]] = 0;
+          nodes.AvatarHead.morphTargetInfluences[nodes.AvatarHead.morphTargetDictionary[value]] = 0;
+          nodes.AvatarTeethLower.morphTargetInfluences[nodes.AvatarTeethLower.morphTargetDictionary[value]] = 0;
         });
     
         lipsync.mouthCues.forEach((mouthCue) => {
           if (currentTime >= mouthCue.start && currentTime <= mouthCue.end) {
-            nodes.Wolf3D_Head.morphTargetInfluences[nodes.Wolf3D_Head.morphTargetDictionary[matchSound[mouthCue.value]]] = 1;
-            nodes.Wolf3D_Teeth.morphTargetInfluences[nodes.Wolf3D_Teeth.morphTargetDictionary[matchSound[mouthCue.value]]] = 1;
+            nodes.AvatarHead.morphTargetInfluences[nodes.AvatarHead.morphTargetDictionary[matchSound[mouthCue.value]]] = 1;
+            nodes.AvatarTeethLower.morphTargetInfluences[nodes.AvatarTeethLower.morphTargetDictionary[matchSound[mouthCue.value]]] = 1;
           }
         });
       };

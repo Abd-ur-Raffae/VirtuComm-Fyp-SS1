@@ -30,22 +30,22 @@ const GLBModel = ({ url, position, rotation, scale }) => {
       {/* Second Avatar positioned to the right */}
       
       <Avatar2 
-      position={[0.9, -0.5, 4.5]}
+      position={[3.9, -0.7, 4.]}
       rotation={[0, -Math.PI / 3, 0]}
       scale={1}
         />
 
  <GLBModel 
         url="\models\chair_023.glb" 
-        position={[1.4, -.8, 2.4]} 
-        rotation={[0, -.4, 0]}
-        scale={1.2} 
+        position={[3.2, -1.2, 2.3]} 
+        rotation={[0, -.8, 0]}
+        scale={1.33} 
       />
  <GLBModel 
         url="\models\chair_02.glb" 
-        position={[-0.8, -.8, 2.5]} 
-        rotation={[0, .4, 0]}
-        scale={1.2} 
+        position={[-2.5, -1.2, 2.8]} 
+        rotation={[0, 1, 0]}
+        scale={1.33} 
       />
       <GLBModel 
         url="\models\table.glb" 
@@ -55,7 +55,7 @@ const GLBModel = ({ url, position, rotation, scale }) => {
       />
 
 
-      <Environment preset="sunset" />
+      <Environment preset="apartment" />
       
       <ambientLight intensity={1} />
       <directionalLight position={[3, 2, 1]} />
