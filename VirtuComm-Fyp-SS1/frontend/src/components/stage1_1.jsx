@@ -82,8 +82,6 @@ const styles = {
         borderRadius: '10px',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         padding: '10px',
-        overflowY: 'auto', // Allow vertical scrolling
-        overflowX: 'hidden', // Prevent horizontal scrolling
         '@media (max-width: 768px)': {
             flex: 1,
         },

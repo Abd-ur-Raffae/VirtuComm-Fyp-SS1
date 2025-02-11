@@ -48,13 +48,14 @@ const ChatScreen = () => {
 const styles = {
   chatContainer: {
     width: "100%",
-    height: "100%",
+    height: "400px", // Set a fixed height
     backgroundColor: "#e5ddd5",
     display: "flex",
     flexDirection: "column",
     padding: "15px",
-    overflowY: "auto",
+    overflowY: "auto", // Enables scrolling
   },
+  
   messageContainer: {
     margin: "10px 0",
   },
@@ -72,7 +73,10 @@ const styles = {
     wordWrap: "break-word",
     boxShadow: "0px 1px 3px rgba(0,0,0,0.2)",
     backgroundColor: "#fff",
+    overflowWrap: "break-word", // Ensures text wraps properly
+    whiteSpace: "pre-wrap", // Keeps formatting intact
   },
+  
 };
 
 export default ChatScreen;

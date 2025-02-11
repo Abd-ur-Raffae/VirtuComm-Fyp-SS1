@@ -8,7 +8,8 @@ const AudioPlayerWithSubtitles = () => {
     const { audio } = useSharedAudio(); // Get audio from context
 
     useEffect(() => {
-        fetch("http://localhost:8000/api_tts/media/output_transcription.json")
+        const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+        fetch(`http://localhost:8000/api_tts/media/output_transcription.json?t=${timestamp}`)
             .then(response => response.json())
             .then(data => {
                 if (data?.segments?.length > 0) {
@@ -20,6 +21,7 @@ const AudioPlayerWithSubtitles = () => {
             })
             .catch(error => console.error("Error loading subtitle JSON:", error));
     }, []);
+    
 
     useEffect(() => {
         if (!audio) return;
