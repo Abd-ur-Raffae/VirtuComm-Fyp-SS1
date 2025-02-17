@@ -28,9 +28,9 @@ def student(text: str):
 
 def teacher(text: str):
     tts_client = resources.get_tts_client()
-    voice = "en-US-GuyNeural - en-US (Male)"
-    rate = 0
-    pitch = -17
+    voice = "en-US-EmmaNeural - en-US (Female)"
+    rate = -11
+    pitch = 0
 
     result = tts_client.predict(
         text=text, voice=voice, rate=rate, pitch=pitch, api_name="/predict"
