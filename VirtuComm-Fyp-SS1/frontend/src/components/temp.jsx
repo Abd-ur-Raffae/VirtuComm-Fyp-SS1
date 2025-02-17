@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSharedAudio } from "./1.3AudioContext";
+import { useSharedAudio } from "./Stage 1.3/1.3AudioContext";
 
 const AudioPlayerWithSubtitles = () => {
     const [segments, setSegments] = useState([]);
@@ -76,11 +76,15 @@ const AudioPlayerWithSubtitles = () => {
         marginTop: "20px",
         backgroundColor: "rgba(0, 0, 0, 0.5)",
         color: "white",
-        fontSize: "20px",
-        padding: "5px",
-        whiteSpace: "nowrap",
+        fontSize: "14px",
+        padding: "10px",
         maxWidth: "80%",
+        width: "80%",
         margin: "0 auto",
+        wordWrap: "break-word",
+        whiteSpace: "normal",
+        overflowY: "auto",
+        maxHeight: "150px", // Limit height, add scrolling if needed
     }}
 >
     {currentSegmentIndex === -1 ? (
@@ -88,14 +92,17 @@ const AudioPlayerWithSubtitles = () => {
     ) : (
         <>
             <strong>{segments[currentSegmentIndex]?.speaker}:</strong> 
-            {segments[currentSegmentIndex]?.words.map((word, index) => (
-                <span key={index} style={{ fontWeight: index === currentWordIndex ? "bold" : "normal" }}>
-                    {word.word} {" "}
-                </span>
-            ))}
+            <p style={{ margin: "5px 0", lineHeight: "1.5" }}>
+                {segments[currentSegmentIndex]?.words.map((word, index) => (
+                    <span key={index} style={{ fontWeight: index === currentWordIndex ? "bold" : "normal" }}>
+                        {word.word}{" "}
+                    </span>
+                ))}
+            </p>
         </>
     )}
 </div>
+
 
     );
 };

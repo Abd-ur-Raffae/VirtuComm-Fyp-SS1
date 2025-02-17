@@ -4,7 +4,7 @@ import { useAnimations, useFBX, useGLTF } from '@react-three/drei';
 import { SkeletonUtils } from 'three-stdlib';
 import { useControls } from 'leva';
 import * as THREE from 'three';
-import { useAudio } from './AudioContext';
+import { useAudio } from '../AudioContext';
 
 
 const matchSound = {
@@ -142,12 +142,17 @@ export function Avatar(props) {
 
 
   useEffect(() => {
-    actions[animation].reset().play();
+    if (actions[animation]) {
+        actions[animation].reset().play();
+    }
     // Cleanup
     return () => {
-      actions[animation].stop();
+        if (actions[animation]) {
+            actions[animation].stop();
+        }
     };
-  }, [animation, actions]);
+}, [animation, actions]);
+
 
   
   return (

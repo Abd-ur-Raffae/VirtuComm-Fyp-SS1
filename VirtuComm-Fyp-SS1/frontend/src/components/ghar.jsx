@@ -206,7 +206,7 @@ if (audioPlaying) {
      <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <div
   style={{
-    backgroundColor: "#222",
+    backgroundColor: "rgba(34, 34, 34, 0.8)",
     color: "#fff",
     padding: "7px",
     fontSize: "14px",

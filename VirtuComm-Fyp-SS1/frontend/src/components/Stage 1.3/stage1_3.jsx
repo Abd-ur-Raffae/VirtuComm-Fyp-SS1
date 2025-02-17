@@ -1,14 +1,18 @@
 import { Canvas } from "@react-three/fiber";
-import { Experience } from "./Experience";
-import React, { useEffect } from 'react';
-import { FetchJsonAndWavSingle } from './ghar.jsx';
-import { AudioProvider } from "./AudioContext.js";
-import { Single_user_tts } from './tts.jsx';
-import ChatScreen from './dialogue_display.jsx';
+import React from 'react';
+import { Experience_3 } from "./1.3Experience.jsx";
+import AudioPlayerWithSubtitles from '../temp.jsx';
+import { AudioProvider } from "../AudioContext.js";
+import { User_tts } from "../tts.jsx";
+import ChatScreen from "../dialogue_display.jsx";
+import { useEffect } from "react";
 
-const Project1_1 = () => {
+const Project1_3 = () => {
     useEffect(() => {
-        // Handle any side effects if needed
+        document.body.style.overflowX = "hidden"; // Remove horizontal scrollbar
+        return () => {
+            document.body.style.overflowX = "auto"; // Reset on unmount
+        };
     }, []);
 
     return (
@@ -16,12 +20,12 @@ const Project1_1 = () => {
             <AudioProvider>
                 <div style={styles.topContainer}>
                     <div style={styles.canvasContainer}>
-                        <Canvas shadows camera={{ position: [0, 3, 8], fov: 35 }}>
+                        <Canvas shadows camera={{ position: [0.8,1, 8],rotation: [0, 0, 0], fov: 35 }}>
                             <color attach="background" args={["#ececec"]} />
-                            <Experience />
+                            <Experience_3 />
                         </Canvas>
                         <div style={styles.subtitleBox}>
-                            <FetchJsonAndWavSingle />
+                            <AudioPlayerWithSubtitles />
                         </div>
                     </div>
                     <div style={styles.chatContainer}>
@@ -29,7 +33,12 @@ const Project1_1 = () => {
                     </div>
                 </div>
                 <div style={styles.section}>
-                    <Single_user_tts />
+                    <div style={styles.tts}>
+                        <User_tts />
+                    </div>
+                    <div style={styles.config}>
+                        <h1>Configurations</h1>
+                    </div>
                 </div>
             </AudioProvider>
         </div>
@@ -40,21 +49,20 @@ const styles = {
     container: {
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
-        width: '100%',
+        height: '100vh', // Ensures it takes full screen height
+        width: '100vw',
         backgroundColor: '#f0f0f0',
         padding: '20px',
         boxSizing: 'border-box',
+        overflow: 'hidden', // Hide all scrollbars
     },
     topContainer: {
         display: 'flex',
         flexDirection: 'row',
         flex: 1,
+        maxHeight: '360px',
         gap: '20px',
         marginBottom: '20px',
-        '@media (max-width: 768px)': {
-            flexDirection: 'column',
-        },
     },
     canvasContainer: {
         flex: 2,
@@ -63,9 +71,6 @@ const styles = {
         borderRadius: '10px',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         overflow: 'hidden',
-        '@media (max-width: 768px)': {
-            flex: 1,
-        },
     },
     subtitleBox: {
         position: 'absolute',
@@ -78,21 +83,34 @@ const styles = {
     },
     chatContainer: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#c0d6e4',
         borderRadius: '10px',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         padding: '10px',
-        '@media (max-width: 768px)': {
-            flex: 1,
-        },
     },
     section: {
-        backgroundColor: '#fff',
+        display: 'flex',
+        flexDirection: 'row',
+        flex: 1,
+        gap: '20px',
+        marginBottom: '20px',
+    },
+    tts: {
+        flex: 1.83,
+        flexDirection: 'column',
+        backgroundColor: '#c0d6e4',
         borderRadius: '10px',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         padding: '10px',
-        marginTop: '10px',
+    },
+    config: {
+        flex: 1.01,
+        backgroundColor: '#c0d6e4',
+        borderRadius: '10px',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+        padding: '10px',
     },
 };
 
-export default Project1_1;
+
+export default Project1_3;

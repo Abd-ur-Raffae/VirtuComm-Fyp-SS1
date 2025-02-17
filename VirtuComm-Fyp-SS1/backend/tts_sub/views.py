@@ -97,7 +97,7 @@ def single_model(request):
                 convo_client = resources.get_convo_client()
                 result = convo_client.predict(
                     message=text,
-                    system_message=f"""You are a friendly chatbot named {speaker} which only exlpains shortly.You are part of a project VirtuComm in which different 3d models interact and communicate based on different scenarios given by the users. You reply humanly""",
+                    system_message=f"""You are a friendly chatbot named {speaker} which only exlpains shortly.""",
                     max_tokens=512,
                     temperature=0.7,
                     top_p=0.95,

@@ -47,14 +47,16 @@ const ChatScreen = () => {
 
 const styles = {
   chatContainer: {
-    width: "100%",
-    height: "400px", // Set a fixed height
-    backgroundColor: "#e5ddd5",
+    width: "390px",
+    height: "280px", // Fixed height
+    backgroundColor: "rgba(229, 221, 213, 0.2)", // Transparent background
+    backdropFilter: "blur(5px)", // Blur effect
     display: "flex",
     flexDirection: "column",
     padding: "15px",
     overflowY: "auto", // Enables scrolling
-  },
+    borderRadius: "10px", // Optional: Adds rounded corners for a smoother look
+  },  
   
   messageContainer: {
     margin: "10px 0",
@@ -72,7 +74,7 @@ const styles = {
     fontSize: "16px",
     wordWrap: "break-word",
     boxShadow: "0px 1px 3px rgba(0,0,0,0.2)",
-    backgroundColor: "#fff",
+    backgroundColor: "rgba(255, 255, 255, 0.72)",
     overflowWrap: "break-word", // Ensures text wraps properly
     whiteSpace: "pre-wrap", // Keeps formatting intact
   },
