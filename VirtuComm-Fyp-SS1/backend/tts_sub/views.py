@@ -149,37 +149,43 @@ def single_model(request):
             print(f"Error in pipeline: {e}")
             return Response({"error": str(e)}, status=500)
         
-@api_view(['POST'])
-def query_suggestor(request):
-    if request.method == 'POST':
-        try:
-            # Extract text input from the request
-            text = request.data.get("text", "")
-            if not text:
-                return Response({"error": "No text provided"}, status=400)
+# @api_view(['POST'])
+# def query_suggestor(request):
+#     if request.method == 'POST':
+#         try:
+#             # Extract text input from the request
+#             text = request.data.get("text", "")
+#             if not text:
+#                 return Response({"error": "No text provided"}, status=400)
 
-            # Check if input text is a topic or preformatted dialogue
-            if "[" not in text or "]" not in text:
-                convo_client = resources.get_convo_client()
-                result = convo_client.predict(
-                    message=text,
-                    system_message=f"""Suggest 3 popular queries or questions related to {text}.""",
-                    max_tokens=512,
-                    temperature=0.7,
-                    top_p=0.95,
-                    api_name="/chat"
-                )
-                result = result.strip()
-                print(f"Generated dialogue: {result}")
+#             # Check if input text is a topic or preformatted dialogue
+#             if "[" not in text or "]" not in text:
+#                 convo_client = resources.get_convo_client()
+#                 result = convo_client.predict(
+#                     message=text,
+#                     system_message=f"""Generate 3 popular and relevant questions based on the given input.
+#                     Each question should be clear, concise, and fit naturally as a query someone might search for. 
+#                     Response should only contain these questions. Format the response as follows:
+#                     1. <First question>
+#                     2. <Second question>
+#                     3. <Third question>
+#                     Ensure that each question is in a single line and directly related to the input.""",
+#                     max_tokens=512,
+#                     temperature=0.7,
+#                     top_p=0.95,
+#                     api_name="/chat"
+#                 )
+#                 result = result.strip()
+#                 print(f"Generated dialogue: {result}")
 
 
-            return Response(result, {
-                "message": "Pipeline executed successfully",
-            }, status=201)
-        except FileNotFoundError as fnfe:
-            print(f"File error: {fnfe}")
-            return Response({"error": str(fnfe)}, status=500)
-        except Exception as e:
-            print(f"Error in pipeline: {e}")
-            return Response({"error": str(e)}, status=500)
+#             return Response({"result":result, 
+#                             "message": "Pipeline executed successfully",}
+#                             , status=201)
+#         except FileNotFoundError as fnfe:
+#             print(f"File error: {fnfe}")
+#             return Response({"error": str(fnfe)}, status=500)
+#         except Exception as e:
+#             print(f"Error in pipeline: {e}")
+#             return Response({"error": str(e)}, status=500)
         
