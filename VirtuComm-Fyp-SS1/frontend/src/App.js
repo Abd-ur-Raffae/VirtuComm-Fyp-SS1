@@ -14,6 +14,8 @@ import { FetchJsonAndWav } from './components/ghar.jsx';
 import AudioPlayerWithSubtitles from './components/temp.jsx';
 import { AudioProvider } from "./components/Stage 1.3/1.3AudioContext.jsx";
 import { ThemeProvider } from "./components/custom elements/themeContext.jsx";  // ✅ Import ThemeProvider
+import SearchSuggestions from "./components/searchsuggetion.jsx";
+
 
 function App() {
   return (
@@ -34,6 +36,7 @@ function App() {
               <Route path="/tts" element={<User_tts />} />
               <Route path="/ghar" element={<AudioPlayerWithSubtitles />} />
               <Route path="/subtitles_output" element={<FetchJsonAndWav />} />
+              <Route path="/suggestion" element={<SearchSuggestions /> } />
             </Routes>
           </div>
         </AudioProvider>

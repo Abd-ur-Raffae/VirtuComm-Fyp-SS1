@@ -149,3 +149,37 @@ def single_model(request):
             print(f"Error in pipeline: {e}")
             return Response({"error": str(e)}, status=500)
         
+@api_view(['POST'])
+def query_suggestor(request):
+    if request.method == 'POST':
+        try:
+            # Extract text input from the request
+            text = request.data.get("text", "")
+            if not text:
+                return Response({"error": "No text provided"}, status=400)
+
+            # Check if input text is a topic or preformatted dialogue
+            if "[" not in text or "]" not in text:
+                convo_client = resources.get_convo_client()
+                result = convo_client.predict(
+                    message=text,
+                    system_message=f"""Suggest 3 popular queries or questions related to {text}.""",
+                    max_tokens=512,
+                    temperature=0.7,
+                    top_p=0.95,
+                    api_name="/chat"
+                )
+                result = result.strip()
+                print(f"Generated dialogue: {result}")
+
+
+            return Response(result, {
+                "message": "Pipeline executed successfully",
+            }, status=201)
+        except FileNotFoundError as fnfe:
+            print(f"File error: {fnfe}")
+            return Response({"error": str(fnfe)}, status=500)
+        except Exception as e:
+            print(f"Error in pipeline: {e}")
+            return Response({"error": str(e)}, status=500)
+        

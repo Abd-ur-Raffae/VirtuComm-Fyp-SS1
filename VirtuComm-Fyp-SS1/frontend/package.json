@@ -10,6 +10,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
+    "fuse.js": "^7.1.0",
     "leva": "^0.9.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -46,5 +47,6 @@
   },
   "devDependencies": {
     "open": "^10.1.0"
-  }
+  },
+  "proxy": "https://huggingface.co"
 }
