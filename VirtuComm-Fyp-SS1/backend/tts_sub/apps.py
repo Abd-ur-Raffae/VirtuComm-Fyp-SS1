@@ -8,6 +8,7 @@ class AppResources:
         print("Initializing Gradio clients...")
         self.convo_client = Client("jawwad1234/gallKro")
         self.tts_client = Client("jawwad1234/Edge-TTS-Text-to-Speech")
+        self.recommend_client = Client("jawwad1234/RecommendQuestion")
         print("Gradio clients initialized.")
 
         # Preload the Whisper model
@@ -23,6 +24,9 @@ class AppResources:
 
     def get_whisper_model(self):
         return self.whisper_model
+    
+    def get_suggester_client(self):
+        return self.recommend_client
 
 if os.environ.get("RUN_MAIN") == "true":
     # Create a global instance to be used across the app
