@@ -149,3 +149,33 @@ def single_model(request):
             print(f"Error in pipeline: {e}")
             return Response({"error": str(e)}, status=500)
         
+@api_view(['POST'])
+def query_suggestor(request):
+    if request.method == 'POST':
+        try:
+            # Extract text input from the request
+            text = request.data.get("text", "")
+            if not text:
+                return Response({"error": "No text provided"}, status=400)
+            suggester_clint = resources.get_suggester_client()
+            result = suggester_clint.predict(
+                message=text,
+                system_message=f"""Generate 3 most related and important questions about the given topic/question.Don't include anything else in the response""",
+                max_tokens=512,
+                temperature=0.7,
+                top_p=0.95,
+                api_name="/chat"
+            )
+            result = result.strip()
+            print(f"Generated questions: {result}")
+            return Response({
+              "questions":result
+            })
+        
+
+        except FileNotFoundError as fnfe:
+            print(f"File error: {fnfe}")
+            return Response({"error": str(fnfe)}, status=500)
+        except Exception as e:
+            print(f"Error in pipeline: {e}")
+            return Response({"error": str(e)}, status=500)
