@@ -104,8 +104,8 @@ export function Avatar(props) {
   });
 
   const { nodes, materials } = useGLTF('/models/muslim_model.glb');
-  const { animations: IdleAnim } = useFBX('/animations/new_Standing Idle.fbx');
-  const { animations: TalkAnim } = useFBX('/animations/new_Standing Arguing.fbx');
+  const { animations: IdleAnim } = useFBX('/animations/new_Standing_Idle.fbx');
+  const { animations: TalkAnim } = useFBX('/animations/new_Standing_Arguing.fbx');
 
   IdleAnim[0].name = 'Idle';
   TalkAnim[0].name = 'Talk';

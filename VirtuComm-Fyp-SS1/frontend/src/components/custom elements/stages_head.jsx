@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ThemeSwitch from './themeToggle';
 
 const Button = () => {
-  const navigate = useNavigate(); // ✅ Correctly initialize useNavigate()
+  const navigate = useNavigate();
 
   return (
     <StyledWrapper>
