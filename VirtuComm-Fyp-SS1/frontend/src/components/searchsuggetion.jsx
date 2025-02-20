@@ -16,16 +16,20 @@ const SearchSuggestions = () => {
         },
         body: JSON.stringify({ text: input }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
       }
-
+  
       const data = await response.json();
       console.log("Fetched Data:", JSON.stringify(data, null, 2));
-
-      if (typeof data.result === "string") {
-        const questions = data.result.split("\n").map((q) => q.trim()).filter(Boolean);
+  
+      if (typeof data.questions === "string") {
+        const questions = data.questions
+          .split("\n")
+          .map((q) => q.trim())
+          .filter(Boolean);
+  
         setSuggestions(questions);
       } else {
         console.error("Unexpected data format", data);
@@ -37,6 +41,7 @@ const SearchSuggestions = () => {
     }
     setLoading(false);
   };
+  
 
   const handleInputChange = (event) => {
     const value = event.target.value;

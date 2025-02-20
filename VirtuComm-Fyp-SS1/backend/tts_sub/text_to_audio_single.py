@@ -1,8 +1,7 @@
-import subprocess  # For running Rhubarb CLI commands
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pydub import AudioSegment
-from .voiceGen import student  # Import your TTS functions
+from .voiceGen import student  
 import shutil
 import time
 
@@ -18,10 +17,8 @@ def generate_audio_from_plain_text(text, output_path):
 
     try:
         print(f"Generating audio for plain text: {text}")
-
-        # Call your single TTS function (student/teacher TTS functions are removed)
-        # Replace `student` with the actual TTS function for plain text
-        student(text)  # Assuming `student` is your default TTS function
+  
+        student(text)  
         generated_file = "student_file.wav"
 
         # Check if the generated file exists
@@ -42,8 +39,7 @@ def generate_audio_from_plain_text(text, output_path):
         final_audio.export(output_path, format="wav")
         print(f"Final audio saved as: {output_path}")
 
-        # Generate Lip Sync JSON for the final audio
-        #generate_lipsync_json_for_final_audio(output_path)
+   
 
     except Exception as e:
         print(f"Error processing plain text audio: {e}")
@@ -53,31 +49,6 @@ def generate_audio_from_plain_text(text, output_path):
         cleanup_generated_files([temp_audio_file], output_dir)
 
 
-# def generate_lipsync_json_for_final_audio(audio_file):
-#     """
-#     Generates a Rhubarb Lip Sync JSON file for the final concatenated audio.
-#     """
-#     json_file = f"{os.path.splitext(audio_file)[0]}.json"
-#     try:
-#         if not os.path.exists(audio_file):
-#             print(f"Error: Audio file not found at {audio_file}")
-#             return None
-
-#         print(f"Generating Rhubarb Lip Sync JSON for {audio_file}")
-        
-#         # Command to run Rhubarb
-#         command = ["./Rhubarb-Lip-Sync-1.13.0-Windows/rhubarb", "-f", "json", audio_file, "-o", json_file]
-#         print(f"Running command: {' '.join(command)}")
-        
-#         # Execute the command
-#         subprocess.run(command, check=True)
-#         print(f"Generated JSON: {json_file}")
-#         return json_file
-#     except subprocess.CalledProcessError as e:
-#         print(f"Error generating Rhubarb Lip Sync JSON for {audio_file}: {e}")
-#     except Exception as e:
-#         print(f"Unexpected error: {e}")
-#     return None
 
 
 def cleanup_generated_files(files, output_dir):

@@ -6,7 +6,7 @@ from .text_to_audio import generate_audio_from_text # Import audio generation pi
 from pydub import AudioSegment
 from .text_to_audio_single import generate_audio_from_plain_text
 from .audio_to_json_single import audio_to_json_single
-from .lipsing import generate_lipsync_json_for_final_audio
+from .utitlities import generate_lipsync_json_for_final_audio,formatQuerySuggester
 from concurrent.futures import ThreadPoolExecutor
 import os,json
 
@@ -160,16 +160,18 @@ def query_suggestor(request):
             suggester_clint = resources.get_suggester_client()
             result = suggester_clint.predict(
                 message=text,
-                system_message=f"""Generate 3 most related and important questions about the given topic/question.Don't include anything else in the response""",
+                system_message=f"""generate 3 questions regarding the topic/question given in input. Every question will start from new line and with [Question 1,2,3] as a tag. Make the question as short as possible. Don't include anything else except this in the response.""",
                 max_tokens=512,
                 temperature=0.7,
                 top_p=0.95,
                 api_name="/chat"
             )
-            result = result.strip()
-            print(f"Generated questions: {result}")
+            # result = result.strip()
+            #print(f"unformatted text: {result}")
+            formatted = formatQuerySuggester(result)
+            print(f"Generated questions: {formatted}")
             return Response({
-              "questions":result
+              "questions":formatted
             })
         
 

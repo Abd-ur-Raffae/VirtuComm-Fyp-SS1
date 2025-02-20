@@ -1,5 +1,6 @@
 
 import os,subprocess
+import re
 def generate_lipsync_json_for_final_audio(audio_file):
     """
     Generates a Rhubarb Lip Sync JSON file for the final concatenated audio.
@@ -26,3 +27,11 @@ def generate_lipsync_json_for_final_audio(audio_file):
         print(f"Unexpected error: {e}")
     return None
 
+def formatQuerySuggester(text):
+    pattern = re.compile(r'\[Question (\d+)\] (.+?)(?=\n\[Question \d+\]|\Z)', re.DOTALL)
+    matches = pattern.findall(text)
+    
+    # Convert matches into a dictionary
+    result = {f'Question {num}': question.strip() for num, question in matches}
+    
+    return result
