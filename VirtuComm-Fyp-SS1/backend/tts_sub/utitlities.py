@@ -28,9 +28,10 @@ def generate_lipsync_json_for_final_audio(audio_file):
     return None
 
 def formatQuerySuggester(text):
-    pattern = re.compile(r'\[Question (\d+)\] (.*?)\n', re.DOTALL)
+    pattern = re.compile(r'\[Question (\d+)\] (.+?)(?=\n\[Question \d+\]|\Z)', re.DOTALL)
     matches = pattern.findall(text)
     
+    # Convert matches into a dictionary
     result = {f'Question {num}': question.strip() for num, question in matches}
     
     return result

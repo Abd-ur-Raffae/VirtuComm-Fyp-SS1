@@ -160,13 +160,14 @@ def query_suggestor(request):
             suggester_clint = resources.get_suggester_client()
             result = suggester_clint.predict(
                 message=text,
-                system_message=f"""generate at least 3 questions regarding the topic/question given in input. Every question will start from new line and with [Question 1,2,3] as a tag. Make the question as short as possible. Don't include anything else except this in the response.""",
+                system_message=f"""generate 3 questions regarding the topic/question given in input. Every question will start from new line and with [Question 1,2,3] as a tag. Make the question as short as possible. Don't include anything else except this in the response.""",
                 max_tokens=512,
                 temperature=0.7,
                 top_p=0.95,
                 api_name="/chat"
             )
-            result = result.strip()
+            # result = result.strip()
+            #print(f"unformatted text: {result}")
             formatted = formatQuerySuggester(result)
             print(f"Generated questions: {formatted}")
             return Response({
