@@ -47,6 +47,7 @@ const GLBModel = ({ url, position, rotation, scale }) => {
         rotation={[0, 1, 0]}
         scale={1.33} 
       />
+   
       <GLBModel 
         url="\models\table.glb" 
         position={[.5,.25,4.5]} 
@@ -54,7 +55,18 @@ const GLBModel = ({ url, position, rotation, scale }) => {
         scale={1.1} 
       />
 
-
+<GLBModel 
+        url="\models\microphone.glb" 
+        position={[1.7, 0.3, 4.5]} 
+        rotation={[0, 1, 0]}
+        scale={1.3} 
+      />
+<GLBModel 
+        url="\models\microphone2.glb" 
+        position={[-.65, 0.3, 4.8]} 
+        rotation={[0, 1, 0]}
+        scale={1.3} 
+      />
       <Environment preset="apartment" />
       
       <ambientLight intensity={1} />
