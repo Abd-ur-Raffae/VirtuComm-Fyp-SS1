@@ -1,76 +1,26 @@
-import whisper
-import json
-from difflib import SequenceMatcher
-
-def transcribe_audio(audio_file, model_name="base"):
-    model = whisper.load_model(model_name)
-    return model.transcribe(audio_file, word_timestamps=True)
+import os,json
+from gradio_client import handle_file
 
 
-def transcription_to_json(result, metadata):
+def transcribe_audio_api(audio, whisper_client):
     """
-    Converts transcription results to JSON with metadata-based speaker tagging.
-    Args:
-        result (dict): Transcription result from Whisper.
-        metadata (list): Metadata from the audio generation step.
-    Returns:
-        dict: JSON structure with speaker tags and transcription data.
+    Calls the Whisper API to transcribe an audio file, saves the transcription result
+    as a JSON file (with '_sub' appended to the base filename) in the same folder as the audio,
+    and returns the raw transcription result.
     """
-    json_data = {"segments": []}
-
-    def find_closest_speaker(segment_text):
-        """
-        Finds the speaker whose metadata text matches the segment_text most closely.
-        Args:
-            segment_text (str): The transcription segment text.
-        Returns:
-            str: The speaker (e.g., "student" or "teacher").
-        """
-        best_match = {"speaker": "Unknown", "ratio": 0}
-        for meta in metadata:
-            match_ratio = SequenceMatcher(None, segment_text, meta["text"]).ratio()
-            if match_ratio > best_match["ratio"]:
-                best_match = {"speaker": meta["speaker"], "ratio": match_ratio}
-        return best_match["speaker"]
-
-    for segment in result["segments"]:
-        segment_text = segment["text"].strip()
-        segment_start = segment["start"]
-        segment_end = segment["end"]
-
-        # Find the closest matching speaker using fuzzy logic
-        speaker = find_closest_speaker(segment_text)
-
-        # Process the words with timestamps
-        word_data = [
-            {
-                "word": word["word"],
-                "start_time": word["start"],
-                "end_time": word["end"],
-                "duration": word["end"] - word["start"]
-            }
-            for word in segment["words"]
-        ]
-
-        # Add the segment with speaker and corrected text
-        segment_data = {
-            "start_time": segment_start,
-            "end_time": segment_end,
-            "text": segment_text,
-            "words": word_data,
-            "speaker": speaker
-        }
-        json_data["segments"].append(segment_data)
-
-    return json_data
-
-def save_json(data, file_name="output_transcription.json"):
-    with open(file_name, "w", encoding="utf-8") as json_file:
-        json.dump(data, json_file, ensure_ascii=False, indent=4)
-    print(f"JSON file saved as '{file_name}'")
-
-def audio_to_json(audio_file, metadata, whisper_model, transcription_path):
-    result = whisper_model.transcribe(audio_file, word_timestamps=True)
-    json_data = transcription_to_json(result, metadata)
-    save_json(json_data, file_name=transcription_path)
-
+    try:
+        print(f"Transcribing {audio} via API...")
+        result = whisper_client.predict(
+            audio_file=handle_file(audio),
+            api_name="/predict"
+        )
+        # Create the JSON filename by appending "_sub" before the extension
+        base, ext = os.path.splitext(audio)
+        json_filename = f"{base}_sub.json"
+        with open(json_filename, "w", encoding="utf-8") as f:
+            json.dump(result, f, ensure_ascii=False, indent=4)
+        print(f"Transcription saved to: {json_filename}")
+        return result
+    except Exception as e:
+        print(f"Error transcribing {audio}: {e}")
+        return None

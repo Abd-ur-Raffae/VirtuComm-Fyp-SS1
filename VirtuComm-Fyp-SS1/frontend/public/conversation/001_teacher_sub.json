@@ -1,0 +1,90 @@
+{
+    "segments": [
+        {
+            "start_time": 0.0,
+            "end_time": 4.72,
+            "text": "Yes, Otter Fossilum has a unique voice. What's your favorite song by him?",
+            "words": [
+                {
+                    "word": " Yes,",
+                    "start_time": 0.0,
+                    "end_time": 0.32,
+                    "duration": 0.32
+                },
+                {
+                    "word": " Otter",
+                    "start_time": 0.56,
+                    "end_time": 0.74,
+                    "duration": 0.17999999999999994
+                },
+                {
+                    "word": " Fossilum",
+                    "start_time": 0.74,
+                    "end_time": 1.28,
+                    "duration": 0.54
+                },
+                {
+                    "word": " has",
+                    "start_time": 1.28,
+                    "end_time": 1.42,
+                    "duration": 0.1399999999999999
+                },
+                {
+                    "word": " a",
+                    "start_time": 1.42,
+                    "end_time": 1.6,
+                    "duration": 0.18000000000000016
+                },
+                {
+                    "word": " unique",
+                    "start_time": 1.6,
+                    "end_time": 1.88,
+                    "duration": 0.2799999999999998
+                },
+                {
+                    "word": " voice.",
+                    "start_time": 1.88,
+                    "end_time": 2.5,
+                    "duration": 0.6200000000000001
+                },
+                {
+                    "word": " What's",
+                    "start_time": 3.0,
+                    "end_time": 3.34,
+                    "duration": 0.33999999999999986
+                },
+                {
+                    "word": " your",
+                    "start_time": 3.34,
+                    "end_time": 3.44,
+                    "duration": 0.10000000000000009
+                },
+                {
+                    "word": " favorite",
+                    "start_time": 3.44,
+                    "end_time": 3.8,
+                    "duration": 0.3599999999999999
+                },
+                {
+                    "word": " song",
+                    "start_time": 3.8,
+                    "end_time": 4.14,
+                    "duration": 0.33999999999999986
+                },
+                {
+                    "word": " by",
+                    "start_time": 4.14,
+                    "end_time": 4.42,
+                    "duration": 0.28000000000000025
+                },
+                {
+                    "word": " him?",
+                    "start_time": 4.42,
+                    "end_time": 4.72,
+                    "duration": 0.2999999999999998
+                }
+            ],
+            "speaker": "teacher"
+        }
+    ]
+}

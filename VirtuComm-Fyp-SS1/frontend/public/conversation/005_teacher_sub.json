@@ -1,0 +1,152 @@
+{
+    "segments": [
+        {
+            "start_time": 0.0,
+            "end_time": 3.56,
+            "text": "Yes, he has acted in a few films and TV shows.",
+            "words": [
+                {
+                    "word": " Yes,",
+                    "start_time": 0.0,
+                    "end_time": 0.46,
+                    "duration": 0.46
+                },
+                {
+                    "word": " he",
+                    "start_time": 0.78,
+                    "end_time": 0.9,
+                    "duration": 0.12
+                },
+                {
+                    "word": " has",
+                    "start_time": 0.9,
+                    "end_time": 1.1,
+                    "duration": 0.20000000000000007
+                },
+                {
+                    "word": " acted",
+                    "start_time": 1.1,
+                    "end_time": 1.42,
+                    "duration": 0.31999999999999984
+                },
+                {
+                    "word": " in",
+                    "start_time": 1.42,
+                    "end_time": 1.64,
+                    "duration": 0.21999999999999997
+                },
+                {
+                    "word": " a",
+                    "start_time": 1.64,
+                    "end_time": 1.74,
+                    "duration": 0.10000000000000009
+                },
+                {
+                    "word": " few",
+                    "start_time": 1.74,
+                    "end_time": 1.94,
+                    "duration": 0.19999999999999996
+                },
+                {
+                    "word": " films",
+                    "start_time": 1.94,
+                    "end_time": 2.42,
+                    "duration": 0.48
+                },
+                {
+                    "word": " and",
+                    "start_time": 2.42,
+                    "end_time": 2.62,
+                    "duration": 0.20000000000000018
+                },
+                {
+                    "word": " TV",
+                    "start_time": 2.62,
+                    "end_time": 2.94,
+                    "duration": 0.31999999999999984
+                },
+                {
+                    "word": " shows.",
+                    "start_time": 2.94,
+                    "end_time": 3.56,
+                    "duration": 0.6200000000000001
+                }
+            ],
+            "speaker": "teacher"
+        },
+        {
+            "start_time": 4.02,
+            "end_time": 7.8,
+            "text": "His acting career, though not as prominent, has shown his versatility.",
+            "words": [
+                {
+                    "word": " His",
+                    "start_time": 4.02,
+                    "end_time": 4.26,
+                    "duration": 0.2400000000000002
+                },
+                {
+                    "word": " acting",
+                    "start_time": 4.26,
+                    "end_time": 4.62,
+                    "duration": 0.3600000000000003
+                },
+                {
+                    "word": " career,",
+                    "start_time": 4.62,
+                    "end_time": 5.08,
+                    "duration": 0.45999999999999996
+                },
+                {
+                    "word": " though",
+                    "start_time": 5.28,
+                    "end_time": 5.38,
+                    "duration": 0.09999999999999964
+                },
+                {
+                    "word": " not",
+                    "start_time": 5.38,
+                    "end_time": 5.58,
+                    "duration": 0.20000000000000018
+                },
+                {
+                    "word": " as",
+                    "start_time": 5.58,
+                    "end_time": 5.76,
+                    "duration": 0.17999999999999972
+                },
+                {
+                    "word": " prominent,",
+                    "start_time": 5.76,
+                    "end_time": 6.18,
+                    "duration": 0.41999999999999993
+                },
+                {
+                    "word": " has",
+                    "start_time": 6.38,
+                    "end_time": 6.52,
+                    "duration": 0.13999999999999968
+                },
+                {
+                    "word": " shown",
+                    "start_time": 6.52,
+                    "end_time": 6.8,
+                    "duration": 0.28000000000000025
+                },
+                {
+                    "word": " his",
+                    "start_time": 6.8,
+                    "end_time": 7.04,
+                    "duration": 0.2400000000000002
+                },
+                {
+                    "word": " versatility.",
+                    "start_time": 7.04,
+                    "end_time": 7.8,
+                    "duration": 0.7599999999999998
+                }
+            ],
+            "speaker": "teacher"
+        }
+    ]
+}

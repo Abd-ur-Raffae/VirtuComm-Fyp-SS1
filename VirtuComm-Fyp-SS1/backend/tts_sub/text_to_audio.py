@@ -1,33 +1,27 @@
-import subprocess  # For running Rhubarb CLI commands
 import os
-from concurrent.futures import ThreadPoolExecutor
-from .voiceGen import student, teacher  # Import your TTS functions
-from pydub import AudioSegment
 import re
-import shutil
 import time
-
+import shutil
+from concurrent.futures import ThreadPoolExecutor
+from pydub import AudioSegment
+from .voiceGen import student, teacher  # Your TTS functions
 
 def text_to_conversation_with_tags(text):
     """
-    Converts a text with explicit speaker tags into a conversation dictionary.
+    Converts text with speaker tags into a list of (speaker, line) tuples.
     """
     pattern = r"\[([^\]]+)\]\s*(.*)"
     matches = re.findall(pattern, text)
     return [(speaker.strip(), sentence.strip()) for speaker, sentence in matches]
 
-
-def generate_audio_for_sentence(speaker, line_text, i, output_dir):
+def generate_audio_for_sentence(speaker, line_text, index, output_dir):
     """
-    Generate the audio file for a single sentence and speaker.
+    Generates the audio file for a single sentence.
     """
-    output_file = os.path.join(output_dir, f"{i:03d}_{speaker}.wav")
-    temp_file = os.path.join(output_dir, f"temp_{i}.wav")
-
+    output_file = os.path.join(output_dir, f"{index:03d}_{speaker}.wav")
+    temp_file = os.path.join(output_dir, f"temp_{index}.wav")
     try:
         print(f"Generating audio for {speaker}: {line_text}")
-
-        # Call the appropriate TTS function
         if speaker.lower() == "student":
             student(line_text)
             generated_file = "student_file.wav"
@@ -38,7 +32,7 @@ def generate_audio_for_sentence(speaker, line_text, i, output_dir):
             print(f"Warning: Unrecognized speaker '{speaker}'")
             return None
 
-        # Check if the generated file exists
+        # Wait for the generated file to appear and then move/rename it.
         retries = 5
         for _ in range(retries):
             if os.path.exists(generated_file):
@@ -47,147 +41,65 @@ def generate_audio_for_sentence(speaker, line_text, i, output_dir):
                 print(f"Generated and renamed: {output_file}")
                 return output_file
             else:
-                time.sleep(0.5)  # Wait briefly for the file to appear
-
+                time.sleep(0.5)
         print(f"Error: File '{generated_file}' not found after retries for {speaker}.")
     except Exception as e:
         print(f"Error generating audio for {speaker}: {e}")
     return None
 
-
-# def generate_lipsync_json_for_final_audio(audio_file):
-#     """
-#     Generates a Rhubarb Lip Sync JSON file for the final concatenated audio.
-#     """
-#     json_file = f"{os.path.splitext(audio_file)[0]}.json"
-#     try:
-#         if not os.path.exists(audio_file):
-#             print(f"Error: Audio file not found at {audio_file}")
-#             return None
-
-#         print(f"Generating Rhubarb Lip Sync JSON for {audio_file}")
-        
-#         # Command to run Rhubarb
-#         command = ["./Rhubarb-Lip-Sync-1.13.0-Windows/rhubarb","-f", "json",audio_file,"-o", json_file]
-#         print(f"Running command: {' '.join(command)}")
-        
-#         # Execute the command
-#         subprocess.run(command, check=True)
-#         print(f"Generated JSON: {json_file}")
-#         return json_file
-#     except subprocess.CalledProcessError as e:
-#         print(f"Error generating Rhubarb Lip Sync JSON for {audio_file}: {e}")
-#     except Exception as e:
-#         print(f"Unexpected error: {e}")
-#     return None
-
-
-
-def generate_audio_from_text(text, output_path="final_conversation_withAPI.wav"):
+def process_line_pipeline(speaker, line_text, index, output_dir, whisper_client):
     """
-    Generates audio from text by calling the respective speaker functions (student/teacher).
+    Processes a single conversation line:
+      1. Generate audio.
+      2. Transcribe the audio.
+      3. Generate lip sync JSON.
+    Returns a dictionary with the results.
+    """
+    result = {"speaker": speaker, "text": line_text, "index": index}
+    audio_file = generate_audio_for_sentence(speaker, line_text, index, output_dir)
+    if not audio_file:
+        result["error"] = "Audio generation failed"
+        return result
+    result["audio_file"] = audio_file
+
+    # Transcribe the audio.
+    from . import audio_to_json  # Import the transcription module
+    transcription = audio_to_json.transcribe_audio_api(audio_file, whisper_client)
+    result["transcription"] = transcription
+
+    # Generate lip sync JSON.
+    from . utilities import generate_lipsync_for_patch  # Assuming utilities.py is in your PYTHONPATH
+    lipsync = generate_lipsync_for_patch(audio_file)
+    result["lipsync"] = lipsync
+
+    return result
+
+def process_conversation_pipeline(text, output_dir, whisper_client, max_workers=4):
+    """
+    Processes the entire conversation:
+      - Parses the dialogue.
+      - For each line, concurrently generates audio, transcribes it, and creates lip sync JSON.
+    Returns a list of result dictionaries.
     """
     conversation = text_to_conversation_with_tags(text)
     if not conversation:
         print("Error: No valid conversation found in the text.")
-        return
+        return []
 
-    output_dir = os.path.join("tts_sub", "conversation_audio")
+       
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+
+    # Create a new empty folder
     os.makedirs(output_dir, exist_ok=True)
 
-    metadata = []  # To store speaker, text, and file info
-    failed_lines = []  # To log failed lines
-
-    def retry_failed_lines(failed_lines, output_dir):
-        """
-        Retry generating audio for failed lines.
-        """
-        retries_metadata = []
-        for speaker, line_text, i in failed_lines:
-            print(f"Retrying failed line {i}: {speaker}: {line_text}")
-            result = generate_audio_for_sentence(speaker, line_text, i, output_dir)
-            if result:
-                retries_metadata.append({
-                    "file": result,
-                    "speaker": speaker,
-                    "text": line_text,
-                    "index": i
-                })
-            else:
-                print(f"Retry failed again for line {i}: {speaker}: {line_text}")
-        return retries_metadata
-
-    # Create a thread pool executor for parallel processing
-    with ThreadPoolExecutor() as executor:
-        futures = {
-            executor.submit(generate_audio_for_sentence, speaker, line_text, i, output_dir): (speaker, line_text, i)
-            for i, (speaker, line_text) in enumerate(conversation)
-        }
-
+    results = []
+    args = [(speaker, line_text, i, output_dir, whisper_client)
+            for i, (speaker, line_text) in enumerate(conversation)]
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(process_line_pipeline, *arg) for arg in args]
         for future in futures:
-            speaker, line_text, i = futures[future]
-            try:
-                result = future.result()
-                if result:
-                    metadata.append({
-                        "file": result,
-                        "speaker": speaker,
-                        "text": line_text,
-                        "index": i
-                    })
-                else:
-                    print(f"Failed to generate audio for line {i}: {speaker}: {line_text}")
-                    failed_lines.append((speaker, line_text, i))
-            except Exception as e:
-                print(f"Error processing a future for line {i}: {e}")
-                failed_lines.append((speaker, line_text, i))
-
-    # Retry for failed lines
-    if failed_lines:
-        retry_metadata = retry_failed_lines(failed_lines, output_dir)
-        metadata.extend(retry_metadata)
-
-    # Ensure metadata is sorted by index
-    metadata.sort(key=lambda x: x["index"])
-
-    # Concatenate audio files in order
-    conversation_audio = AudioSegment.empty()
-    for meta in metadata:
-        try:
-            conversation_audio += AudioSegment.from_file(meta["file"])
-        except Exception as e:
-            print(f"Error adding file {meta['file']} to conversation: {e}")
-
-    # Export the final conversation audio
-    try:
-        conversation_audio.export(output_path, format="wav")
-        print(f"Final conversation audio saved as: {output_path}")
-        
-        # generate_lipsync_json_for_final_audio(output_path)
-    except Exception as e:
-        print(f"Error exporting final audio: {e}")
-
-    if failed_lines:
-        print("The following lines failed even after retries:")
-        for speaker, line_text, i in failed_lines:
-            print(f"Line {i}: {speaker}: {line_text}")
-
-    # Cleanup temporary files
-    cleanup_generated_files(metadata, output_dir)
-
-    return metadata
-
-
-def cleanup_generated_files(metadata, output_dir):
-    """
-    Deletes temporary files and cleans up the directory.
-    """
-    try:
-        for meta in metadata:
-            if os.path.exists(meta["file"]):
-                os.remove(meta["file"])
-        if os.path.exists(output_dir):
-            os.rmdir(output_dir)
-        print(f"Cleaned up directory: {output_dir}")
-    except Exception as e:
-        print(f"Error during cleanup: {e}")
+            res = future.result()
+            results.append(res)
+    results.sort(key=lambda x: x.get("index", 0))
+    return results

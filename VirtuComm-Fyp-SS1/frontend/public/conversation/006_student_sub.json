@@ -1,0 +1,96 @@
+{
+    "segments": [
+        {
+            "start_time": 0.0,
+            "end_time": 3.48,
+            "text": "I didn't know that. I'll have to check out some of his acting roles.",
+            "words": [
+                {
+                    "word": " I",
+                    "start_time": 0.0,
+                    "end_time": 0.3,
+                    "duration": 0.3
+                },
+                {
+                    "word": " didn't",
+                    "start_time": 0.3,
+                    "end_time": 0.44,
+                    "duration": 0.14
+                },
+                {
+                    "word": " know",
+                    "start_time": 0.44,
+                    "end_time": 0.6,
+                    "duration": 0.15999999999999998
+                },
+                {
+                    "word": " that.",
+                    "start_time": 0.6,
+                    "end_time": 0.78,
+                    "duration": 0.18000000000000005
+                },
+                {
+                    "word": " I'll",
+                    "start_time": 1.46,
+                    "end_time": 1.7,
+                    "duration": 0.24
+                },
+                {
+                    "word": " have",
+                    "start_time": 1.7,
+                    "end_time": 1.82,
+                    "duration": 0.1200000000000001
+                },
+                {
+                    "word": " to",
+                    "start_time": 1.82,
+                    "end_time": 2.0,
+                    "duration": 0.17999999999999994
+                },
+                {
+                    "word": " check",
+                    "start_time": 2.0,
+                    "end_time": 2.18,
+                    "duration": 0.18000000000000016
+                },
+                {
+                    "word": " out",
+                    "start_time": 2.18,
+                    "end_time": 2.42,
+                    "duration": 0.23999999999999977
+                },
+                {
+                    "word": " some",
+                    "start_time": 2.42,
+                    "end_time": 2.64,
+                    "duration": 0.2200000000000002
+                },
+                {
+                    "word": " of",
+                    "start_time": 2.64,
+                    "end_time": 2.78,
+                    "duration": 0.13999999999999968
+                },
+                {
+                    "word": " his",
+                    "start_time": 2.78,
+                    "end_time": 2.9,
+                    "duration": 0.1200000000000001
+                },
+                {
+                    "word": " acting",
+                    "start_time": 2.9,
+                    "end_time": 3.16,
+                    "duration": 0.26000000000000023
+                },
+                {
+                    "word": " roles.",
+                    "start_time": 3.16,
+                    "end_time": 3.48,
+                    "duration": 0.31999999999999984
+                }
+            ],
+            "speaker": "student"
+        }
+    ]
+}

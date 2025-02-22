@@ -1,0 +1,120 @@
+{
+    "segments": [
+        {
+            "start_time": 0.0,
+            "end_time": 5.98,
+            "text": "That's a great choice. His ability to convey emotion in his songs is one of his strongest points.",
+            "words": [
+                {
+                    "word": " That's",
+                    "start_time": 0.0,
+                    "end_time": 0.48,
+                    "duration": 0.48
+                },
+                {
+                    "word": " a",
+                    "start_time": 0.48,
+                    "end_time": 0.56,
+                    "duration": 0.08000000000000007
+                },
+                {
+                    "word": " great",
+                    "start_time": 0.56,
+                    "end_time": 0.74,
+                    "duration": 0.17999999999999994
+                },
+                {
+                    "word": " choice.",
+                    "start_time": 0.74,
+                    "end_time": 1.28,
+                    "duration": 0.54
+                },
+                {
+                    "word": " His",
+                    "start_time": 1.82,
+                    "end_time": 2.02,
+                    "duration": 0.19999999999999996
+                },
+                {
+                    "word": " ability",
+                    "start_time": 2.02,
+                    "end_time": 2.44,
+                    "duration": 0.41999999999999993
+                },
+                {
+                    "word": " to",
+                    "start_time": 2.44,
+                    "end_time": 2.74,
+                    "duration": 0.30000000000000027
+                },
+                {
+                    "word": " convey",
+                    "start_time": 2.74,
+                    "end_time": 3.06,
+                    "duration": 0.31999999999999984
+                },
+                {
+                    "word": " emotion",
+                    "start_time": 3.06,
+                    "end_time": 3.54,
+                    "duration": 0.48
+                },
+                {
+                    "word": " in",
+                    "start_time": 3.54,
+                    "end_time": 3.74,
+                    "duration": 0.20000000000000018
+                },
+                {
+                    "word": " his",
+                    "start_time": 3.74,
+                    "end_time": 3.92,
+                    "duration": 0.17999999999999972
+                },
+                {
+                    "word": " songs",
+                    "start_time": 3.92,
+                    "end_time": 4.34,
+                    "duration": 0.41999999999999993
+                },
+                {
+                    "word": " is",
+                    "start_time": 4.34,
+                    "end_time": 4.52,
+                    "duration": 0.17999999999999972
+                },
+                {
+                    "word": " one",
+                    "start_time": 4.52,
+                    "end_time": 4.82,
+                    "duration": 0.3000000000000007
+                },
+                {
+                    "word": " of",
+                    "start_time": 4.82,
+                    "end_time": 4.94,
+                    "duration": 0.1200000000000001
+                },
+                {
+                    "word": " his",
+                    "start_time": 4.94,
+                    "end_time": 5.1,
+                    "duration": 0.15999999999999925
+                },
+                {
+                    "word": " strongest",
+                    "start_time": 5.1,
+                    "end_time": 5.52,
+                    "duration": 0.41999999999999993
+                },
+                {
+                    "word": " points.",
+                    "start_time": 5.52,
+                    "end_time": 5.98,
+                    "duration": 0.46000000000000085
+                }
+            ],
+            "speaker": "teacher"
+        }
+    ]
+}

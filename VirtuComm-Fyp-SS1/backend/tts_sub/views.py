@@ -1,85 +1,53 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from tts_sub.apps import resources  # Import preloaded resources
-from tts_sub.audio_to_json import audio_to_json  # Import transcription function
-from .text_to_audio import generate_audio_from_text # Import audio generation pipeline
+from .text_to_audio import process_conversation_pipeline # Import audio generation pipeline
 from pydub import AudioSegment
 from .text_to_audio_single import generate_audio_from_plain_text
-from .audio_to_json_single import audio_to_json_single
-from .utitlities import generate_lipsync_json_for_final_audio,formatQuerySuggester
+from .audio_to_json_single import audio_to_sub_single
+from .utilities import generate_lipsync_for_patch,formatQuerySuggester,generate_text
 from concurrent.futures import ThreadPoolExecutor
 import os,json
 
 
+
 @api_view(['POST'])
 def text_to_audio(request):
-    if request.method == 'POST':
-        try:
-            # Extract text input from the request
-            text = request.data.get("text", "")
-            if not text:
-                return Response({"error": "No text provided"}, status=400)
+    try:
+        text = request.data.get("text", "")
+        if not text:
+            return Response({"error": "No text provided"}, status=400)
 
-            # Check if input text is a topic or preformatted dialogue
-            if "[" not in text or "]" not in text:
-                convo_client = resources.get_convo_client()
-                result = convo_client.predict(
-                    message=text,
-                    system_message="""You are a chatbot which only replies shortly, you give different results every time and in the form of a dialogue 
-                    between two characters talking about the given topic in just 10  to 15  lines. When starting
-                    each person's dialogue, only start it with: '[student]' or '[teacher]' if you have to mention the names again, don't use brackets, 
-                    brackets only come when starting the sentence.""",
-                    max_tokens=512,
-                    temperature=0.7,
-                    top_p=0.95,
-                    api_name="/chat"
-                )
-                result = result.strip()
-                print(f"Generated dialogue: {result}")
+        # Generate dialogue if the input is a topic.
+        convo_client = resources.get_convo_client()
+        result_text = generate_text(convo_client, text)
+        print(f"Generated dialogue: {result_text}")
 
-            # Generate audio and metadata
-            output_audio_path = "media/final_conversation.wav"
-            metadata = generate_audio_from_text(result, output_path=output_audio_path)
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        output_folder = os.path.join(BASE_DIR, "../frontend/public/conversation")
+        output_folder = os.path.abspath(output_folder)
+        
+        whisper_client = resources.get_whisper_client()
 
-            # Generate Lip Sync JSON for final audio
-            
+        # Process the pipeline for each conversation line concurrently.
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, whisper_client, max_workers=4)
 
-            # Verify the audio file exists
-            if not os.path.exists(output_audio_path):
-                raise FileNotFoundError(f"Audio file not found: {output_audio_path}")
-            
-            # saving metadata:
-            file_name="media/metaDataDual.json"
-            finalData = {
-                "prompt": text,
-                "data":metadata
-            }
-            with open(file_name,"w",encoding="utf-8") as json_file:
-                json.dump(finalData,json_file,ensure_ascii=False, indent=4)
-            print(f"metadata file saved as {file_name}")
+        # Optionally, save metadata for reference.
+        file_name = "media/metaDataPatches.json"
+        final_data = {
+            "prompt": text,
+            "pipeline_results": pipeline_results
+        }
+        with open(file_name, "w", encoding="utf-8") as json_file:
+            json.dump(final_data, json_file, ensure_ascii=False, indent=4)
 
-            # Ensure audio format compatibility
-            audio = AudioSegment.from_file(output_audio_path)
-            audio.export(output_audio_path, format="wav", parameters=["-ar", "22050"])
-
-            transcription_path = "media/output_transcription.json"
-            
-            #lipsing and subtitle geneartion running paralelly now:
-            with ThreadPoolExecutor(max_workers=2) as executor:
-                executor.submit(generate_lipsync_json_for_final_audio, output_audio_path)
-                executor.submit(audio_to_json, output_audio_path, metadata, resources.get_whisper_model(), transcription_path)
-
-            return Response({
-                "message": "Pipeline executed successfully",
-                "audio_path": output_audio_path,
-                "transcription_path": transcription_path,
-            }, status=201)
-        except FileNotFoundError as fnfe:
-            print(f"File error: {fnfe}")
-            return Response({"error": str(fnfe)}, status=500)
-        except Exception as e:
-            print(f"Error in pipeline: {e}")
-            return Response({"error": str(e)}, status=500)
+        return Response({
+            "message": "Pipeline executed successfully",
+            "pipeline_results": pipeline_results,
+            "metadata_path": file_name,
+        }, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
         
 
 @api_view(['POST'])
@@ -105,6 +73,7 @@ def single_model(request):
                 )
                 result = result.strip()
                 print(f"Generated dialogue: {result}")
+                
 
             # Generate audio
             output_audio_path = "media/final_single.wav"
@@ -128,14 +97,8 @@ def single_model(request):
             #running lispin and subtitle geneartion parallely SHAYD
             transcription_path = "media/output_transcription_single.json"
             with ThreadPoolExecutor(max_workers=2) as executer:
-                executer.submit(generate_lipsync_json_for_final_audio,output_audio_path)
-                executer.submit(audio_to_json_single, output_audio_path, resources.get_whisper_model(), transcription_path)
-            
-
-            #generate_lipsync_json_for_final_audio(output_audio_path)
-            # Transcribe audio and generate JSON
-            
-            #audio_to_json_single(output_audio_path, resources.get_whisper_model(), transcription_path)
+                executer.submit(generate_lipsync_for_patch,output_audio_path)
+                executer.submit(audio_to_sub_single, output_audio_path)
 
             return Response({
                 "message": "Pipeline executed successfully",
@@ -166,8 +129,6 @@ def query_suggestor(request):
                 top_p=0.95,
                 api_name="/chat"
             )
-            # result = result.strip()
-            #print(f"unformatted text: {result}")
             formatted = formatQuerySuggester(result)
             print(f"Generated questions: {formatted}")
             return Response({
