@@ -6,7 +6,7 @@
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px;
   text-align: center;
   font-family: Arial, sans-serif;
 }
@@ -48,7 +48,7 @@
     position: relative;
     overflow: hidden;
     z-index: 1;
-    margin-top: 15px;
+    margin-top: 5px;
     color: #090909;
     padding: 0.4em 1.3em;
     cursor: pointer;
