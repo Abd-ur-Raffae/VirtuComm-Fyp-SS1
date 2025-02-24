@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "soundFile": "C:\\Users\\Abdur Raffae Masood\\OneDrive\\Desktop\\uni2\\VirtuComm-Fyp-SS1\\VirtuComm-Fyp-SS1\\frontend\\public\\conversation\\006_teacher.wav",
+    "duration": 3.38
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.27, "value": "X" },
+    { "start": 0.27, "end": 0.47, "value": "B" },
+    { "start": 0.47, "end": 0.57, "value": "A" },
+    { "start": 0.57, "end": 0.63, "value": "B" },
+    { "start": 0.63, "end": 0.71, "value": "A" },
+    { "start": 0.71, "end": 0.78, "value": "C" },
+    { "start": 0.78, "end": 1.26, "value": "B" },
+    { "start": 1.26, "end": 1.34, "value": "A" },
+    { "start": 1.34, "end": 1.39, "value": "C" },
+    { "start": 1.39, "end": 1.44, "value": "B" },
+    { "start": 1.44, "end": 1.52, "value": "A" },
+    { "start": 1.52, "end": 1.80, "value": "B" },
+    { "start": 1.80, "end": 1.87, "value": "C" },
+    { "start": 1.87, "end": 1.94, "value": "B" },
+    { "start": 1.94, "end": 2.08, "value": "C" },
+    { "start": 2.08, "end": 2.16, "value": "A" },
+    { "start": 2.16, "end": 2.30, "value": "H" },
+    { "start": 2.30, "end": 2.37, "value": "C" },
+    { "start": 2.37, "end": 2.65, "value": "B" },
+    { "start": 2.65, "end": 2.72, "value": "C" },
+    { "start": 2.72, "end": 3.00, "value": "B" },
+    { "start": 3.00, "end": 3.38, "value": "X" }
+  ]
+}

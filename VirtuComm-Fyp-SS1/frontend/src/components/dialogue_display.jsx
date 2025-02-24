@@ -4,7 +4,7 @@ import { Single_user_tts } from "./tts";
 const ChatScreen = () => {
   const [jsonFile, setJsonData] = useState(null);
   const baseMediaUrl = 'http://localhost:8000/api_tts/media/';
-  const jsonFileName = 'metaDataSingle.json';
+  const jsonFileName = 'metaDataPatches.json';
 
   // Fetch data for audio, lip-sync, and transcription JSON
   useEffect(() => {

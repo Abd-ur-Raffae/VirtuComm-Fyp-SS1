@@ -24,7 +24,7 @@ def text_to_audio(request):
         print(f"Generated dialogue: {result_text}")
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        output_folder = os.path.join(BASE_DIR, "../frontend/public/conversation")
+        output_folder = os.path.join(BASE_DIR, "../backend/media")
         output_folder = os.path.abspath(output_folder)
         
         whisper_client = resources.get_whisper_client()

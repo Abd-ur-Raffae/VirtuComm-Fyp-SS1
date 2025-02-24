@@ -1,0 +1,72 @@
+{
+    "segments": [
+        {
+            "start_time": 0.0,
+            "end_time": 2.66,
+            "text": "That would make a lot of tasks much more efficient.",
+            "words": [
+                {
+                    "word": " That",
+                    "start_time": 0.0,
+                    "end_time": 0.4,
+                    "duration": 0.4
+                },
+                {
+                    "word": " would",
+                    "start_time": 0.4,
+                    "end_time": 0.54,
+                    "duration": 0.14
+                },
+                {
+                    "word": " make",
+                    "start_time": 0.54,
+                    "end_time": 0.72,
+                    "duration": 0.17999999999999994
+                },
+                {
+                    "word": " a",
+                    "start_time": 0.72,
+                    "end_time": 0.9,
+                    "duration": 0.18000000000000005
+                },
+                {
+                    "word": " lot",
+                    "start_time": 0.9,
+                    "end_time": 1.12,
+                    "duration": 0.22000000000000008
+                },
+                {
+                    "word": " of",
+                    "start_time": 1.12,
+                    "end_time": 1.3,
+                    "duration": 0.17999999999999994
+                },
+                {
+                    "word": " tasks",
+                    "start_time": 1.3,
+                    "end_time": 1.68,
+                    "duration": 0.3799999999999999
+                },
+                {
+                    "word": " much",
+                    "start_time": 1.68,
+                    "end_time": 1.98,
+                    "duration": 0.30000000000000004
+                },
+                {
+                    "word": " more",
+                    "start_time": 1.98,
+                    "end_time": 2.24,
+                    "duration": 0.26000000000000023
+                },
+                {
+                    "word": " efficient.",
+                    "start_time": 2.24,
+                    "end_time": 2.66,
+                    "duration": 0.41999999999999993
+                }
+            ],
+            "speaker": "teacher"
+        }
+    ]
+}

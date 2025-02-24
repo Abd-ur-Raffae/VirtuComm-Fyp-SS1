@@ -1,4 +1,3 @@
-// Avatar.js
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useFrame, useGraph } from '@react-three/fiber';
 import { useAnimations, useFBX } from '@react-three/drei';
@@ -8,83 +7,63 @@ import { SkeletonUtils } from 'three-stdlib';
 import { useDialogueManager } from './1.3avatar_manager'; // Import the DialogueManager
 
 export function Avatar1({ isListening, ...props }) {
-  const { 
-    playAudio, 
-    // pauseAudio, 
-    updateLipSync, 
-    jsonFile, 
-    audio, 
-    // lipsync 
-  } = useDialogueManager({ dialogue: props.dialogue, isListening, onComplete: props.onComplete });
+    const { playAudio, updateLipSync, jsonFile, audio, isPlaying, speaker } = useDialogueManager({ 
+        dialogue: props.dialogue, 
+        isListening, 
+        onComplete: props.onComplete 
+    });
 
-  // Load model and animations
-  const { scene } = useGLTF('/models/student_1.glb');
-  const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
-  const { nodes, materials } = useGraph(clone);
+    // Load model and animations
+    const { scene } = useGLTF('/models/student_1.glb');
+    const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+    const { nodes, materials } = useGraph(clone);
 
-  const { animations: idleAnimations } = useFBX('/animations/Teacher_sitting.fbx');
-  idleAnimations[0].name = 'Idle';
-  const { animations: talkingAnimations } = useFBX('/animations/Teacher_talking.fbx');
-  talkingAnimations[0].name = 'Talking';
+    const { animations: idleAnimations } = useFBX('/animations/Teacher_sitting.fbx');
+    idleAnimations[0].name = 'Idle';
+    const { animations: talkingAnimations } = useFBX('/animations/Teacher_talking.fbx');
+    talkingAnimations[0].name = 'Talking';
 
-  const group = useRef();
-  const { actions } = useAnimations([idleAnimations[0], talkingAnimations[0]], group);
-  
+    const group = useRef();
+    const { actions } = useAnimations([idleAnimations[0], talkingAnimations[0]], group);
 
-  useEffect(() => {
-    const idleAction = actions['Idle'];
-    const talkingAction = actions['Talking'];
-  
-    if (!idleAction || !talkingAction) {
-      console.error('Actions not found:', { idleAction, talkingAction });
-      return;
-    }
-  
-    idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
-    talkingAction.setLoop(THREE.LoopRepeat, Infinity);
-  
-    if (playAudio && jsonFile?.segments && audio) {
-      const currentSegment = jsonFile.segments.find(segment => 
-        audio.currentTime >= segment.start_time && audio.currentTime <= segment.end_time
-      );
-  
-      console.log('Current Segment:', currentSegment);
-  
-      if (currentSegment?.speaker === 'student') {
-        idleAction.stop();
-        talkingAction.reset().play();
-      } else {
-        talkingAction.stop();
-        idleAction.reset().play();
-      }
-    }
-  }, [playAudio, jsonFile, audio, actions]);
-  
-  useFrame(() => {
-    if (audio && audio.currentTime !== undefined && playAudio) {
-      const currentSegment = jsonFile?.segments?.find(segment => 
-        audio?.currentTime >= segment.start_time && audio?.currentTime <= segment.end_time
-      );
-  
-      if (currentSegment?.speaker === 'student') {
-        console.log('Updating Lip Sync:', audio.currentTime);
-        updateLipSync(audio.currentTime, nodes);
-      }
-    }
-  });
-  
-  
-  
-  useEffect(() => {
-    if (audio) {
-      if (playAudio) {
-        audio.play();
-      } else {
-        audio.pause();
-      }
-    }
-  }, [playAudio, audio]);
-  
+    useEffect(() => {
+        const idleAction = actions['Idle'];
+        const talkingAction = actions['Talking'];
+
+        if (!idleAction || !talkingAction) {
+            console.error('Actions not found:', { idleAction, talkingAction });
+            return;
+        }
+
+        idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
+        talkingAction.setLoop(THREE.LoopRepeat, Infinity);
+
+        if (isPlaying && jsonFile?.segments && audio) {
+            const currentSegment = jsonFile.segments.find(segment => 
+                audio.currentTime >= segment.start_time && audio.currentTime <= segment.end_time
+            );
+
+            if (currentSegment?.speaker === 'student') {
+                idleAction.stop();
+                talkingAction.reset().play();
+            } else {
+                talkingAction.stop();
+                idleAction.reset().play();
+            }
+        }
+    }, [isPlaying, jsonFile, audio, actions]);
+
+    useFrame(() => {
+        if (audio && audio.currentTime !== undefined && isPlaying) {
+            const currentSegment = jsonFile?.segments?.find(segment => 
+                audio?.currentTime >= segment.start_time && audio?.currentTime <= segment.end_time
+            );
+
+            if (currentSegment?.speaker === 'student') {
+                updateLipSync(audio.currentTime, nodes);
+            }
+        }
+    });
 
   return (
     <group
