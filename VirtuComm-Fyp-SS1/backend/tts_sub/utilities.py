@@ -1,11 +1,17 @@
 import os,re
-import json
+from .apps import resources 
+from concurrent.futures import ThreadPoolExecutor
 import subprocess
+import shutil
+from .audio_to_json import transcribe_audio_api
+from .voiceGen import student,teacher,process_audio_file
 
-def generate_text(convo_client, text):
+
+def generate_text(text):
     """
     Generates dialogue using the conversation client if the input text is not already in dialogue format.
     """
+    convo_client = resources.get_convo_client()
     if "[" not in text or "]" not in text:
         system_message = (
             "You are a chatbot which only replies shortly. You give different results every time "
@@ -78,3 +84,68 @@ def formatQuerySuggester(text):
     result = {f'Question {num}': question.strip() for num, question in matches}
     
     return result
+
+
+def recheck_for_errors(pipeline_results, output_path):
+    for segment in pipeline_results:
+        if "error" in segment or segment.get("transcription") is None or not segment.get("lipsync"):
+
+            error_index = segment["index"]
+            error_text = segment["text"]
+            error_speaker = segment["speaker"].lower()  
+            filename = f"{error_index:03d}_{error_speaker}.wav"
+            print(f"Failed audio: {filename}")
+
+            if error_speaker == "teacher":
+                generated_file = "teacher_file.wav"
+                teacher(error_text)
+            elif error_speaker == "student":
+                generated_file = "student_file.wav"
+                student(error_text)
+            else:
+                print(f"Unknown speaker type: {error_speaker}")
+                continue  
+
+            print(f"Generated file is: {generated_file}")
+
+            rename_move(generated_file, output_path, filename)
+
+            # Pass full absolute path
+            full_path = os.path.abspath(os.path.join(output_path, filename))
+
+
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                future_transcription = executor.submit(transcribe_audio_api,full_path)
+                future_lipsync = executor.submit(generate_lipsync_for_patch,full_path)
+
+                transcription_result = future_transcription.result()
+                lipsync_result  =future_lipsync.result()
+
+
+            segment.pop("error",None)
+            segment["audio"] = full_path
+            segment["transcription"] = transcription_result
+            segment["lipsync"] = lipsync_result
+
+    remove_garbage("../")
+    return pipeline_results
+
+def rename_move(source, destination, filename):
+    if os.path.exists(source):
+        new_path = os.path.join(destination, filename)
+        shutil.move(source, new_path)
+        print(f"File is located at: {new_path}")
+    else:
+        print(f"Error: Source file '{source}' not found.")
+
+
+
+def remove_garbage(directory):
+    """Remove all .mp3 files from the specified directory (backend/)."""
+    backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), directory))
+    for file in os.listdir(backend_dir):
+        if file.endswith(".mp3"):
+            file_path = os.path.join(backend_dir, file)
+            os.remove(file_path)
+            print(f"Deleted MP3: {file_path}")
+
