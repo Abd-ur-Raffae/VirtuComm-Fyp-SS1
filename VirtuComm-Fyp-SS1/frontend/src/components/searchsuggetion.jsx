@@ -1,90 +1,126 @@
-import React, { useState } from "react";
-import Loader from "./custom elements/loader";
-import "./custom elements/loader.css"; // Import the CSS file for styling
+import React, { useState, useEffect, useRef } from 'react';
 
-const SearchSuggestions = () => {
+const BASE_URL = "https://typegpt-webscout-api.hf.space";
+
+function TypeGPTSearch() {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [typingTimeout, setTypingTimeout] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const debounceTimeout = useRef(null);
 
-  const fetchSuggestions = async (input) => {
-    setLoading(true);
-    try {
-      const response = await fetch("http://localhost:8000/api_tts/querySuggest/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log("Fetched Data:", JSON.stringify(data, null, 2));
-
-      if (typeof data.questions === "object") {
-        const questions = Object.values(data.questions);
-        setSuggestions(questions);
-      } else {
-        console.error("Unexpected data format", data);
-        setSuggestions([]);
-      }
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
+  // Fetch suggestions with debounce
+  useEffect(() => {
+    if (!query.trim()) {
       setSuggestions([]);
+      setSelectedIndex(-1);
+      return;
     }
-    setLoading(false);
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      fetch(`${BASE_URL}/api/suggestions?q=${encodeURIComponent(query)}`)
+        .then((res) => res.ok ? res.json() : [])
+        .then((data) => setSuggestions(data))
+        .catch((err) => {
+          console.error("Error fetching suggestions:", err);
+          setSuggestions([]);
+        });
+    }, 500);
+    // Cleanup on unmount or query change
+    return () => clearTimeout(debounceTimeout.current);
+  }, [query]);
+
+  const handleInputChange = (e) => {
+    setQuery(e.target.value);
   };
 
-  const handleInputChange = (event) => {
-    const value = event.target.value;
-    setQuery(value);
-  
-    if (typingTimeout) clearTimeout(typingTimeout);
-  
-    if (value.trim() === "") {
-      setLoading(false);
-      setSuggestions([]); // Clear suggestions when input is empty
-      return; // Exit the function early to prevent fetching
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prevIndex) =>
+        prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prevIndex) =>
+        prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
+      );
+    } else if (e.key === "Enter") {
+      if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+        setQuery(suggestions[selectedIndex].phrase);
+        setSuggestions([]);
+        // Call your search function here with the chosen suggestion
+      }
     }
-  
-    setLoading(true);
-    setTypingTimeout(setTimeout(() => {
-      fetchSuggestions(value.trim());
-    }, 3000)); // 3-second delay
   };
-  
+
+  const handleSuggestionClick = (suggestion) => {
+    setQuery(suggestion.phrase);
+    setSuggestions([]);
+    // Trigger search with suggestion.phrase if needed
+  };
 
   return (
-    <div className="search-container">
-      <div className="input-wrapper">
-        <input
-          type="text"
-          value={query}
-          onChange={handleInputChange}
-          placeholder="Search..."
-          className="search-input"
-        />
-        {loading && <div className="loader-container"><Loader /></div>}
-      </div>
-
-      {suggestions.length > 0 && !loading && (
-        <ul className="suggestions-list">
-          {suggestions.map((suggestion, index) => (
+    <div className="search-container" style={styles.container}>
+      <input
+        type="text"
+        value={query}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        placeholder="Search the web"
+        style={styles.input}
+        autoComplete="off"
+      />
+      {suggestions.length > 0 && (
+        <ul style={styles.suggestionsList}>
+          {suggestions.map((sugg, index) => (
             <li
               key={index}
-              className="suggestion-item"
-              onClick={() => setQuery(query + " " + suggestion)}
+              onClick={() => handleSuggestionClick(sugg)}
+              style={{
+                ...styles.suggestionItem,
+                backgroundColor: selectedIndex === index ? "#f0f0f0" : "#fff",
+              }}
             >
-              {suggestion}
+              {sugg.phrase}
             </li>
           ))}
         </ul>
       )}
     </div>
   );
+}
+
+const styles = {
+  container: {
+    position: "relative",
+    maxWidth: "700px",
+    margin: "0 auto",
+    padding: "20px",
+  },
+  input: {
+    width: "100%",
+    padding: "12px 16px",
+    borderRadius: "24px",
+    border: "2px solid #4285f4",
+    fontSize: "16px",
+    outline: "none",
+  },
+  suggestionsList: {
+    listStyle: "none",
+    padding: 0,
+    margin: "8px 0 0 0",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    backgroundColor: "#fff",
+    position: "absolute",
+    width: "100%",
+    zIndex: 10,
+  },
+  suggestionItem: {
+    padding: "10px 12px",
+    cursor: "pointer",
+    borderBottom: "1px solid #eee",
+  },
 };
 
-export default SearchSuggestions;
+export default TypeGPTSearch;

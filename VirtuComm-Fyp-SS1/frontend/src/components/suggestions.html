@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search - TypeGPT</title>
+  <link rel="icon" href="https://www.gstatic.com/favicon/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+*{box-sizing:border-box}
+body{margin:0;padding:0;font-family:"Poppins",sans-serif;background-color:#f8f9fa}
+a{text-decoration:none;color:#1a0dab}
+a:hover{text-decoration:underline}
+.main-content{display:flex;flex-direction:column;align-items:center;padding:50px 20px}
+.search-container{width:100%;max-width:700px;position:relative;width:60%;margin-bottom:20px}
+.search-box{width:100%;padding:12px 16px;border:2px solid #4285f4;border-radius:24px;box-shadow:0 2px 4px rgba(0,0,0,0.1);transition:box-shadow .2s ease-in-out,width .3s ease,border-color .3s ease;display:flex;align-items:center}
+.search-box:focus-within{box-shadow:0 4px 8px rgba(32,33,36,0.35);border-color:#ea4335}
+#search-query{width:calc(100% - 40px);border:none;outline:0;font-size:16px;padding:4px 0;transition:font-size .2s ease}
+#search-query::placeholder{color:#9aa0a6;transition:color .2s ease}
+#search-query:focus{font-size:18px}
+#search-query:focus::placeholder{color:transparent}
+#search-form button{background:0 0;border:none;cursor:pointer;padding:8px;margin-left:10px;transition:transform .2s ease}
+#search-form button:hover{transform:scale(1.1)}
+#search-form button svg{display:none}
+#search-form button::after{content:"\f002";color:#9aa0a6;transition:color .2s ease,transform .2s ease;font:900 1.2em "Font Awesome 5 Free"}
+#search-form button:hover::after{color:#4285f4;transform:scale(1.1)}
+#suggestions{width:calc(80% - 32px);background-color:#fff;border:none;border-radius:8px;box-shadow:0 4px 6px rgba(32,33,36,0.28);display:none;position:absolute;top:100%;left:0;z-index:10;opacity:0;transform:translateY(10px);transition:opacity .3s ease,transform .3s ease;padding:10px 0}
+@keyframes spin {
+0%{transform:rotate(0)}
+100%{transform:rotate(360deg)}
+}
+#suggestions ul{list-style-type:none;padding:0;margin:0}
+#suggestions li{padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee;transition:background-color .2s ease}
+#suggestions li:hover{background-color:#e9e9e9}
+#suggestions li.selected{background-color:#f0f0f0}
+.search-box:focus-within+#suggestions,.search-box:hover+#suggestions{display:block;opacity:1;transform:translateY(0)}
+#results{width:100%;max-width:700px;margin-top:20px}
+.result,.ai-result{margin-bottom:20px;padding:15px;border-radius:8px;background-color:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.1);opacity:0;transform:translateY(10px);transition:opacity .3s ease,transform .3s ease;animation:fadeInUp .5s ease forwards}
+.ai-result{background-color:#f0f0f5;width:100%;max-width:800px}
+@keyframes fadeInUp {
+from{opacity:0;transform:translateY(20px)}
+to{opacity:1;transform:translateY(0)}
+}
+.result.show,.ai-result.show{opacity:1;transform:translateY(0)}
+.result:hover,.ai-result:hover{box-shadow:0 4px 8px rgba(0,0,0,0.2)}
+.result h3{margin:0 0 5px;font-size:1.2rem;color:#222}
+.result .url{color:#202124;font-size:.9rem;margin-bottom:8px;display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.result p{color:#555;font-size:.9rem;line-height:1.6em;margin:0}
+.loading-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0);z-index:1000}
+.loading-spinner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;border:5px solid #f3f3f3;border-top:5px solid #3498db;animation:spin 1.2s linear infinite}
+@keyframes spin {
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
+}
+.loading-spinner{width:40px;height:40px;border-radius:50%;border:5px solid #f3f3f3;border-top:5px solid #3498db;animation:spin 1.2s linear infinite}
+.loading-text{margin-left:10px;font-size:1rem;color:#333}
+#no-results{display:none;text-align:center;padding:20px;font-size:1.1em;color:#555}
+.result .actions button{background-color:#f2f2f2;color:#000;border:1px solid #ddd;padding:8px 16px;border-radius:20px;font-size:.9rem;font-weight:700;cursor:pointer;transition:background-color .2s ease,box-shadow .2s ease;margin-right:10px}
+.result .actions button:hover{background-color:#e0e0e0;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+.summary-popup,.answer-popup{border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.25);background-color:#f8f9fa;color:#333;font-family:'Poppins',sans-serif;padding:20px;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);max-width:80%;max-height:80%;overflow-y:auto;z-index:1001}
+.summary-popup .close,.answer-popup .close{position:absolute;top:15px;right:15px;cursor:pointer;font-size:1.5em;color:#666;transition:color .2s ease}
+.summary-popup .close:hover,.answer-popup .close:hover{color:#333}
+.summary-popup .loading,.answer-popup .loading{display:flex;justify-content:center;align-items:center;height:100px;display:none}
+.summary-popup .loading-spinner,.answer-popup .loading-spinner{width:60px;height:60px;border-radius:50%;border:5px solid #f3f3f3;border-top:5px solid #3498db;animation:spin 1.2s linear infinite}
+.summary-popup .content,.answer-popup .content{padding:20px;font-size:1rem;line-height:1.5}
+.summary-popup #summaryContent,.answer-popup #answerContent{font-family:'Poppins',sans-serif;margin-bottom:20px}
+#no-results{display:none;text-align:center;padding:20px;font-size:1.1em;color:#555}
+#loading-more{display:none;text-align:center;padding:10px}
+#loading-more.active{display:block}
+.ai-result h2{margin:0 0 10px;font-size:1.5rem;font-weight:700;color:#333}
+.ai-result p{color:#444;font-size:.9rem;line-height:1.5em;margin:0;display:flex;flex-direction:column}
+.ai-result .actions {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  margin-top: 10px;
+}
+.ai-result .actions button {
+  background-color: #f2f2f2;
+  color: #000;
+  border: 1px solid #ddd;
+  padding: 8px 12px; /* Adjust padding if needed */
+  border-radius: 20px;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color .2s ease, box-shadow .2s ease;
+  margin-left: 10px; /* Add space between buttons */
+}
+.ai-result .actions button:hover {
+  background-color: #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.ai-result .actions button i { /* Style Font Awesome icons */
+  font-size: 1.2rem; /* Adjust icon size as needed */
+  color: #333;
+}
+  </style>
+ </head>
+ <body>
+  <div class="main-content">
+   <div class="search-container">
+    <form id="search-form">
+     <div class="search-box">
+      <input type="text" id="search-query" placeholder="Search the web" autocomplete="off">
+      <button type="submit"></button>
+     </div>
+     <div id="suggestions"></div>
+    </form>
+   </div>
+   <div id="ai-response"></div>
+   <div id="results-info" style="text-align: center;"></div>
+   <div id="results"></div>
+   <div id="no-results">
+    <p>No results found. Try refining your search.</p>
+   </div>
+   <div id="loading-more">Loading more results...</div>
+   <div class="loading-overlay">
+    <div class="loading-spinner"></div>
+   </div>
+  </div>
+  <div id="summaryPopup" class="summary-popup" style="display: none;">
+   <span class="close">×</span>
+   <div class="content">
+<div class="loading">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Loading...</p>
+</div>
+    <div id="summaryContent"></div>
+   </div>
+  </div>
+  <div id="answerPopup" class="answer-popup" style="display: none;">
+   <span class="close">×</span>
+   <div class="content">
+<div class="loading">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Loading...</p>
+</div>
+    <div id="answerContent"></div>
+   </div>
+  </div>
+  <script>
+   const BASE_URL = "https://typegpt-webscout-api.hf.space";
+   const searchForm = document.getElementById("search-form");
+   const searchQueryInput = document.getElementById("search-query");
+   const resultsContainer = document.getElementById("results");
+   const suggestionsContainer = document.getElementById("suggestions");
+   const loadingOverlay = document.querySelector('.loading-overlay');
+   const noResultsMessage = document.getElementById('no-results');
+   const loadingMoreIndicator = document.getElementById('loading-more');
+   const aiResponseContainer = document.getElementById('ai-response');
+   const INITIAL_RESULTS = 5;
+   const CACHED_RESULTS = 50;
+   const RESULTS_PER_PAGE = 5;
+   let allResultsFetched = false;
+   const seenUrls = new Set();
+   let selectedSuggestionIndex = -1;
+   let suggestionRequestTimeout;
+   let cachedSearchResults = [];
+   const suggestionCache = {};
+   let prefetchTimeout;
+   let allResults = [];
+   let startTime;
+   function debounce(func, delay) {
+    return function() {
+     clearTimeout(suggestionRequestTimeout);
+     suggestionRequestTimeout = setTimeout(() => {
+      func.apply(this, arguments);
+     }, delay);
+    };
+   }
+   async function fetchSuggestions(query) {
+    if (suggestionCache[query]) {
+     return suggestionCache[query];
+    }
+    try {
+     const response = await fetch(`${BASE_URL}/api/suggestions?q=${encodeURIComponent(query)}`);
+     if (response.ok) {
+      const suggestions = await response.json();
+      suggestionCache[query] = suggestions;
+      return suggestions;
+     } else {
+      console.error("Error fetching suggestions:", response.status);
+      return [];
+     }
+    } catch (error) {
+     console.error("Error fetching suggestions:", error);
+     return [];
+    }
+   }
+   searchQueryInput.addEventListener("input", () => {
+    clearTimeout(prefetchTimeout);
+    const searchQuery = searchQueryInput.value.trim();
+    if (searchQuery === "") {
+     suggestionsContainer.style.display = "none";
+     return;
+    }
+    prefetchTimeout = setTimeout(async () => {
+     const suggestions = await fetchSuggestions(searchQuery);
+     displaySuggestions(suggestions);
+    }, 100);
+   });
+   function displaySuggestions(suggestions) {
+    suggestionsContainer.innerHTML = "";
+    if (suggestions.length === 0 || searchQueryInput.value.trim() === "") {
+     suggestionsContainer.style.display = "none";
+     return;
+    }
+    const suggestionList = document.createElement("ul");
+    suggestions.forEach((suggestion, index) => {
+     const listItem = document.createElement("li");
+     listItem.textContent = suggestion.phrase;
+     listItem.addEventListener("click", () => {
+      searchQueryInput.value = suggestion.phrase;
+      suggestionsContainer.style.display = "none";
+      performSearch(suggestion.phrase);
+     });
+     listItem.addEventListener("focus", () => {
+      selectedSuggestionIndex = index;
+      updateSuggestionSelection();
+     });
+     suggestionList.appendChild(listItem);
+    });
+    suggestionsContainer.appendChild(suggestionList);
+    suggestionsContainer.style.display = "block";
+   }
+   function updateSuggestionSelection() {
+    const suggestionItems = suggestionsContainer.querySelectorAll("li");
+    suggestionItems.forEach((item, index) => {
+     item.classList.toggle("selected", index === selectedSuggestionIndex);
+    });
+   }
+   function showLoading() {
+    loadingOverlay.style.display = 'block';
+   }
+   function hideLoading() {
+    loadingOverlay.style.display = 'none';
+   }
+   async function performSearch(query) {
+    showLoading();
+	aiResponseContainer.style.display = 'none';
+    suggestionsContainer.style.display = "none";
+    startTime = performance.now();
+    seenUrls.clear();
+    allResultsFetched = false;
+    resultsContainer.innerHTML = '';
+    noResultsMessage.style.display = 'none';
+    loadingMoreIndicator.classList.remove('active');
+    speechSynthesis.cancel();
+    const initialResults = await fetchResults(query, INITIAL_RESULTS);
+    displayResults(initialResults);
+    hideLoading();
+    fetchResults(query, CACHED_RESULTS).then(cachedResults => {
+     cachedSearchResults = removeDuplicateResults(cachedResults);
+     allResults = allResults.concat(cachedSearchResults);
+     displayResults(cachedSearchResults.slice(INITIAL_RESULTS, RESULTS_PER_PAGE), true);
+     if (cachedSearchResults.length > RESULTS_PER_PAGE) {
+      allResultsFetched = false;
+      loadingMoreIndicator.classList.add('active');
+     }
+    });
+    fetchAIResponse(query).then(aiResponse => {
+     displayAIResponse(aiResponse);
+     aiResponseContainer.style.display = 'block';
+    }).catch(error => {
+     console.error("Error fetching AI response:", error);
+    });
+    updateURLWithQuery(query);
+   }
+   async function fetchAIResponse(query) {
+     try {
+      const encodedQuery = encodeURIComponent(query);
+      const websiteURL = 'https://google.com/search?q=${encodedQuery}'
+      const response = await fetch(`${BASE_URL}/api/ask_website?url=https://google.com/search?q=${encodedQuery}&question=Answer this question from google search result ${encodedQuery}&model=gpt-3.5`);
+      if (response.ok) {
+        const aiResponse = await response.json();
+        return aiResponse;
+      } else {
+        console.error("Error fetching AI response from website:", response.status);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching AI response from website:", error);
+      return null;
+    }
+  }
+  function displayAIResponse(response) {
+    aiResponseContainer.innerHTML = '';
+    if (response) {
+      const aiResultElement = document.createElement('div');
+      aiResultElement.classList.add('ai-result');
+      const aiHeading = document.createElement('h2');
+      aiHeading.textContent = "AI Response";
+      aiResultElement.appendChild(aiHeading);
+      const aiText = document.createElement('p');
+      const decodedResponse = decodeHtml(response);
+      const msg = new SpeechSynthesisUtterance(decodedResponse);
+      speechSynthesis.speak(msg);
+      aiText.textContent = decodedResponse;
+      const pauseButton = document.createElement('button');
+      pauseButton.id = 'pause';
+      pauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+      const stopButton = document.createElement('button');
+      stopButton.id = 'stop';
+      stopButton.innerHTML = '<i class="fas fa-stop"></i>';
+      let isPaused = false;
+	  let isStoped = false;
+      pauseButton.addEventListener('click', () => {
+        if ('speechSynthesis' in window) {
+          if (isPaused) {
+            window.speechSynthesis.resume();
+            isPaused = false;
+			stopButton.style.display = 'inline-block';
+            pauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+          } else {
+            window.speechSynthesis.pause();
+            isPaused = true;
+			stopButton.style.display = 'none';
+            pauseButton.innerHTML = '<i class="fas fa-play"></i>';
+          }
+        }
+      });
+      stopButton.addEventListener('click', () => {
+        if ('speechSynthesis' in window) {
+			if (isStoped){
+				  speechSynthesis.speak(msg);
+				  isPaused = false;
+				  isStoped = false;
+				  pauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+				  pauseButton.style.display = 'inline-block';
+				  stopButton.innerHTML = '<i class="fas fa-stop"></i>';
+			}else{
+				  window.speechSynthesis.cancel();
+				  isPaused = false;
+				  isStoped = true;
+				  pauseButton.style.display = 'none';
+				  stopButton.innerHTML = '<i class="fas fa-play"></i>'; }
+			}
+      });
+      // Add the buttons to the actions container
+      aiResultElement.appendChild(pauseButton);
+      aiResultElement.appendChild(stopButton);
+      // Style the AI response text
+      aiText.setAttribute('style', 'font-size: 1rem; line-height: 1.5rem;');
+      aiResultElement.appendChild(aiText);
+      aiResponseContainer.appendChild(aiResultElement);
+    }
+  }
+  function updateURLWithQuery(query) {
+    const newURL = `${window.location.pathname}?query=${encodeURIComponent(query)}`;
+    window.history.pushState({
+      path: newURL
+    }, '', newURL);
+  }
+  function removeDuplicateResults(results) {
+    const uniqueResults = [];
+    const seen = new Set();
+    for (const result of results) {
+      if (!seen.has(result.href)) {
+        seen.add(result.href);
+        uniqueResults.push(result);
+      }
+    }
+    return uniqueResults;
+  }
+  async function fetchResults(query, resultsPerPage) {
+    const response = await fetch(`${BASE_URL}/api/search?q=${encodeURIComponent(query)}&max_results=${resultsPerPage}`);
+    if (!response.ok) {
+      displayError("An error occurred while fetching results.");
+      hideLoading();
+      return [];
+    }
+    const searchResults = await response.json();
+    return searchResults;
+  }
+  const summaryPopup = document.getElementById('summaryPopup');
+  const summaryContent = document.getElementById('summaryContent');
+  const answerPopup = document.getElementById('answerPopup');
+  const answerContent = document.getElementById('answerContent');
+  const summaryCache = {};
+  const answerCache = {};
+  function displayResults(results, append = false) {
+    if (!append) {
+      resultsContainer.innerHTML = '';
+    }
+    const newResults = results.filter(result => !seenUrls.has(result.href));
+    newResults.forEach((result, index) => {
+      seenUrls.add(result.href);
+      const resultElement = document.createElement("div");
+      resultElement.classList.add("result");
+      const titleElement = document.createElement("h3");
+      const titleLink = document.createElement("a");
+      titleLink.href = result.href;
+      titleLink.textContent = result.title;
+      titleLink.target = "_blank";
+      titleLink.rel = "noopener noreferrer";
+      titleElement.appendChild(titleLink);
+      const urlElement = document.createElement("div");
+      urlElement.classList.add("url");
+      const urlLink = document.createElement("a");
+      urlLink.href = result.href;
+      urlLink.textContent = result.href;
+      urlLink.target = "_blank";
+      urlLink.rel = "noopener noreferrer";
+      urlElement.appendChild(urlLink);
+      const descriptionElement = document.createElement("p");
+      descriptionElement.textContent = result.body;
+      resultElement.appendChild(titleElement);
+      resultElement.appendChild(urlElement);
+      resultElement.appendChild(descriptionElement);
+      const actionsContainer = document.createElement('div');
+      actionsContainer.classList.add('actions');
+      const summarizeButton = document.createElement('button');
+      summarizeButton.textContent = 'Summarize this site';
+      summarizeButton.addEventListener('click', () => {
+        showSummaryPopup(result.href);
+      });
+      actionsContainer.appendChild(summarizeButton);
+      const answerButton = document.createElement('button');
+      answerButton.textContent = 'Answer from this site';
+      answerButton.addEventListener('click', () => {
+        showAnswerPopup(result.href);
+      });
+      actionsContainer.appendChild(answerButton);
+      resultElement.appendChild(actionsContainer);
+      resultsContainer.appendChild(resultElement);
+      setTimeout(() => {
+        resultElement.classList.add("show");
+      }, 1 * index);
+    });
+    if (resultsContainer.children.length === 0) {
+      noResultsMessage.style.display = 'block';
+    } else {
+      noResultsMessage.style.display = 'none';
+    }
+    if (!append) {
+      const endTime = performance.now();
+      const timeTaken = (endTime/2 - startTime/2).toFixed(2); 
+      document.getElementById('results-info').textContent = `About ${timeTaken} milliseconds`;
+    }
+  }
+  function displayError(message) {
+    resultsContainer.innerHTML = '';
+    const errorElement = document.createElement("p");
+    errorElement.textContent = message;
+    errorElement.style.color = "red";
+    resultsContainer.appendChild(errorElement);
+  }
+  searchQueryInput.addEventListener("input", debounce(async () => {
+    selectedSuggestionIndex = -1;
+    const searchQuery = searchQueryInput.value;
+    if (searchQuery.trim() === "") {
+      suggestionsContainer.style.display = "none";
+      return;
+    }
+    const suggestions = await fetchSuggestions(searchQuery);
+    displaySuggestions(suggestions);
+  }, 500));
+  searchQueryInput.addEventListener("focus", () => {
+    if (searchQueryInput.value.trim() !== "") {
+      suggestionsContainer.style.display = "block";
+    }
+  });
+  document.addEventListener("click", (event) => {
+    if (!searchForm.contains(event.target)) {
+      suggestionsContainer.style.display = "none";
+    }
+  });
+  searchQueryInput.addEventListener("keydown", async (event) => {
+    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+      event.preventDefault();
+      const suggestionItems = suggestionsContainer.querySelectorAll("li");
+      const numSuggestions = suggestionItems.length;
+      if (event.key === "ArrowUp") {
+        selectedSuggestionIndex = (selectedSuggestionIndex - 1 + numSuggestions) % numSuggestions;
+      } else {
+        selectedSuggestionIndex = (selectedSuggestionIndex + 1) % numSuggestions;
+      }
+      updateSuggestionSelection();
+      if (selectedSuggestionIndex !== -1 && suggestionItems[selectedSuggestionIndex]) {
+        searchQueryInput.value = suggestionItems[selectedSuggestionIndex].textContent;
+        suggestionItems[selectedSuggestionIndex].focus();
+      }
+    } else if (event.key === "Enter" && selectedSuggestionIndex !== -1) {
+      event.preventDefault();
+      const selectedSuggestion = suggestionsContainer.querySelectorAll("li")[selectedSuggestionIndex];
+      if (selectedSuggestion) {
+        searchQueryInput.value = selectedSuggestion.textContent;
+        suggestionsContainer.style.display = "none";
+        performSearch(searchQueryInput.value);
+      }
+    }
+  });
+  searchForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    selectedSuggestionIndex = -1;
+    const searchQuery = searchQueryInput.value;
+    performSearch(searchQuery);
+  });
+  window.addEventListener('scroll', () => {
+    if (allResultsFetched) return;
+    const {
+      scrollTop,
+      scrollHeight,
+      clientHeight
+    } = document.documentElement;
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+    if (isNearBottom && allResults.length > seenUrls.size) {
+      loadingMoreIndicator.classList.add('active');
+      const resultsToDisplay = allResults.slice(seenUrls.size, seenUrls.size + RESULTS_PER_PAGE);
+      setTimeout(() => {
+        displayResults(resultsToDisplay, true);
+        for (const result of resultsToDisplay) {
+          seenUrls.add(result.href);
+        }
+        if (allResults.length === seenUrls.size) {
+          allResultsFetched = true;
+          loadingMoreIndicator.classList.remove('active');
+        }
+      }, 300);
+    }
+  });
+  function getQueryParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
+  window.addEventListener('load', () => {
+    const initialQuery = getQueryParameter('query');
+    if (initialQuery) {
+      searchQueryInput.value = initialQuery;
+      performSearch(initialQuery);
+    }
+  });
+  function decodeHtml(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+  function showSummaryPopup(url) {
+    summaryContent.innerHTML = '';
+    summaryPopup.querySelector('.loading').style.display = 'block';
+    summaryPopup.style.display = 'block';
+    if (summaryCache[url]) {
+      displaySummary(summaryCache[url]);
+    } else {
+      fetchWebsiteSummary(url).then(summary => {
+        summaryCache[url] = summary;
+        displaySummary(summary);
+      }).catch(error => {
+        console.error('Error fetching summary:', error);
+        displaySummary('Error fetching summary.');
+      });
+    }
+  }
+  function displaySummary(summary) {
+    summaryPopup.querySelector('.loading').style.display = 'none';
+    summaryContent.textContent = summary;
+  }
+  async function fetchWebsiteSummary(url) {
+    const response = await fetch(`${BASE_URL}/api/ask_website?url=${url}&question=${encodeURIComponent("Summarize this site in Detail, Do not start with any intro, Just start summarizing. Summarize in this manner which is very important to human user.")}&model=mixtral-8x7b`);
+    if (!response.ok) {
+      throw new Error('Error fetching website summary.');
+    }
+    const data = await response.json();
+    return data[0] || 'No summary available';
+  }
+  function showAnswerPopup(url) {
+    answerContent.innerHTML = '';
+    answerPopup.querySelector('.loading').style.display = 'block';
+    answerPopup.style.display = 'block';
+    if (answerCache[url]) {
+      displayAnswer(answerCache[url]);
+    } else {
+      const question = searchQueryInput.value;
+      fetchWebsiteAnswer(url, question).then(answer => {
+        answerCache[url] = answer;
+        displayAnswer(answer);
+      }).catch(error => {
+        console.error('Error fetching answer:', error);
+        displayAnswer('Error fetching answer.');
+      });
+    }
+  }
+  function displayAnswer(answer) {
+    answerPopup.querySelector('.loading').style.display = 'none';
+    answerContent.textContent = answer;
+  }
+  async function fetchWebsiteAnswer(url, question) {
+    const response = await fetch(`${BASE_URL}/api/ask_website?url=${url}&question=${encodeURIComponent(question)}(encodeURIComponent("Answer in concise way, First tell answer then Other thing"))&model=llama-3-70b`);
+    if (!response.ok) {
+      throw new Error('Error fetching answer from website.');
+    }
+    const data = await response.json();
+    return data[0] || 'No answer found.';
+  }
+  summaryPopup.querySelector('.close').addEventListener('click', () => {
+    summaryPopup.style.display = 'none';
+  });
+  answerPopup.querySelector('.close').addEventListener('click', () => {
+    answerPopup.style.display = 'none';
+  });
+  </script>
+ </body>
+</html>
