@@ -5,13 +5,13 @@ from .text_to_audio import process_conversation_pipeline # Import audio generati
 from pydub import AudioSegment
 from .text_to_audio_single import generate_audio_from_plain_text
 from .audio_to_json_single import audio_to_sub_single
-from .utilities import generate_lipsync_for_patch,formatQuerySuggester,generate_text,recheck_for_errors
+from .utilities import generate_lipsync_for_patch,formatQuerySuggester,generate_text,recheck_for_errors,get_recommended_links
 from concurrent.futures import ThreadPoolExecutor
 import os,json
 
 
 
-@api_view(['POST'])
+@api_view(['POST']) 
 def text_to_audio(request):
     try:
         text = request.data.get("text", "")
@@ -19,15 +19,21 @@ def text_to_audio(request):
             return Response({"error": "No text provided"}, status=400)
 
         # Generate dialogue if the input is a topic.
-        # convo_client = resources.get_convo_client()
-        result_text = generate_text(text)
+        with ThreadPoolExecutor(max_workers=2) as executer:
+                dialogue = executer.submit(generate_text,text)
+                links =executer.submit(get_recommended_links, text)
+
+                result_text = dialogue.result()
+                recommended_links  =links.result()
+
+
+        # print(f"recommended links are: {recommended_links}")
         print(f"Generated dialogue: {result_text}")
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         output_folder = os.path.join(BASE_DIR, "../backend/media")
         output_folder = os.path.abspath(output_folder)
         
-        #whisper_client = resources.get_whisper_client()
 
         # Process the pipeline for each conversation line concurrently.
         pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
@@ -46,6 +52,7 @@ def text_to_audio(request):
             "message": "Pipeline executed successfully",
             "pipeline_results": final_result,
             "metadata_path": file_name,
+            "recommendation_links":recommended_links
         }, status=201)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
@@ -113,33 +120,3 @@ def single_model(request):
             print(f"Error in pipeline: {e}")
             return Response({"error": str(e)}, status=500)
         
-@api_view(['POST'])
-def query_suggestor(request):
-    if request.method == 'POST':
-        try:
-            # Extract text input from the request
-            text = request.data.get("text", "")
-            if not text:
-                return Response({"error": "No text provided"}, status=400)
-            suggester_clint = resources.get_suggester_client()
-            result = suggester_clint.predict(
-                message=text,
-                system_message=f"""generate 3 questions regarding the topic/question given in input. Every question will start from new line and with [Question 1,2,3] as a tag. Make the question as short as possible. Don't include anything else except this in the response.""",
-                max_tokens=512,
-                temperature=0.7,
-                top_p=0.95,
-                api_name="/chat"
-            )
-            formatted = formatQuerySuggester(result)
-            print(f"Generated questions: {formatted}")
-            return Response({
-              "questions":formatted
-            })
-        
-
-        except FileNotFoundError as fnfe:
-            print(f"File error: {fnfe}")
-            return Response({"error": str(fnfe)}, status=500)
-        except Exception as e:
-            print(f"Error in pipeline: {e}")
-            return Response({"error": str(e)}, status=500)

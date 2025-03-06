@@ -31,6 +31,28 @@ def generate_text(text):
         return result.strip()
     return text
 
+def get_recommended_links(query):
+    try:
+        print("Initializing links client...")
+        links = resources.getLinks_client()
+
+        if not links:
+            print("Error: get_links_client() returned None.")
+            return []
+
+        print(f"Calling predict() with query: {query}")
+        try:
+            result = links.predict(query=query, api_name="/predict")
+            print(f"Received result: {result}")
+            return result
+        except Exception as e:
+            print(f"Error during predict() call: {e}")
+            return []
+
+    except Exception as e:
+        print(f"Unexpected error in get_recommended_links: {e}")
+        return []
+
 
 def generate_lipsync_for_patch(audio_file):
     """

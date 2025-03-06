@@ -8,7 +8,7 @@ class AppResources:
         self.convo_client = Client("Nymbo/Qwen-2.5-72B-Instruct")
         self.whisper_client = Client("jawwad1234/whisper-model")
         self.tts_client = Client("jawwad1234/Edge-TTS-Text-to-Speech")
-        self.recommend_client = Client("jawwad1234/RecommendQuestion")
+        self.links_client = Client("jawwad1234/gallKro")
         print("Gradio clients initialized.")
 
 
@@ -20,11 +20,9 @@ class AppResources:
 
     def get_tts_client(self):
         return self.tts_client
-
-
     
-    def get_suggester_client(self):
-        return self.recommend_client
+    def getLinks_client(self):
+        return self.links_client
 
 if os.environ.get("RUN_MAIN") == "true":
     # Create a global instance to be used across the app
