@@ -5,7 +5,7 @@ from .text_to_audio import process_conversation_pipeline # Import audio generati
 from pydub import AudioSegment
 from .text_to_audio_single import generate_audio_from_plain_text
 from .audio_to_json_single import audio_to_sub_single
-from .utilities import generate_lipsync_for_patch,formatQuerySuggester,generate_text
+from .utilities import generate_lipsync_for_patch,formatQuerySuggester,generate_text,recheck_for_errors
 from concurrent.futures import ThreadPoolExecutor
 import os,json
 
@@ -19,18 +19,18 @@ def text_to_audio(request):
             return Response({"error": "No text provided"}, status=400)
 
         # Generate dialogue if the input is a topic.
-        convo_client = resources.get_convo_client()
-        result_text = generate_text(convo_client, text)
+        # convo_client = resources.get_convo_client()
+        result_text = generate_text(text)
         print(f"Generated dialogue: {result_text}")
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         output_folder = os.path.join(BASE_DIR, "../backend/media")
         output_folder = os.path.abspath(output_folder)
         
-        whisper_client = resources.get_whisper_client()
+        #whisper_client = resources.get_whisper_client()
 
         # Process the pipeline for each conversation line concurrently.
-        pipeline_results = process_conversation_pipeline(result_text, output_folder, whisper_client, max_workers=4)
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
 
         # Optionally, save metadata for reference.
         file_name = "media/metaDataPatches.json"
@@ -41,9 +41,10 @@ def text_to_audio(request):
         with open(file_name, "w", encoding="utf-8") as json_file:
             json.dump(final_data, json_file, ensure_ascii=False, indent=4)
 
+        final_result = recheck_for_errors(pipeline_results,output_folder)
         return Response({
             "message": "Pipeline executed successfully",
-            "pipeline_results": pipeline_results,
+            "pipeline_results": final_result,
             "metadata_path": file_name,
         }, status=201)
     except Exception as e:
@@ -95,7 +96,7 @@ def single_model(request):
             print(f"metadata file saved as {fileName}")
             
             #running lispin and subtitle geneartion parallely SHAYD
-            transcription_path = "media/output_transcription_single.json"
+            transcription_path = "media/final_single.json"
             with ThreadPoolExecutor(max_workers=2) as executer:
                 executer.submit(generate_lipsync_for_patch,output_audio_path)
                 executer.submit(audio_to_sub_single, output_audio_path)

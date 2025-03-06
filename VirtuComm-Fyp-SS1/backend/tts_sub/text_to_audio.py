@@ -1,9 +1,13 @@
 import os
 import re
-import time
+from .apps import resources
 import shutil
 from concurrent.futures import ThreadPoolExecutor
 from pydub import AudioSegment
+from . utilities import generate_lipsync_for_patch
+from .audio_to_json import transcribe_audio_api  # Import the transcription module
+
+
 from .voiceGen import student, teacher  # Your TTS functions
 
 def text_to_conversation_with_tags(text):
@@ -40,8 +44,8 @@ def generate_audio_for_sentence(speaker, line_text, index, output_dir):
                 os.rename(temp_file, output_file)
                 print(f"Generated and renamed: {output_file}")
                 return output_file
-            else:
-                time.sleep(0.5)
+            # else:
+            #     time.sleep(0.5)
         print(f"Error: File '{generated_file}' not found after retries for {speaker}.")
     except Exception as e:
         print(f"Error generating audio for {speaker}: {e}")
@@ -62,25 +66,24 @@ def process_line_pipeline(speaker, line_text, index, output_dir, whisper_client)
         return result
     result["audio_file"] = audio_file
 
-    # Transcribe the audio.
-    from . import audio_to_json  # Import the transcription module
-    transcription = audio_to_json.transcribe_audio_api(audio_file, whisper_client)
-    result["transcription"] = transcription
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future_transcription = executor.submit(transcribe_audio_api,audio_file)
+        future_lipsync = executor.submit(generate_lipsync_for_patch,audio_file)
 
-    # Generate lip sync JSON.
-    from . utilities import generate_lipsync_for_patch  # Assuming utilities.py is in your PYTHONPATH
-    lipsync = generate_lipsync_for_patch(audio_file)
-    result["lipsync"] = lipsync
+        # Get the results
+        result["transcription"] = future_transcription.result()
+        result["lipsync"] = future_lipsync.result()
 
     return result
 
-def process_conversation_pipeline(text, output_dir, whisper_client, max_workers=4):
+def process_conversation_pipeline(text, output_dir, max_workers=4):
     """
     Processes the entire conversation:
       - Parses the dialogue.
       - For each line, concurrently generates audio, transcribes it, and creates lip sync JSON.
     Returns a list of result dictionaries.
     """
+    whisper_client = resources.get_whisper_client()
     conversation = text_to_conversation_with_tags(text)
     if not conversation:
         print("Error: No valid conversation found in the text.")
