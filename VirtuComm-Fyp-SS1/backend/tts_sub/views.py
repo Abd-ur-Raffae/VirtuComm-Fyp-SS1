@@ -20,7 +20,12 @@ def text_to_audio(request):
 
         # Generate dialogue if the input is a topic.
         # convo_client = resources.get_convo_client()
-        result_text = generate_text(text)
+        with ThreadPoolExecutor(max_workers=2) as executer:
+                dialogue = executer.submit(generate_text,text)
+                links =executer.submit(get_recommended_links, text)
+
+                result_text = dialogue.result()
+                recommended_links  =links.result()
         print(f"Generated dialogue: {result_text}")
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -36,7 +41,8 @@ def text_to_audio(request):
         file_name = "media/metaDataPatches.json"
         final_data = {
             "prompt": text,
-            "pipeline_results": pipeline_results
+            "pipeline_results": pipeline_results,
+            "recommendation_links": recommended_links,
         }
         with open(file_name, "w", encoding="utf-8") as json_file:
             json.dump(final_data, json_file, ensure_ascii=False, indent=4)
