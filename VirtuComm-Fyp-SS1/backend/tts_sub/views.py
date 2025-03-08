@@ -5,7 +5,7 @@ from .text_to_audio import process_conversation_pipeline # Import audio generati
 from pydub import AudioSegment
 from .text_to_audio_single import generate_audio_from_plain_text
 from .audio_to_json_single import audio_to_sub_single
-from .utilities import generate_lipsync_for_patch,formatQuerySuggester,generate_text,recheck_for_errors,get_recommended_links
+from .utilities import generate_lipsync_for_patch,generate_text,recheck_for_errors,get_recommended_links,get_interviewer_applicant_dialogue
 from concurrent.futures import ThreadPoolExecutor
 import os,json
 
@@ -58,6 +58,53 @@ def text_to_audio(request):
         return Response({"error": str(e)}, status=500)
         
 
+@api_view(['POST'])
+def interview(request):
+    try:
+        text = request.data.get("text", "")
+        if not text:
+            return Response({"error": "No text provided"}, status=400)
+
+        # Generate dialogue if the input is a topic.
+        with ThreadPoolExecutor(max_workers=2) as executer:
+                dialogue = executer.submit(get_interviewer_applicant_dialogue,text)
+                links =executer.submit(get_recommended_links, text)
+
+                result_text = dialogue.result()
+                recommended_links  =links.result()
+
+
+        # print(f"recommended links are: {recommended_links}")
+        print(f"Generated dialogue: {result_text}")
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        output_folder = os.path.join(BASE_DIR, "../backend/media/interview")
+        output_folder = os.path.abspath(output_folder)
+        
+
+        # Process the pipeline for each conversation line concurrently.
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
+
+        # Optionally, save metadata for reference.
+        file_name = "media/metaDataPatches.json"
+        final_data = {
+            "recommendation_links":recommended_links,
+            "prompt": text,
+            "pipeline_results": pipeline_results
+        }
+        with open(file_name, "w", encoding="utf-8") as json_file:
+            json.dump(final_data, json_file, ensure_ascii=False, indent=4)
+
+        final_result = recheck_for_errors(pipeline_results,output_folder)
+        return Response({
+            "message": "Pipeline executed successfully",
+            "pipeline_results": final_result,
+            "metadata_path": file_name,
+        }, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+        
+  
 @api_view(['POST'])
 def single_model(request):
     if request.method == 'POST':

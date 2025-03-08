@@ -37,3 +37,27 @@ def teacher(text: str):
     )
     audio_path = result[0]
     process_audio_file(audio_path, "teacher_file.wav")
+
+def interviewr(text: str):
+    tts_client = resources.get_tts_client()
+    voice = "en-US-AndrewNeural - en-US (Male)"
+    rate = 0
+    pitch = 0
+
+    result = tts_client.predict(
+        text=text, voice=voice, rate=rate, pitch=pitch, api_name="/predict"
+    )
+    audio_path = result[0]
+    process_audio_file(audio_path, "interviewer_file.wav")
+
+def applicant(text: str):
+    tts_client = resources.get_tts_client()
+    voice = "en-US-BrianMultilingualNeural - en-US (Male)"
+    rate = 0
+    pitch = 9
+
+    result = tts_client.predict(
+        text=text, voice=voice, rate=rate, pitch=pitch, api_name="/predict"
+    )
+    audio_path = result[0]
+    process_audio_file(audio_path, "applicant_file.wav")

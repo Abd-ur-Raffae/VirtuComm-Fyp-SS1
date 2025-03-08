@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 import subprocess
 import shutil
 from .audio_to_json import transcribe_audio_api
-from .voiceGen import student,teacher,process_audio_file
+from .voiceGen import student,teacher,applicant,interviewr
 
 
 def generate_text(text):
@@ -19,6 +19,32 @@ def generate_text(text):
             "just 10 to 15 lines. When starting each person's dialogue, only start it with: "
             "'[student]' or '[teacher]'. If you mention the names again, don't use brackets, "
             "brackets only come when starting the sentence."
+        )
+        result = convo_client.predict(
+            message=text,
+            system_message=system_message,
+            max_tokens=512,
+            temperature=0.7,
+            top_p=0.95,
+            api_name="/chat"
+        )
+        return result.strip()
+    return text
+
+def get_interviewer_applicant_dialogue(text):
+    """
+    Generates dialogue using the conversation client if the input text is not already in dialogue format.
+    """
+    convo_client = resources.get_convo_client()
+    if "[" not in text or "]" not in text:
+        system_message = (
+            """Generate a very short dialogue between two characters conducting an interview. One character is the interviewer, and the other is the applicant.
+            Do not use these labels ([interviewer] and [Applicant]) again in the conversation after using them once in the start.
+            The interviewer asks relevant and tough questions about given topic, and the applicant provides concise answers.
+            Keep the dialogue engaging, natural, and end the dialogue in 10 to 15 lines.
+            example:
+            [Interviewer] hello, thank you for coming!
+            [Applicant] it's my pleasure."""
         )
         result = convo_client.predict(
             message=text,
@@ -98,14 +124,7 @@ def generate_lipsync_for_patch(audio_file):
         print(f"Unexpected error generating lipsync for {audio_file}: {e}")
         return None
 
-def formatQuerySuggester(text):
-    pattern = re.compile(r'\[Question (\d+)\] (.+?)(?=\n\[Question \d+\]|\Z)', re.DOTALL)
-    matches = pattern.findall(text)
-    
-    # Convert matches into a dictionary
-    result = {f'Question {num}': question.strip() for num, question in matches}
-    
-    return result
+
 
 
 def recheck_for_errors(pipeline_results, output_path):
@@ -124,6 +143,12 @@ def recheck_for_errors(pipeline_results, output_path):
             elif error_speaker == "student":
                 generated_file = "student_file.wav"
                 student(error_text)
+            elif error_speaker.lower() == "applicant":
+                applicant(error_text)
+                generated_file = "applicant_file.wav"
+            elif error_speaker.lower() == "Interviewer":
+                interviewr(error_text)
+                generated_file = "interviewer_file.wav"
             else:
                 print(f"Unknown speaker type: {error_speaker}")
                 continue  
