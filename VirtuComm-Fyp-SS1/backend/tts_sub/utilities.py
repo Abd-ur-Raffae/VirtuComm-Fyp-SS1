@@ -56,7 +56,6 @@ def get_interviewer_applicant_dialogue(text):
         )
         return result.strip()
     return text
-
 def get_recommended_links(query):
     try:
         print("Initializing links client...")
@@ -70,6 +69,14 @@ def get_recommended_links(query):
         try:
             result = links.predict(query=query, api_name="/predict")
             print(f"Received result: {result}")
+
+            # Log detailed response for debugging
+            if "web_links" in result and "youtube_links" in result:
+                print(f"Web Links: {result['web_links']}")
+                print(f"YouTube Links: {result['youtube_links']}")
+            else:
+                print("Error: Unexpected API response structure.")
+
             return result
         except Exception as e:
             print(f"Error during predict() call: {e}")
@@ -78,7 +85,7 @@ def get_recommended_links(query):
     except Exception as e:
         print(f"Unexpected error in get_recommended_links: {e}")
         return []
-
+    
 
 def generate_lipsync_for_patch(audio_file):
     """
