@@ -30,15 +30,22 @@ const ChatScreen = () => {
     <div style={styles.chatContainer}>
       {jsonFile && (
         <>
-        {/* Display the user message */}
-          <div style={styles.messageContainer}>
-            <div style={styles.speaker}>Me</div>
-            <div style={styles.message}>{jsonFile.prompt}</div>
-          </div>
-          <div style={styles.messageContainer}>
-            <div style={styles.speaker}>{jsonFile.speaker}</div>
-            <div style={styles.message}>{jsonFile.text}</div>
-          </div>
+{/* Display the recommendation links */}
+<div style={styles.messageContainer}>
+  <div style={styles.speaker}>Recommendation Links</div>
+  <div style={styles.message}>
+    <ul style={styles.list}>
+      {jsonFile.recommendation_links.web_links.map((link, index) => (
+        <li key={index} style={styles.listItem}>
+          <a href={link.url} target="_blank" rel="noopener noreferrer" style={styles.link}>
+            {link.title}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
         </>
       )}
     </div>
@@ -57,6 +64,27 @@ const styles = {
     overflowY: "auto", // Enables scrolling
     borderRadius: "10px", // Optional: Adds rounded corners for a smoother look
   },  
+
+  list: {
+    paddingLeft: "20px", // Space for bullets
+    margin: "5px 0",
+    textAlign: "left", // Ensures left alignment
+    listStyleType: "disc", // Standard bullet points
+  },
+
+  listItem: {
+    marginBottom: "8px", // Space between links
+    listStylePosition: "outside", // Ensures bullet is on the first line
+    display: "list-item", // Ensures proper list display
+  },
+
+  link: {
+    textDecoration: "none",
+    color: "#007BFF", // Blue color for links
+    fontSize: "16px",
+    wordBreak: "break-word", // Prevents overflow issues
+    display: "inline", // Keeps link text inline
+  },
   
   messageContainer: {
     margin: "10px 0",
