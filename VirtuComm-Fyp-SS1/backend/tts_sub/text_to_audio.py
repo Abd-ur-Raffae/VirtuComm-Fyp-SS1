@@ -35,7 +35,7 @@ def generate_audio_for_sentence(speaker, line_text, index, output_dir):
         elif speaker.lower() == "applicant":
             applicant(line_text)
             generated_file = "applicant_file.wav"
-        elif speaker.lower() == "Interviewer":
+        elif speaker.lower() == "interviewer":
             interviewr(line_text)
             generated_file = "interviewer_file.wav"
 
