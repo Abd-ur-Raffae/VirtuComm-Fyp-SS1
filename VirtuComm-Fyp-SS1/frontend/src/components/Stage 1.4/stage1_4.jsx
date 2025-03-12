@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import React from 'react';
 import { Experience_4 } from "./1.4Experience.jsx";
-import AudioPlayerWithSubtitles from '../temp.jsx';
+import {AudioPlayerWithSubtitles} from '../temp.jsx';
 import { AudioProvider } from "../AudioContext.js";
 import { User_tts } from "../tts.jsx";
 import ChatScreen from "../dialogue_display.jsx";

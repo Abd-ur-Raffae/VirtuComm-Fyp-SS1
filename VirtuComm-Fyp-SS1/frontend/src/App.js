@@ -14,7 +14,7 @@ import Stage1_5 from './components/Stage 1.5/stage1_5.jsx';
 
 import { User_tts } from './components/tts.jsx';
 import { FetchJsonAndWav } from './components/ghar.jsx';
-import AudioPlayerWithSubtitles from './components/temp.jsx';
+import { AudioPlayerWithSubtitles } from './components/temp.jsx';
 import { AudioProvider } from "./components/Stage 1.3/1.3AudioContext.jsx";
 import { ThemeProvider } from "./components/custom elements/themeContext.jsx";
 import SearchSuggestions from "./components/searchsuggetion.jsx";

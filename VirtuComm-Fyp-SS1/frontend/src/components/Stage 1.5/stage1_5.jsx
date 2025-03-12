@@ -1,9 +1,9 @@
 import { Canvas } from "@react-three/fiber";
 import React, { useEffect, useContext, useState } from 'react';
 import { Experience_5 } from "./1.5Experience.jsx";
-import AudioPlayerWithSubtitles from '../temp.jsx';
+import {Subtitles_Stage1_5} from '../temp.jsx';
 import { AudioProvider } from "../AudioContext.js";
-import { User_tts } from "../tts.jsx";
+import { Interview } from "../tts.jsx";
 import ChatScreen from "../dialogue_display.jsx";
 import Button from "../custom elements/stages_head.jsx";
 import ConfigButton from "../custom elements/configurations_button.jsx";
@@ -67,7 +67,7 @@ const Project1_5 = () => {
                             <Experience_5 />
                         </Canvas>
                         <div style={styles.subtitleBox}>
-                            <AudioPlayerWithSubtitles />
+                            <Subtitles_Stage1_5 />
                         </div>
                     </div>
                     <div style={{ ...styles.chatContainer, backgroundColor: theme === 'dark' ? 'rgba(32, 60, 81, 0.1)' : 'rgba(164, 217, 243, 0.2)' }}>
@@ -76,7 +76,7 @@ const Project1_5 = () => {
                 </div>
                 <div style={styles.section}>
                     <div style={{ ...styles.tts, backgroundColor: theme === 'dark' ? 'rgba(32, 60, 81, 0.1)' : 'rgba(164, 217, 243, 0.2)' }}>
-                        <User_tts />
+                        <Interview />
                     </div>
                     <div style={{ ...styles.config, backgroundColor: theme === 'dark' ? 'rgba(32, 60, 81, 0.1)' : 'rgba(164, 217, 243, 0.2)' }}>
                         <h2 style={{...styles.headingText, color: theme === 'dark' ? 'white' : 'black'}}>Configure your model</h2>

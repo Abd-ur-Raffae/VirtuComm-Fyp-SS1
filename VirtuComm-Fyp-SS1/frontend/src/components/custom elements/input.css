@@ -78,3 +78,12 @@
     width: 17px;
     margin-top: 3px;
   }
+
+  .suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .suggestion-item.selected {
+    background-color: #ddd; /* Highlight selected suggestion */
+  }

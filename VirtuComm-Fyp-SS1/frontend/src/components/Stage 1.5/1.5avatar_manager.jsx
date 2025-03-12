@@ -11,7 +11,7 @@ export function useDialogueManager({ dialogue, isListening, onComplete }) {
     const audioRef = useRef(null); // Reference to track the current audio instance
     const isFetchingRef = useRef(false); // Prevent duplicate fetches
 
-    const baseMediaUrl = "http://localhost:8000/api_tts/media/";
+    const baseMediaUrl = "http://localhost:8000/api_tts/media/interview/";
 
     // Lip-sync update function
     const updateLipSync = useCallback((currentTime, nodes) => {
@@ -52,7 +52,7 @@ export function useDialogueManager({ dialogue, isListening, onComplete }) {
         try {
             const timestamp = new Date().getTime();
             const paddedIndex = String(index).padStart(3, '0');
-            const speakers = ["student", "teacher"];
+            const speakers = index % 2 === 0 ? ["Interviewer"] : ["Applicant"];
             let jsonData, lipSyncData, audioFile, currentSpeaker;
 
             for (const speakerCandidate of speakers) {

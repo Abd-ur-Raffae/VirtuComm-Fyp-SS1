@@ -10,7 +10,9 @@ const SearchInput = ({ value, onChange }) => {
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const debounceTimeout = useRef(null);
+  const containerRef = useRef(null); // For click outside detection
 
+  // Fetch suggestions with debounce
   useEffect(() => {
     if (!value.trim()) {
       setSuggestions([]);
@@ -18,13 +20,13 @@ const SearchInput = ({ value, onChange }) => {
       setLoading(false);
       return;
     }
-    
+
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
     setLoading(true);
     debounceTimeout.current = setTimeout(() => {
       fetch(`${BASE_URL}/api/suggestions?q=${encodeURIComponent(value)}`)
-        .then((res) => res.ok ? res.json() : [])
+        .then((res) => (res.ok ? res.json() : []))
         .then((data) => {
           setSuggestions(data);
           setLoading(false);
@@ -34,15 +36,17 @@ const SearchInput = ({ value, onChange }) => {
           setSuggestions([]);
           setLoading(false);
         });
-    }, 500); // Fast 500ms debounce
+    }, 500); // 500ms debounce
 
     return () => clearTimeout(debounceTimeout.current);
   }, [value]);
 
+  // Handle input changes
   const handleInputChange = (event) => {
     onChange(event.target.value);
   };
 
+  // Handle keyboard navigation
   const handleKeyDown = (e) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -51,6 +55,7 @@ const SearchInput = ({ value, onChange }) => {
       e.preventDefault();
       setSelectedIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1));
     } else if (e.key === "Enter") {
+      e.preventDefault();
       if (selectedIndex >= 0 && suggestions[selectedIndex]) {
         onChange(suggestions[selectedIndex].phrase);
         setSuggestions([]);
@@ -58,13 +63,26 @@ const SearchInput = ({ value, onChange }) => {
     }
   };
 
+  // Handle suggestion selection
   const handleSuggestionClick = (suggestion) => {
     onChange(suggestion.phrase);
     setSuggestions([]);
   };
 
+  // Click outside event listener
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setSuggestions([]);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div className="search-container">
+    <div className="search-container" ref={containerRef}>
       <form className="form" onSubmit={(e) => e.preventDefault()}>
         <input
           className="input"
