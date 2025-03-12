@@ -9,17 +9,43 @@ import Button from "../custom elements/stages_head.jsx";
 import ConfigButton from "../custom elements/configurations_button.jsx";
 import { ThemeContext } from "../custom elements/themeContext.jsx";
 import Modal from "../custom elements/modal/modal_popup.tsx"; // Import the Modal component
-
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 const Project1_1 = () => {
     const { theme, toggleTheme } = useContext(ThemeContext);
     const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+    const [isAuthenticated, setIsAuthenticated] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         document.body.style.overflowX = "hidden";
+
+        const checkLoginStatus = async () => {
+            try {
+              const response = await axios.get('http://localhost:8000/api/check-login/', { withCredentials: true });
+              setIsAuthenticated(response.data.isAuthenticated);
+              if (!response.data.isAuthenticated) {
+                navigate('/login', { state: { from: '/stage1_1' } });
+              }
+            } catch (error) {
+              setIsAuthenticated(false);
+              navigate('/login', { state: { from: '/stage1_1' } });
+            }
+          };
+          checkLoginStatus();
+
         return () => {
             document.body.style.overflowX = "auto";
         };
-    }, []);
+    }, [navigate]);
+
+    if (isAuthenticated === null) {
+        return <div>Loading...</div>;
+      }
+    
+      if (!isAuthenticated) {
+        return null; 
+      }
 
     return (
         <div

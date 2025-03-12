@@ -8,19 +8,44 @@ import ChatScreen from "../dialogue_display.jsx";
 import Button from "../custom elements/stages_head.jsx";
 import ConfigButton from "../custom elements/configurations_button.jsx";
 import { ThemeContext } from "../custom elements/themeContext.jsx";
-import Modal from "../custom elements/modal/modal_popup.tsx"; // Import the Modal component
-
+import Modal from "../custom elements/modal/modal_popup.tsx"; 
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Project1_3 = () => {
     const { theme, toggleTheme } = useContext(ThemeContext);
     const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+    const [isAuthenticated, setIsAuthenticated] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        document.body.style.overflowX = "hidden"; // Remove horizontal scrollbar
+        document.body.style.overflowX = "hidden"; 
+        const checkLoginStatus = async () => {
+            try {
+              const response = await axios.get('http://localhost:8000/api/check-login/', { withCredentials: true });
+              setIsAuthenticated(response.data.isAuthenticated);
+              if (!response.data.isAuthenticated) {
+                navigate('/login', { state: { from: '/stage1_3' } });
+              }
+            } catch (error) {
+              setIsAuthenticated(false);
+              navigate('/login', { state: { from: '/stage1_3' } });
+            }
+          };
+          checkLoginStatus();
         return () => {
             document.body.style.overflowX = "auto"; // Reset on unmount
         };
-    }, []);
+    }, [navigate]);
+
+    if (isAuthenticated === null) {
+        return <div>Loading...</div>;
+      }
+    
+      if (!isAuthenticated) {
+        return null; 
+      }
+
 
     return (
         <div style={{ 

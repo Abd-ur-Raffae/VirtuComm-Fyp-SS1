@@ -1,6 +1,8 @@
 // ScenarioSelection.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // Styled Components (unchanged)
 const Container = styled.div`
@@ -101,6 +103,24 @@ const LanguageButton = styled.button`
 `;
 
 const ScenarioSelection = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // null initially to indicate loading
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/check-login/', { withCredentials: true });
+        setIsAuthenticated(response.data.isAuthenticated);
+        if (!response.data.isAuthenticated) {
+          navigate('/login', { state: { from: '/scenario-selection' } });
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        navigate('/login', { state: { from: '/scenario-selection' } });
+      }
+    };
+    checkLoginStatus();
+  }, [navigate]);
   const [selectedScenario, setSelectedScenario] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
 
@@ -133,7 +153,6 @@ const ScenarioSelection = () => {
 
   const languages = ['english', 'urdu'];
 
-  // Redirect mapping
   const scenarioRedirects = {
     'teacher-student': {
       english: '/stage1_4',
@@ -163,6 +182,14 @@ const ScenarioSelection = () => {
     const redirectUrl = scenarioRedirects[scenarioId][language];
     window.location.href = redirectUrl;
   };
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>; 
+  }
+
+  if (!isAuthenticated) {
+    return null; 
+  }
 
   return (
     <Container>

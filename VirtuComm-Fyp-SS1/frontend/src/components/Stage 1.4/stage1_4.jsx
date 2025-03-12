@@ -5,15 +5,42 @@ import AudioPlayerWithSubtitles from '../temp.jsx';
 import { AudioProvider } from "../AudioContext.js";
 import { User_tts } from "../tts.jsx";
 import ChatScreen from "../dialogue_display.jsx";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Project1_4 = () => {
+
+const [isAuthenticated, setIsAuthenticated] = useState(null);
+    const navigate = useNavigate();
+
+
     useEffect(() => {
-        document.body.style.overflowX = "hidden"; // Remove horizontal scrollbar
+        document.body.style.overflowX = "hidden"; 
+        const checkLoginStatus = async () => {
+            try {
+              const response = await axios.get('http://localhost:8000/api/check-login/', { withCredentials: true });
+              setIsAuthenticated(response.data.isAuthenticated);
+              if (!response.data.isAuthenticated) {
+                navigate('/login', { state: { from: '/stage1_4' } });
+              }
+            } catch (error) {
+              setIsAuthenticated(false);
+              navigate('/login', { state: { from: '/stage1_4' } });
+            }
+          };
+          checkLoginStatus();
         return () => {
             document.body.style.overflowX = "auto"; // Reset on unmount
         };
-    }, []);
+    }, [navigate]);
+    if (isAuthenticated === null) {
+        return <div>Loading...</div>;
+      }
+    
+      if (!isAuthenticated) {
+        return null; // Redirect handled by useEffect
+      }
 
     return (
         <div style={styles.container}>

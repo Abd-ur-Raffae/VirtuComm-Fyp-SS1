@@ -1,6 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import React from 'react';
 import { Experience_2 } from "./1.2Experience";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 
 
