@@ -1,5 +1,4 @@
 node_modules
-config.yaml
-model.onnx
+__pycache__
 media
 Rhubarb-Lip-Sync-1.13.0-Windows

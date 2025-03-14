@@ -19,6 +19,9 @@ def generate_text(text):
             "just 10 to 15 lines. When starting each person's dialogue, only start it with: "
             "'[student]' or '[teacher]'. If you mention the names again, don't use brackets, "
             "brackets only come when starting the sentence."
+            "example:  " 
+            "[student] how are you teacher?"
+            "[teacher] I am good what about you? what brought you here today? "
         )
         result = convo_client.predict(
             message=text,

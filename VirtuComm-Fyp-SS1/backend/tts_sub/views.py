@@ -29,7 +29,7 @@ def text_to_audio(request):
         print(f"Generated dialogue: {result_text}")
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        output_folder = os.path.join(BASE_DIR, "../backend/media")
+        output_folder = os.path.join(BASE_DIR, "../backend/media/stu_teach")
         output_folder = os.path.abspath(output_folder)
         
         #whisper_client = resources.get_whisper_client()
@@ -38,7 +38,8 @@ def text_to_audio(request):
         pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
 
         # Optionally, save metadata for reference.
-        file_name = "media/metaDataPatches.json"
+        file_name = os.path.join(output_folder, "metaDataPatches.json")
+        #file_name = "media/stu_teach/metaDataPatches.json"
         final_data = {
             "prompt": text,
             "pipeline_results": pipeline_results,
@@ -85,7 +86,9 @@ def interview(request):
         pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
 
         # Optionally, save metadata for reference.
-        file_name = "media/metaDataPatches.json"
+        file_name = os.path.join(output_folder, "metaDataPatches.json")
+
+        #file_name = "media/metaDataPatches.json"
         final_data = {
             "recommendation_links":recommended_links,
             "prompt": text,

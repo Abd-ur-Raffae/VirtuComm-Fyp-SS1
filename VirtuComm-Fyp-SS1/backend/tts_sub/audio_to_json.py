@@ -14,7 +14,7 @@ def transcribe_audio_api(audio):
         print(f"Transcribing {audio} via API...")
         result = whisper_client.predict(
             audio_file=handle_file(audio),
-            api_name="/predict"
+            api_name="/transcribe_audio"
         )
        
         base, ext = os.path.splitext(audio)
