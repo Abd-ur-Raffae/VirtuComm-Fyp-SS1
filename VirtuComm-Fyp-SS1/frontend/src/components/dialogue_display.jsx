@@ -3,10 +3,9 @@ import { Single_user_tts } from "./tts";
 
 const ChatScreen = () => {
   const [jsonFile, setJsonData] = useState(null);
-  const baseMediaUrl = 'http://localhost:8000/api_tts/media/';
+  const baseMediaUrl = 'http://localhost:8000/api_tts/media/interview/';
   const jsonFileName = 'metaDataPatches.json';
 
-  // Fetch data for audio, lip-sync, and transcription JSON
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -14,7 +13,7 @@ const ChatScreen = () => {
 
         // Fetch transcription JSON
         const jsonResponse = await fetch(`${baseMediaUrl}${jsonFileName}?t=${timestamp}`);
-        if (!jsonResponse.ok) throw new Error('Failed to fetch JSON file');
+        if (!jsonResponse.ok) throw new Error('Failed to fetch links JSON file');
         const jsonData = await jsonResponse.json();
         setJsonData(jsonData);
 
@@ -32,10 +31,22 @@ const ChatScreen = () => {
         <>
 {/* Display the recommendation links */}
 <div style={styles.messageContainer}>
-  <div style={styles.speaker}>Recommendation Links</div>
+  <div style={styles.speaker}>Recommended Sites</div>
   <div style={styles.message}>
     <ul style={styles.list}>
       {jsonFile.recommendation_links.web_links.map((link, index) => (
+        <li key={index} style={styles.listItem}>
+          <a href={link.url} target="_blank" rel="noopener noreferrer" style={styles.link}>
+            {link.title}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <div style={styles.speaker}>Recommended Videos</div>
+  <div style={styles.message}>
+    <ul style={styles.list}>
+      {jsonFile.recommendation_links.youtube_links.map((link, index) => (
         <li key={index} style={styles.listItem}>
           <a href={link.url} target="_blank" rel="noopener noreferrer" style={styles.link}>
             {link.title}

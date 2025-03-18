@@ -78,12 +78,6 @@ const Project1_5 = () => {
                     <div style={{ ...styles.tts, backgroundColor: theme === 'dark' ? 'rgba(32, 60, 81, 0.1)' : 'rgba(164, 217, 243, 0.2)' }}>
                         <Interview />
                     </div>
-                    <div style={{ ...styles.config, backgroundColor: theme === 'dark' ? 'rgba(32, 60, 81, 0.1)' : 'rgba(164, 217, 243, 0.2)' }}>
-                        <h2 style={{...styles.headingText, color: theme === 'dark' ? 'white' : 'black'}}>Configure your model</h2>
-                        <div style={styles.header}>
-                            <ConfigButton onClick={() => setIsModalOpen(true)} /> {/* Open modal on click */}
-                        </div>
-                    </div>
                 </div>
             </AudioProvider>
             {/* Modal Component */}
