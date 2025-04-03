@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from tts_sub.apps import resources  # Import preloaded resources
@@ -8,6 +9,7 @@ from .audio_to_json_single import audio_to_sub_single
 from .utilities import get_interviewer_applicant_dialogue,generate_lipsync_for_patch,generate_text,recheck_for_errors,get_recommended_links
 from concurrent.futures import ThreadPoolExecutor
 import os,json
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -62,25 +64,26 @@ def text_to_audio(request):
 def interview(request):
     try:
         text = request.data.get("text", "")
+        language = request.data.get("language", "No language provided")  # Get the language from request
+
         if not text:
             return Response({"error": "No text provided"}, status=400)
 
+        print(f"Selected role: {language}")  # Print the language  
+
         # Generate dialogue if the input is a topic.
         with ThreadPoolExecutor(max_workers=2) as executer:
-                dialogue = executer.submit(get_interviewer_applicant_dialogue,text)
-                links =executer.submit(get_recommended_links, text)
+            dialogue = executer.submit(get_interviewer_applicant_dialogue, text)
+            links = executer.submit(get_recommended_links, text)
 
-                result_text = dialogue.result()
-                recommended_links  =links.result()
+            result_text = dialogue.result()
+            recommended_links = links.result()
 
-
-        # print(f"recommended links are: {recommended_links}")
         print(f"Generated dialogue: {result_text}")
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         output_folder = os.path.join(BASE_DIR, "../backend/media/interview")
         output_folder = os.path.abspath(output_folder)
-        
 
         # Process the pipeline for each conversation line concurrently.
         pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
@@ -88,23 +91,25 @@ def interview(request):
         # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
 
-        #file_name = "media/metaDataPatches.json"
         final_data = {
-            "recommendation_links":recommended_links,
+            "recommendation_links": recommended_links,
             "prompt": text,
-            "pipeline_results": pipeline_results
+            "pipeline_results": pipeline_results,
+            "language": language  # Include language in response
         }
         with open(file_name, "w", encoding="utf-8") as json_file:
             json.dump(final_data, json_file, ensure_ascii=False, indent=4)
 
-        final_result = recheck_for_errors(pipeline_results,output_folder)
+        final_result = recheck_for_errors(pipeline_results, output_folder)
         return Response({
             "message": "Pipeline executed successfully",
             "pipeline_results": final_result,
             "metadata_path": file_name,
+            "selected_language": language,  # Include language in response
         }, status=201)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+
         
   
 @api_view(['POST'])
@@ -168,3 +173,17 @@ def single_model(request):
         except Exception as e:
             print(f"Error in pipeline: {e}")
             return Response({"error": str(e)}, status=500)
+
+
+
+@csrf_exempt
+def set_language(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            selected_language = data.get("language", "No language provided")
+            print(f"Received language: {selected_language}")
+            return JsonResponse({"message": "Language received", "language": selected_language}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=405)

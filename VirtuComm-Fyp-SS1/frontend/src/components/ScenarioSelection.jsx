@@ -69,7 +69,7 @@ const CardTitle = styled.h3`
   text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 `;
 
-const LanguageOverlay = styled.div`
+const RoleOverlay = styled.div`
   position: absolute;
   top: 0;
   left: 0;
@@ -85,7 +85,7 @@ const LanguageOverlay = styled.div`
   transition: all 0.5s ease;
 `;
 
-const LanguageButton = styled.button`
+const RoleButton = styled.button`
   padding: 0.8rem 2rem;
   margin: 0.5rem;
   border: none;
@@ -121,66 +121,73 @@ const ScenarioSelection = () => {
     };
     checkLoginStatus();
   }, [navigate]);
+
   const [selectedScenario, setSelectedScenario] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('');
+  const [selectedRole, setSelectedRole] = useState('');
 
   const scenarios = [
     {
       id: 'teacher-student',
       name: 'Teacher & Student',
       image: 'https://cdn.britannica.com/94/216094-050-DE56809C/teacher-at-chalkboard.jpg',
-      background: 'linear-gradient(45deg, #ff6b6b, #ff8e53)'
+      background: 'linear-gradient(45deg, #ff6b6b, #ff8e53)',
+      roles: ['teacher', 'student'],
     },
     {
       id: 'interview',
       name: 'Interview Scenario',
       image: '/img/stage1_5.png',
-      background: 'linear-gradient(45deg, #4facfe, #00f2fe)'
+      background: 'linear-gradient(45deg, #4facfe, #00f2fe)',
+      roles: ['interviewer', 'interviewee'],
     },
     {
       id: 'podcast',
       name: 'Podcast Scenario',
       image: 'https://www.atulhost.com/wp-content/uploads/2019/12/podcast.jpg',
-      background: 'linear-gradient(45deg, #43e97b, #38f9d7)'
+      background: 'linear-gradient(45deg, #43e97b, #38f9d7)',
+      roles: ['host', 'guest'],
     },
     {
       id: 'single-model',
       name: 'Single Model',
       image: '/img/sin.png',
-      background: 'linear-gradient(45deg, #ee0979, #ff6a00)'
+      background: 'linear-gradient(45deg, #ee0979, #ff6a00)',
+      roles: ['solo'],
     }
   ];
 
-  const languages = ['english', 'urdu'];
-
   const scenarioRedirects = {
     'teacher-student': {
-      english: '/stage1_4',
-      urdu: '/stage1_4'
+      teacher: '/stage1_4',
+      student: '/stage1_4',
     },
     'interview': {
-      english: '/stage1_5',
-      urdu: '/stage1_5'
+      interviewer: '/stage1_5',
+      interviewee: '/stage1_5',
     },
     'podcast': {
-      english: '/stage1_3',
-      urdu: '/stage1_3'
+      host: '/stage1_3',
+      guest: '/stage1_3',
     },
     'single-model': {
-      english: '/stage1_1',
-      urdu: '/stage1_1'
+      solo: '/stage1_1',
     }
   };
 
   const handleScenarioClick = (scenarioId) => {
     setSelectedScenario(scenarioId);
-    setSelectedLanguage(''); 
+    setSelectedRole(''); // reset role on new scenario selection
   };
 
-  const handleLanguageSelect = (scenarioId, language) => {
-    setSelectedLanguage(language);
-    const redirectUrl = scenarioRedirects[scenarioId][language];
-    window.location.href = redirectUrl;
+  const handleRoleSelect = (scenarioId, role) => {
+    setSelectedRole(role);
+    const redirectUrl = scenarioRedirects[scenarioId][role];
+    axios.post('http://localhost:8000/api_tts/set-language/', { language: role }, { withCredentials: true })
+      .then(response => {
+        console.log('Role received: ', response.data.language);
+        window.location.href = redirectUrl;
+      })
+      .catch(error => console.log('Error posting role:', error));
   };
 
   if (isAuthenticated === null) {
@@ -205,21 +212,21 @@ const ScenarioSelection = () => {
             <CardContent>
               <CardTitle>{scenario.name}</CardTitle>
             </CardContent>
-            <LanguageOverlay show={selectedScenario === scenario.id}>
-              <CardTitle>Select Language</CardTitle>
-              {languages.map((lang) => (
-                <LanguageButton
-                  key={lang}
-                  selected={selectedLanguage === lang}
+            <RoleOverlay show={selectedScenario === scenario.id}>
+              <CardTitle>Select Role</CardTitle>
+              {scenario.roles.map((role) => (
+                <RoleButton
+                  key={role}
+                  selected={selectedRole === role}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleLanguageSelect(scenario.id, lang);
+                    handleRoleSelect(scenario.id, role);
                   }}
                 >
-                  {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                </LanguageButton>
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </RoleButton>
               ))}
-            </LanguageOverlay>
+            </RoleOverlay>
           </ScenarioCard>
         ))}
       </CardsContainer>
