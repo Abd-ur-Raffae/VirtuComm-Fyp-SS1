@@ -11,12 +11,15 @@ from concurrent.futures import ThreadPoolExecutor
 import os,json
 from django.views.decorators.csrf import csrf_exempt
 
-
+selected_role_global = None
 
 @api_view(['POST'])
 def text_to_audio(request):
+    global selected_language_global
     try:
         text = request.data.get("text", "")
+        role = selected_role_global or "none" 
+
         if not text:
             return Response({"error": "No text provided"}, status=400)
 
@@ -46,6 +49,7 @@ def text_to_audio(request):
             "prompt": text,
             "pipeline_results": pipeline_results,
             "recommendation_links": recommended_links,
+            "role": role
         }
         with open(file_name, "w", encoding="utf-8") as json_file:
             json.dump(final_data, json_file, ensure_ascii=False, indent=4)
@@ -55,6 +59,7 @@ def text_to_audio(request):
             "message": "Pipeline executed successfully",
             "pipeline_results": final_result,
             "metadata_path": file_name,
+            "selected_role": role,
         }, status=201)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
@@ -62,16 +67,18 @@ def text_to_audio(request):
 
 @api_view(['POST'])
 def interview(request):
+    global selected_role_global
     try:
         text = request.data.get("text", "")
-        language = request.data.get("language", "No language provided")  # Get the language from request
+        role = selected_role_global or "none" 
 
         if not text:
             return Response({"error": "No text provided"}, status=400)
 
-        print(f"Selected role: {language}")  # Print the language  
+        print(f"Selected role: {role}")  
 
         # Generate dialogue if the input is a topic.
+        
         with ThreadPoolExecutor(max_workers=2) as executer:
             dialogue = executer.submit(get_interviewer_applicant_dialogue, text)
             links = executer.submit(get_recommended_links, text)
@@ -80,7 +87,7 @@ def interview(request):
             recommended_links = links.result()
 
         print(f"Generated dialogue: {result_text}")
-
+        
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         output_folder = os.path.join(BASE_DIR, "../backend/media/interview")
         output_folder = os.path.abspath(output_folder)
@@ -95,7 +102,7 @@ def interview(request):
             "recommendation_links": recommended_links,
             "prompt": text,
             "pipeline_results": pipeline_results,
-            "language": language  # Include language in response
+            "role": role  # Include language in response
         }
         with open(file_name, "w", encoding="utf-8") as json_file:
             json.dump(final_data, json_file, ensure_ascii=False, indent=4)
@@ -105,7 +112,7 @@ def interview(request):
             "message": "Pipeline executed successfully",
             "pipeline_results": final_result,
             "metadata_path": file_name,
-            "selected_language": language,  # Include language in response
+            "selected_role": role,  # Include language in response
         }, status=201)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
@@ -176,14 +183,17 @@ def single_model(request):
 
 
 
+
 @csrf_exempt
 def set_language(request):
+    global selected_role_global
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            selected_language = data.get("language", "No language provided")
-            print(f"Received language: {selected_language}")
-            return JsonResponse({"message": "Language received", "language": selected_language}, status=200)
+            selected_language_global = data.get("language", "No language provided")  # Store globally
+            print(f"Received language: {selected_language_global}")
+
+            return JsonResponse({"message": "Language received", "language": selected_language_global}, status=200)
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON"}, status=400)
     return JsonResponse({"error": "Invalid request method"}, status=405)

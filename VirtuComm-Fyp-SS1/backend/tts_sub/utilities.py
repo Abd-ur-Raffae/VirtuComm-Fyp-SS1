@@ -3,8 +3,10 @@ from .apps import resources
 from concurrent.futures import ThreadPoolExecutor
 import subprocess
 import shutil
+from gradio_client import Client
 from .audio_to_json import transcribe_audio_api
 from .voiceGen import student,teacher,applicant,interviewr
+
 
 
 def generate_text(text):
@@ -13,16 +15,12 @@ def generate_text(text):
     """
     convo_client = resources.get_convo_client()
     if "[" not in text or "]" not in text:
-        system_message = (
-            "You are a chatbot which only replies shortly. You give different results every time "
-            "and in the form of a dialogue between two characters talking about the given topic in "
-            "just 10 to 15 lines. When starting each person's dialogue, only start it with: "
-            "'[student]' or '[teacher]'. If you mention the names again, don't use brackets, "
-            "brackets only come when starting the sentence."
-            "example:  " 
-            "[student] how are you teacher?"
-            "[teacher] I am good what about you? what brought you here today? "
-        )
+        system_message = """You are a chatbot which only replies shortly. You give different results every time 
+        and in the form of a dialogue between two characters talking about the given topic in just 10 to 15 lines. When starting each person's dialogue, only start it with: '[student]' or '[teacher]'. If you mention the names again, don't use brackets,brackets only come when starting the sentence.
+        example:
+        [student] how are you teacher? 
+        [teacher] I am good what about you? what brought you here today?
+        """
         result = convo_client.predict(
             message=text,
             system_message=system_message,
@@ -38,11 +36,12 @@ def get_interviewer_applicant_dialogue(text):
     """
     Generates dialogue using the conversation client if the input text is not already in dialogue format.
     """
+    print("function called, calling predict")
     convo_client = resources.get_convo_client()
     if "[" not in text or "]" not in text:
         system_message = (
             """Generate a very short dialogue between two characters conducting an interview. One character is the interviewer, and the other is the applicant.
-            Do not use these labels ([interviewer] and [Applicant]) again in the conversation after using them once in the start.
+            use these labels ([interviewer] and [Applicant]) at the start of every individual's turn.
             The interviewer asks relevant and tough questions about given topic, and the applicant provides concise answers.
             Keep the dialogue engaging, natural, and end the dialogue in 10 to 15 lines.
             example:
@@ -55,8 +54,12 @@ def get_interviewer_applicant_dialogue(text):
             max_tokens=512,
             temperature=0.7,
             top_p=0.95,
+            frequency_penalty=0,
+            seed=-1,
+            custom_model="meta-llama/Llama-3.3-70B-Instruct",
             api_name="/chat"
-        )
+    )
+        print("Response from model:", result)
         return result.strip()
     return text
 def get_recommended_links(query):
