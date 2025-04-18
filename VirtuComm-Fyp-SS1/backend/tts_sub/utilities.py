@@ -22,13 +22,16 @@ def generate_text(text):
         [teacher] I am good what about you? what brought you here today?
         """
         result = convo_client.predict(
-            message=text,
-            system_message=system_message,
-            max_tokens=512,
-            temperature=0.7,
-            top_p=0.95,
-            api_name="/chat"
-        )
+           message=text,
+		param_2=system_message,
+		param_3=512,
+		param_4=0.7,
+		param_5=0.95,
+		param_6=0,
+		param_7=-1,
+		param_8="meta-llama/Llama-3.3-70B-Instruct",
+		api_name="/chat"
+)
         return result.strip()
     return text
 
@@ -49,16 +52,16 @@ def get_interviewer_applicant_dialogue(text):
             [Applicant] it's my pleasure."""
         )
         result = convo_client.predict(
-            message=text,
-            system_message=system_message,
-            max_tokens=512,
-            temperature=0.7,
-            top_p=0.95,
-            frequency_penalty=0,
-            seed=-1,
-            custom_model="meta-llama/Llama-3.3-70B-Instruct",
-            api_name="/chat"
-    )
+           message=text,
+		param_2=system_message,
+		param_3=512,
+		param_4=0.7,
+		param_5=0.95,
+		param_6=0,
+		param_7=-1,
+		param_8="meta-llama/Llama-3.3-70B-Instruct",
+		api_name="/chat"
+        )
         print("Response from model:", result)
         return result.strip()
     return text
