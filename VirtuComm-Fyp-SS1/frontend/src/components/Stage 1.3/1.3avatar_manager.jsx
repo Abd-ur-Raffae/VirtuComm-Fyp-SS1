@@ -9,7 +9,7 @@ export function useDialogueManager({ dialogue, isListening, onComplete }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [speaker, setSpeaker] = useState(null); // Current speaker (student or teacher)
 
-    const baseMediaUrl = "http://localhost:8000/api_tts/media/";
+    const baseMediaUrl = "http://localhost:8000/api_tts/media/podcast/";
 
     // Define the updateLipSync function
     const updateLipSync = (currentTime, nodes) => {
@@ -66,7 +66,7 @@ export function useDialogueManager({ dialogue, isListening, onComplete }) {
                 const paddedIndex = String(index).padStart(3, '0'); // Pad index to 3 digits (e.g., 000, 001, etc.)
 
                 // Try fetching files for both student and teacher
-                const speakers = ["student", "teacher"];
+                const speakers = ["guest", "host"];
                 let jsonData = null;
                 let lipSyncData = null;
                 let audioFile = null;

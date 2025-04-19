@@ -43,7 +43,7 @@ export function Avatar1({ isListening, ...props }) {
                 audio.currentTime >= segment.start_time && audio.currentTime <= segment.end_time
             );
 
-            if (currentSegment?.speaker === 'student') {
+            if (currentSegment?.speaker === 'guest') {
                 idleAction.stop();
                 talkingAction.reset().play();
             } else {
@@ -59,7 +59,7 @@ export function Avatar1({ isListening, ...props }) {
                 audio?.currentTime >= segment.start_time && audio?.currentTime <= segment.end_time
             );
 
-            if (currentSegment?.speaker === 'student') {
+            if (currentSegment?.speaker === 'guest') {
                 updateLipSync(audio.currentTime, nodes);
             }
         }
