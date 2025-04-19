@@ -71,7 +71,7 @@ class Index extends Component {
               <div className="col-lg-6 align-self-center text-center text-lg-start mb-lg-5">
                 <h1 className="display-4 text-white mb-4 animated slideInRight">Exploring Dialogue Dynamics Between AIs</h1>
                 <p className="text-white mb-4 animated slideInRight">An innovative exploration of dialogue dynamics...</p>
-                <a href="/scenario-selection" className="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInRight">Try Scenarios</a>
+                <a href="/Scenarioselection" className="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInRight">Try Scenarios</a>
                 <a href="/contact" className="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a>
               </div>
               <div className="col-lg-6 align-self-end text-center text-lg-end">

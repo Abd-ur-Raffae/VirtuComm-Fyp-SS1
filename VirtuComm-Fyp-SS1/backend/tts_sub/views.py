@@ -40,7 +40,7 @@ def text_to_audio(request):
         #whisper_client = resources.get_whisper_client()
 
         # Process the pipeline for each conversation line concurrently.
-        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=10)
 
         # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
