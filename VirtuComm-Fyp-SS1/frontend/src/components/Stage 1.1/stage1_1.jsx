@@ -4,7 +4,7 @@ import React, { useEffect, useContext, useState } from 'react';
 import { FetchJsonAndWavSingle } from '../ghar.jsx';
 import { AudioProvider } from "../AudioContext.js";
 import { Single_user_tts } from '../tts.jsx';
-import ChatScreen from '../dialogue_display.jsx';
+import { ChatScreen } from '../dialogue_display.jsx';
 import Button from "../custom elements/stages_head.jsx";
 import ConfigButton from "../custom elements/configurations_button.jsx";
 import { ThemeContext } from "../custom elements/themeContext.jsx";

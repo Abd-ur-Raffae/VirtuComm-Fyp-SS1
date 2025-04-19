@@ -4,7 +4,7 @@ import { Experience_5 } from "./1.5Experience.jsx";
 import { Subtitles_Stage1_5 } from "../temp.jsx";
 import { AudioProvider } from "../AudioContext.js";
 import { Interview } from "../tts.jsx";
-import ChatScreen from "../dialogue_display.jsx";
+import { ChatScreen } from "../dialogue_display.jsx";
 import Button from "../custom elements/stages_head.jsx";
 import Modal from "../custom elements/modal/modal_popup.tsx";
 import { ThemeContext } from "../custom elements/themeContext.jsx";

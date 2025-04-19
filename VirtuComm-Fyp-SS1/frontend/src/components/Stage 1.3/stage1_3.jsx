@@ -4,7 +4,7 @@ import { Experience_3 } from "./1.3Experience.jsx";
 import {AudioPlayerWithSubtitles} from '../temp.jsx';
 import { AudioProvider } from "../AudioContext.js";
 import { User_tts } from "../tts.jsx";
-import ChatScreen from "../dialogue_display.jsx";
+import { Podcast_links } from "../dialogue_display.jsx";
 import Button from "../custom elements/stages_head.jsx";
 import { ThemeContext } from "../custom elements/themeContext.jsx";
 import Modal from "../custom elements/modal/modal_popup.tsx"; 
@@ -81,7 +81,7 @@ const Project1_3 = () => {
 
                     {/* Right side (ChatScreen) */}
                     <div style={styles.rightContainer}>
-                        <ChatScreen />
+                        <Podcast_links />
                     </div>
                 </div>
             </AudioProvider>
