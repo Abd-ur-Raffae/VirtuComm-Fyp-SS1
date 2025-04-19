@@ -199,6 +199,13 @@ def recheck_for_errors(pipeline_results, output_path):
             elif error_speaker.lower() == "Interviewer":
                 interviewr(error_text)
                 generated_file = "interviewer_file.wav"
+            elif error_speaker.lower() == "host":
+                host(error_text)
+                generated_file = "host_file.wav"
+            elif error_speaker.lower() == "guest":
+                guest(error_text)
+                generated_file = "guest_file.wav"
+
             else:
                 print(f"Unknown speaker type: {error_speaker}")
                 continue  

@@ -36,7 +36,7 @@ export const User_tts = () => {
         setLoading(true); // Show loading screen
         try {
             console.log('Submitting form data:', formData);
-            const response = await axios.post('http://localhost:8000/api_tts/TextToAudio/', formData, {
+            const response = await axios.post('http://localhost:8000/api_tts/podcast/', formData, {
                 withCredentials: true,
                 headers: {
                     'X-CSRFToken': csrfToken,

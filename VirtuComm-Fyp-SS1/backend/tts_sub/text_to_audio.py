@@ -29,21 +29,26 @@ def generate_audio_for_sentence(speaker, line_text, index, output_dir):
         if speaker.lower() == "student":
             student(line_text)
             generated_file = "student_file.wav"
+
         elif speaker.lower() == "teacher":
             teacher(line_text)
             generated_file = "teacher_file.wav"
+
         elif speaker.lower() == "applicant":
             applicant(line_text)
             generated_file = "applicant_file.wav"
+
         elif speaker.lower() == "interviewer":
             interviewr(line_text)
             generated_file = "interviewer_file.wav"
+
         elif speaker.lower() == "guest":
             guest(line_text)
             generated_file = "guest_file.wav"
+
         elif speaker.lower() == "host":
             host(line_text)
-            generated_file = "guest_file.wav"
+            generated_file = "host_file.wav"
         
 
             
