@@ -6,7 +6,7 @@ from .text_to_audio import process_conversation_pipeline # Import audio generati
 from pydub import AudioSegment
 from .text_to_audio_single import generate_audio_from_plain_text
 from .audio_to_json_single import audio_to_sub_single
-from .utilities import get_interviewer_applicant_dialogue,generate_lipsync_for_patch,generate_text,recheck_for_errors,get_recommended_links
+from .utilities import get_interviewer_applicant_dialogue,generate_lipsync_for_patch,generate_text,recheck_for_errors,get_recommended_links, get_podcast_dialogue
 from concurrent.futures import ThreadPoolExecutor
 import os,json
 from django.views.decorators.csrf import csrf_exempt
@@ -117,7 +117,59 @@ def interview(request):
     except Exception as e:
         return Response({"error": str(e)}, status=500)
 
+
+@api_view(['POST'])
+def podcast(request):
+    global selected_role_global
+    try:
+        text = request.data.get("text", "")
+        role = selected_role_global or "none" 
+
+        if not text:
+            return Response({"error": "No text provided"}, status=400)
+
+        print(f"Selected role: {role}")  
+
+        # Generate dialogue if the input is a topic.
         
+        with ThreadPoolExecutor(max_workers=2) as executer:
+            dialogue = executer.submit(get_podcast_dialogue, text)
+            links = executer.submit(get_recommended_links, text)
+
+            result_text = dialogue.result()
+            recommended_links = links.result()
+
+        print(f"Generated dialogue: {result_text}")
+        
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        output_folder = os.path.join(BASE_DIR, "../backend/media/podcast")
+        output_folder = os.path.abspath(output_folder)
+
+        # Process the pipeline for each conversation line concurrently.
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
+
+        # Optionally, save metadata for reference.
+        file_name = os.path.join(output_folder, "metaDataPatches.json")
+
+        final_data = {
+            "recommendation_links": recommended_links,
+            "prompt": text,
+            "pipeline_results": pipeline_results,
+            "role": role  # Include language in response
+        }
+        with open(file_name, "w", encoding="utf-8") as json_file:
+            json.dump(final_data, json_file, ensure_ascii=False, indent=4)
+
+        final_result = recheck_for_errors(pipeline_results, output_folder)
+        return Response({
+            "message": "Pipeline executed successfully",
+            "pipeline_results": final_result,
+            "metadata_path": file_name,
+            "selected_role": role,  # Include language in response
+        }, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
   
 @api_view(['POST'])
 def single_model(request):

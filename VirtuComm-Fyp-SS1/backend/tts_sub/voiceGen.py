@@ -61,3 +61,26 @@ def applicant(text: str):
     )
     audio_path = result[0]
     process_audio_file(audio_path, "applicant_file.wav")
+
+def guest (text: str):
+    tts_client = resources.get_tts_client()
+    voice = "en-US-BrianNeural - en-US (Male)"
+    rate = 0
+    pitch = 0
+    result = tts_client.predict(
+        text = text, voice = voice, rate = rate, pitch = pitch, api_name="/predict"
+        )
+    audio_path = result[0]
+    process_audio_file(audio_path,"guest_file.wav")
+
+
+def host (text: str):
+    tts_client = resources.get_tts_client()
+    voice = "en-US-ChristopherNeural - en-US (Male)"
+    rate = 0
+    pitch = 0
+    result = tts_client.predict(
+        text = text, voice = voice, rate = rate, pitch = pitch, api_name="/predict"
+        )
+    audio_path = result[0]
+    process_audio_file(audio_path,"host_file.wav")

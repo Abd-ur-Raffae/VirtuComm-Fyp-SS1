@@ -5,7 +5,7 @@ import subprocess
 import shutil
 from gradio_client import Client
 from .audio_to_json import transcribe_audio_api
-from .voiceGen import student,teacher,applicant,interviewr
+from .voiceGen import student,teacher,applicant,interviewr,guest, host
 
 
 
@@ -65,6 +65,40 @@ def get_interviewer_applicant_dialogue(text):
         print("Response from model:", result)
         return result.strip()
     return text
+
+
+def get_podcast_dialogue(text):
+    """
+    Generates dialogue using the conversation client if the input text is not already in dialogue format.
+    """
+    print("function called, calling predict")
+    convo_client = resources.get_convo_client()
+    if "[" not in text or "]" not in text:
+        system_message = (
+            """Generate a very short dialogue between two characters participating in the podcast. One character is the host, and the other is the guest. The dialogue should include discussion about the given topic(make it sound as practical as possible, even if the input is same try to generate different results).
+            use these labels ([host] and [guest]) at the start of every individual's turn.
+            The host asks general questions and the guest answers them, both keeping the dialogue interesting, engaging and natural.
+            End the dialogue in 10 to 15 lines.
+            example:
+            [guest] hello, thank you for coming!
+            [host] it's my pleasure."""
+        )
+        result = convo_client.predict(
+           message=text,
+		param_2=system_message,
+		param_3=512,
+		param_4=0.7,
+		param_5=0.95,
+		param_6=0,
+		param_7=-1,
+		param_8="meta-llama/Llama-3.3-70B-Instruct",
+		api_name="/chat"
+        )
+        print("Response from model:", result)
+        return result.strip()
+    return text
+
+
 def get_recommended_links(query):
     try:
         print("Initializing links client...")

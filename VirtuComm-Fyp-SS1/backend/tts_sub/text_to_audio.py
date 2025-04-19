@@ -8,7 +8,7 @@ from . utilities import generate_lipsync_for_patch
 from .audio_to_json import transcribe_audio_api  # Import the transcription module
 
 
-from .voiceGen import student, teacher, applicant, interviewr  # Your TTS functions
+from .voiceGen import student, teacher, applicant, interviewr, guest, host  # Your TTS functions
 
 def text_to_conversation_with_tags(text):
     """
@@ -38,6 +38,13 @@ def generate_audio_for_sentence(speaker, line_text, index, output_dir):
         elif speaker.lower() == "interviewer":
             interviewr(line_text)
             generated_file = "interviewer_file.wav"
+        elif speaker.lower() == "guest":
+            guest(line_text)
+            generated_file = "guest_file.wav"
+        elif speaker.lower() == "host":
+            host(line_text)
+            generated_file = "guest_file.wav"
+        
 
             
         else:
