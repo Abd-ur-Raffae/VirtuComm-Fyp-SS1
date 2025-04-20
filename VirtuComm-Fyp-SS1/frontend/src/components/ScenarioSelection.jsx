@@ -1,72 +1,144 @@
 // ScenarioSelection.jsx
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-// Styled Components (unchanged)
+// Animation keyframes
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
+// Styled Components
 const Container = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a1c2c 0%, #4a4e69 100%);
   padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: url('/path-to-pattern.svg') repeat;
+    opacity: 0.05;
+    pointer-events: none;
+  }
+`;
+
+const Header = styled.header`
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 2rem;
+  animation: ${fadeIn} 1s ease-out;
 `;
 
 const Title = styled.h1`
   color: white;
-  font-size: 3rem;
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+`;
+
+const Subtitle = styled.p`
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.2rem;
+  max-width: 600px;
+  line-height: 1.6;
   margin-bottom: 3rem;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-  animation: fadeIn 1s ease-in;
 `;
 
 const CardsContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2.5rem;
   max-width: 1200px;
   width: 100%;
+  padding: 1rem;
+  animation: ${fadeIn} 1s ease-out;
 `;
 
 const ScenarioCard = styled.div`
   position: relative;
-  height: 400px;
+  height: 420px;
   background: ${props => props.background};
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-  transition: all 0.3s ease;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   
   &:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0.8) 100%
+    );
+    z-index: 1;
   }
 `;
 
 const CardImage = styled.img`
   width: 100%;
-  height: 60%;
+  height: 65%;
   object-fit: cover;
-  transition: all 0.3s ease;
+  transition: all 0.5s ease;
+  filter: brightness(0.9);
   
   ${ScenarioCard}:hover & {
-    height: 65%;
+    transform: scale(1.05);
+    filter: brightness(1);
   }
 `;
 
 const CardContent = styled.div`
-  padding: 1.5rem;
-  text-align: center;
+  padding: 2rem;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
   color: white;
 `;
 
 const CardTitle = styled.h3`
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+`;
+
+const CardDescription = styled.p`
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 1rem;
 `;
 
 const RoleOverlay = styled.div`
@@ -75,30 +147,54 @@ const RoleOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(5px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   opacity: ${props => props.show ? 1 : 0};
   transform: ${props => props.show ? 'translateY(0)' : 'translateY(100%)'};
-  transition: all 0.5s ease;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 3;
 `;
 
 const RoleButton = styled.button`
-  padding: 0.8rem 2rem;
-  margin: 0.5rem;
+  padding: 1rem 2.5rem;
+  margin: 0.7rem;
   border: none;
-  border-radius: 25px;
-  background: ${props => props.selected ? '#ffd700' : 'white'};
-  color: ${props => props.selected ? '#333' : '#666'};
-  font-size: 1.1rem;
+  border-radius: 30px;
+  background: ${props => props.selected ? 'linear-gradient(135deg, #FFD700, #FFA500)' : 'rgba(255, 255, 255, 0.9)'};
+  color: ${props => props.selected ? '#1a1c2c' : '#333'};
+  font-size: 1.2rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   
   &:hover {
     transform: scale(1.05);
-    background: ${props => props.selected ? '#ffd700' : '#f0f0f0'};
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    background: ${props => props.selected ? 'linear-gradient(135deg, #FFD700, #FFA500)' : '#ffffff'};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+const LoadingSpinner = styled.div`
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin: 20px;
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 `;
 
@@ -129,29 +225,33 @@ const ScenarioSelection = () => {
     {
       id: 'teacher-student',
       name: 'Teacher & Student',
+      description: 'Practice classroom interactions and educational scenarios',
       image: 'https://cdn.britannica.com/94/216094-050-DE56809C/teacher-at-chalkboard.jpg',
-      background: 'linear-gradient(45deg, #ff6b6b, #ff8e53)',
+      background: 'linear-gradient(45deg, #2c3e50, #3498db)',
       roles: ['teacher', 'student'],
     },
     {
       id: 'interview',
       name: 'Interview Scenario',
+      description: 'Master professional interviews and improve your career prospects',
       image: '/img/stage1_5.png',
-      background: 'linear-gradient(45deg, #4facfe, #00f2fe)',
+      background: 'linear-gradient(45deg, #2c3e50, #27ae60)',
       roles: ['interviewer', 'interviewee'],
     },
     {
       id: 'podcast',
       name: 'Podcast Scenario',
+      description: 'Learn the art of engaging conversations and storytelling',
       image: 'https://www.atulhost.com/wp-content/uploads/2019/12/podcast.jpg',
-      background: 'linear-gradient(45deg, #43e97b, #38f9d7)',
+      background: 'linear-gradient(45deg, #2c3e50, #e74c3c)',
       roles: ['host', 'guest'],
     },
     {
       id: 'single-model',
       name: 'Single Model',
+      description: 'Practice solo presentations and monologues',
       image: '/img/sin.png',
-      background: 'linear-gradient(45deg, #ee0979, #ff6a00)',
+      background: 'linear-gradient(45deg, #2c3e50, #9b59b6)',
       roles: ['solo'],
     }
   ];
@@ -200,7 +300,13 @@ const ScenarioSelection = () => {
 
   return (
     <Container>
-      <Title>Communication Scenarios</Title>
+      <Header>
+        <Title>Communication Scenarios</Title>
+        <Subtitle>
+          Choose your preferred scenario and role to enhance your communication skills
+          through interactive practice sessions.
+        </Subtitle>
+      </Header>
       <CardsContainer>
         {scenarios.map((scenario) => (
           <ScenarioCard 
@@ -211,9 +317,10 @@ const ScenarioSelection = () => {
             <CardImage src={scenario.image} alt={scenario.name} />
             <CardContent>
               <CardTitle>{scenario.name}</CardTitle>
+              <CardDescription>{scenario.description}</CardDescription>
             </CardContent>
             <RoleOverlay show={selectedScenario === scenario.id}>
-              <CardTitle>Select Role</CardTitle>
+              <CardTitle>Select Your Role</CardTitle>
               {scenario.roles.map((role) => (
                 <RoleButton
                   key={role}

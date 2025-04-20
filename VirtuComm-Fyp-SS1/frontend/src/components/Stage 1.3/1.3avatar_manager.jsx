@@ -1,19 +1,37 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSharedAudio } from "./1.3AudioContext"; // Use shared audio
 
-export function useDialogueManager({ dialogue, isListening, onComplete }) {
+// Create a singleton instance to track if audio is already being managed
+// and to share data between avatar instances
+const audioManagerState = {
+    isAudioBeingManaged: false,
+    currentManager: null,
+    // Add shared state for all avatars
+    sharedData: {
+        jsonFile: null,
+        lipsync: null,
+        isPlaying: false,
+        speaker: null,
+        audio: null
+    }
+};
+
+export function useDialogueManager({ dialogue, isListening, onComplete, avatarType }) {
     const { audio, setAudio } = useSharedAudio(); // Get shared audio context
     const [lipsync, setLipSyncData] = useState(null);
     const [jsonFile, setJsonData] = useState(null);
     const [currentDialogueIndex, setCurrentDialogueIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [speaker, setSpeaker] = useState(null); // Current speaker (student or teacher)
+    const instanceId = useRef(Math.random().toString(36).substring(7)); // Generate unique ID for this instance
 
     const baseMediaUrl = "http://localhost:8000/api_tts/media/podcast/";
 
     // Define the updateLipSync function
     const updateLipSync = (currentTime, nodes) => {
-        if (!lipsync) return;
+        // Use local lipsync data or shared lipsync data
+        const lipSyncData = lipsync || audioManagerState.sharedData.lipsync;
+        if (!lipSyncData) return;
 
         const matchSound = {
             A: 'aa',
@@ -51,7 +69,7 @@ export function useDialogueManager({ dialogue, isListening, onComplete }) {
         });
 
         // Update morph targets based on the current time
-        lipsync.mouthCues.forEach((mouthCue) => {
+        lipSyncData.mouthCues.forEach((mouthCue) => {
             if (currentTime >= mouthCue.start && currentTime <= mouthCue.end) {
                 nodes.AvatarHead.morphTargetInfluences[nodes.AvatarHead.morphTargetDictionary[matchSound[mouthCue.value]]] = 1;
                 nodes.AvatarTeethLower.morphTargetInfluences[nodes.AvatarTeethLower.morphTargetDictionary[matchSound[mouthCue.value]]] = 1;
@@ -59,7 +77,66 @@ export function useDialogueManager({ dialogue, isListening, onComplete }) {
         });
     };
 
+    // Effect to sync local state with shared state for non-manager avatars
     useEffect(() => {
+        // If this instance is not the manager, sync with shared state
+        if (audioManagerState.currentManager !== instanceId.current) {
+            const syncInterval = setInterval(() => {
+                setJsonData(audioManagerState.sharedData.jsonFile);
+                setLipSyncData(audioManagerState.sharedData.lipsync);
+                setIsPlaying(audioManagerState.sharedData.isPlaying);
+                setSpeaker(audioManagerState.sharedData.speaker);
+            }, 100); // Check for updates every 100ms
+            
+            return () => clearInterval(syncInterval);
+        }
+    }, []);
+
+    // Set this instance as the current manager when component mounts
+    useEffect(() => {
+        // If this is the first avatar (guest/student), it will manage audio
+        // If this is the second avatar (host/teacher), it will only manage audio if it's not already being managed
+        const shouldManageAudio = avatarType === 'guest' || (!audioManagerState.isAudioBeingManaged);
+        
+        if (shouldManageAudio) {
+            audioManagerState.isAudioBeingManaged = true;
+            audioManagerState.currentManager = instanceId.current;
+            
+            return () => {
+                // Clean up when this component unmounts
+                if (audioManagerState.currentManager === instanceId.current) {
+                    audioManagerState.isAudioBeingManaged = false;
+                    audioManagerState.currentManager = null;
+                    // Clear shared data
+                    audioManagerState.sharedData = {
+                        jsonFile: null,
+                        lipsync: null,
+                        isPlaying: false,
+                        speaker: null,
+                        audio: null
+                    };
+                }
+            };
+        }
+    }, [avatarType]);
+
+    // Effect to update shared state when local state changes (for manager avatar)
+    useEffect(() => {
+        if (audioManagerState.currentManager === instanceId.current) {
+            audioManagerState.sharedData.jsonFile = jsonFile;
+            audioManagerState.sharedData.lipsync = lipsync;
+            audioManagerState.sharedData.isPlaying = isPlaying;
+            audioManagerState.sharedData.speaker = speaker;
+            audioManagerState.sharedData.audio = audio;
+        }
+    }, [jsonFile, lipsync, isPlaying, speaker, audio]);
+
+    useEffect(() => {
+        // Only fetch and play audio if this instance is the current manager
+        if (audioManagerState.currentManager !== instanceId.current) {
+            return; // Skip audio fetching and playing for non-manager instances
+        }
+
         const fetchData = async (index) => {
             try {
                 const timestamp = new Date().getTime(); // Cache-busting
@@ -136,10 +213,10 @@ export function useDialogueManager({ dialogue, isListening, onComplete }) {
         playAudio: () => setIsPlaying(true),
         pauseAudio: () => setIsPlaying(false),
         updateLipSync, // Return the updateLipSync function
-        jsonFile,
-        audio,
-        lipsync,
-        isPlaying,
-        speaker,
+        jsonFile: jsonFile || audioManagerState.sharedData.jsonFile, // Use local or shared data
+        audio: audio || audioManagerState.sharedData.audio, // Use local or shared data
+        lipsync: lipsync || audioManagerState.sharedData.lipsync, // Use local or shared data
+        isPlaying: isPlaying || audioManagerState.sharedData.isPlaying, // Use local or shared data
+        speaker: speaker || audioManagerState.sharedData.speaker, // Use local or shared data
     };
 }

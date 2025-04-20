@@ -10,7 +10,8 @@ export function Avatar2({ isListening, ...props }) {
     const { playAudio, updateLipSync, jsonFile, audio, isPlaying, speaker } = useDialogueManager({ 
         dialogue: props.dialogue, 
         isListening, 
-        onComplete: props.onComplete 
+        onComplete: props.onComplete,
+        avatarType: 'host' // Specify this is the host/teacher avatar
     });
 
     // Load model and animations
