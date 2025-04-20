@@ -6,19 +6,16 @@ from .text_to_audio import process_conversation_pipeline # Import audio generati
 from pydub import AudioSegment
 from .text_to_audio_single import generate_audio_from_plain_text
 from .audio_to_json_single import audio_to_sub_single
-from .utilities import get_interviewer_applicant_dialogue,generate_lipsync_for_patch,generate_text,recheck_for_errors,get_recommended_links, get_podcast_dialogue
+from .utilities import generate_lipsync_for_patch,recheck_for_errors,get_recommended_links, gen_dialogue
 from concurrent.futures import ThreadPoolExecutor
 import os,json
-from django.views.decorators.csrf import csrf_exempt
 
-selected_role_global = None
+
 
 @api_view(['POST'])
 def text_to_audio(request):
-    global selected_language_global
     try:
         text = request.data.get("text", "")
-        role = selected_role_global or "none" 
 
         if not text:
             return Response({"error": "No text provided"}, status=400)
@@ -26,7 +23,7 @@ def text_to_audio(request):
         # Generate dialogue if the input is a topic.
         # convo_client = resources.get_convo_client()
         with ThreadPoolExecutor(max_workers=2) as executer:
-                dialogue = executer.submit(generate_text,text)
+                dialogue = executer.submit(gen_dialogue,text, "stu_teach")
                 links =executer.submit(get_recommended_links, text)
 
                 result_text = dialogue.result()
@@ -40,7 +37,8 @@ def text_to_audio(request):
         #whisper_client = resources.get_whisper_client()
 
         # Process the pipeline for each conversation line concurrently.
-        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=10)
+        max_cores = os.cpu_count()
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_cores)
 
         # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
@@ -49,7 +47,6 @@ def text_to_audio(request):
             "prompt": text,
             "pipeline_results": pipeline_results,
             "recommendation_links": recommended_links,
-            "role": role
         }
         with open(file_name, "w", encoding="utf-8") as json_file:
             json.dump(final_data, json_file, ensure_ascii=False, indent=4)
@@ -59,7 +56,6 @@ def text_to_audio(request):
             "message": "Pipeline executed successfully",
             "pipeline_results": final_result,
             "metadata_path": file_name,
-            "selected_role": role,
         }, status=201)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
@@ -67,20 +63,16 @@ def text_to_audio(request):
 
 @api_view(['POST'])
 def interview(request):
-    global selected_role_global
     try:
         text = request.data.get("text", "")
-        role = selected_role_global or "none" 
-
         if not text:
             return Response({"error": "No text provided"}, status=400)
-
-        print(f"Selected role: {role}")  
+ 
 
         # Generate dialogue if the input is a topic.
         
         with ThreadPoolExecutor(max_workers=2) as executer:
-            dialogue = executer.submit(get_interviewer_applicant_dialogue, text)
+            dialogue = executer.submit(gen_dialogue, text, "interview")
             links = executer.submit(get_recommended_links, text)
 
             result_text = dialogue.result()
@@ -93,7 +85,8 @@ def interview(request):
         output_folder = os.path.abspath(output_folder)
 
         # Process the pipeline for each conversation line concurrently.
-        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=12)
+        max_cores = os.cpu_count()
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_cores)
 
         # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
@@ -102,7 +95,6 @@ def interview(request):
             "recommendation_links": recommended_links,
             "prompt": text,
             "pipeline_results": pipeline_results,
-            "role": role  # Include language in response
         }
         with open(file_name, "w", encoding="utf-8") as json_file:
             json.dump(final_data, json_file, ensure_ascii=False, indent=4)
@@ -112,7 +104,6 @@ def interview(request):
             "message": "Pipeline executed successfully",
             "pipeline_results": final_result,
             "metadata_path": file_name,
-            "selected_role": role,  # Include language in response
         }, status=201)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
@@ -120,20 +111,16 @@ def interview(request):
 
 @api_view(['POST'])
 def podcast(request):
-    global selected_role_global
     try:
         text = request.data.get("text", "")
-        role = selected_role_global or "none" 
 
         if not text:
-            return Response({"error": "No text provided"}, status=400)
-
-        print(f"Selected role: {role}")  
+            return Response({"error": "No text provided"}, status=400) 
 
         # Generate dialogue if the input is a topic.
         
         with ThreadPoolExecutor(max_workers=2) as executer:
-            dialogue = executer.submit(get_podcast_dialogue, text)
+            dialogue = executer.submit(gen_dialogue, text, "podcast")
             links = executer.submit(get_recommended_links, text)
 
             result_text = dialogue.result()
@@ -146,7 +133,8 @@ def podcast(request):
         output_folder = os.path.abspath(output_folder)
 
         # Process the pipeline for each conversation line concurrently.
-        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=12)
+        max_cores = os.cpu_count()
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_cores)
 
         # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
@@ -155,7 +143,6 @@ def podcast(request):
             "recommendation_links": recommended_links,
             "prompt": text,
             "pipeline_results": pipeline_results,
-            "role": role  # Include language in response
         }
         with open(file_name, "w", encoding="utf-8") as json_file:
             json.dump(final_data, json_file, ensure_ascii=False, indent=4)
@@ -165,7 +152,6 @@ def podcast(request):
             "message": "Pipeline executed successfully",
             "pipeline_results": final_result,
             "metadata_path": file_name,
-            "selected_role": role,  # Include language in response
         }, status=201)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
@@ -235,17 +221,3 @@ def single_model(request):
 
 
 
-
-@csrf_exempt
-def set_language(request):
-    global selected_role_global
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            selected_language_global = data.get("language", "No language provided")  # Store globally
-            print(f"Received language: {selected_language_global}")
-
-            return JsonResponse({"message": "Language received", "language": selected_language_global}, status=200)
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
-    return JsonResponse({"error": "Invalid request method"}, status=405)

@@ -96,7 +96,7 @@ def process_line_pipeline(speaker, line_text, index, output_dir, whisper_client)
 
     return result
 
-def process_conversation_pipeline(text, output_dir, max_workers=12):
+def process_conversation_pipeline(text, output_dir, max_workers):
     """
     Processes the entire conversation:
       - Parses the dialogue.

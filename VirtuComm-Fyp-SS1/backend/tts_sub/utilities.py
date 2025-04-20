@@ -9,21 +9,101 @@ from .voiceGen import student,teacher,applicant,interviewr,guest, host
 
 
 
-def generate_text(text):
-    """
-    Generates dialogue using the conversation client if the input text is not already in dialogue format.
-    """
+# def generate_text(text):
+#     """
+#     Generates dialogue using the conversation client if the input text is not already in dialogue format.
+#     """
+#     convo_client = resources.get_convo_client()
+#     if "[" not in text or "]" not in text:
+#         system_message = """You are a chatbot which only replies shortly. You give different results every time 
+#         and in the form of a dialogue between two characters talking about the given topic in just 10 to 15 lines. When starting each person's dialogue, only start it with: '[student]' or '[teacher]'. If you mention the names again, don't use brackets,brackets only come when starting the sentence.
+#         example:
+#         [student] how are you teacher? 
+#         [teacher] I am good what about you? what brought you here today?
+#         """
+#         result = convo_client.predict(
+#            message=text,
+# 		param_2=system_message,
+# 		param_3=512,
+# 		param_4=0.7,
+# 		param_5=0.95,
+# 		param_6=0,
+# 		param_7=-1,
+# 		param_8="meta-llama/Llama-3.3-70B-Instruct",
+# 		api_name="/chat"
+# )
+#         return result.strip()
+#     return text
+
+# def get_interviewer_applicant_dialogue(text):
+#     """
+#     Generates dialogue using the conversation client if the input text is not already in dialogue format.
+#     """
+#     print("function called, calling predict")
+#     convo_client = resources.get_convo_client()
+#     if "[" not in text or "]" not in text:
+#         system_message = (
+#             """Generate a very short dialogue between two characters conducting an interview. One character is the interviewer, and the other is the applicant.
+#             use these labels ([interviewer] and [Applicant]) at the start of every individual's turn.
+#             The interviewer asks relevant and tough questions about given topic, and the applicant provides concise answers.
+#             Keep the dialogue engaging, natural, and end the dialogue in 10 to 15 lines.
+#             example:
+#             [Interviewer] hello, thank you for coming!
+#             [Applicant] it's my pleasure."""
+#         )
+#         result = convo_client.predict(
+#            message=text,
+# 		param_2=system_message,
+# 		param_3=512,
+# 		param_4=0.7,
+# 		param_5=0.95,
+# 		param_6=0,
+# 		param_7=-1,
+# 		param_8="meta-llama/Llama-3.3-70B-Instruct",
+# 		api_name="/chat"
+#         )
+#         return result.strip()
+#     return text
+
+
+# def get_podcast_dialogue(text):
+#     """
+#     Generates dialogue using the conversation client if the input text is not already in dialogue format.
+#     """
+#     print("function called, calling predict")
+#     convo_client = resources.get_convo_client()
+#     if "[" not in text or "]" not in text:
+#         system_message = (
+#             """Generate a very short dialogue between two characters participating in the podcast. One character is the host, and the other is the guest. The dialogue should include discussion about the given topic(make it sound as practical as possible, even if the input is same try to generate different results).
+#             use these labels ([host] and [guest]) at the start of every individual's turn.
+#             The host asks general questions and the guest answers them, both keeping the dialogue interesting, engaging and natural.
+#             End the dialogue in 10 to 15 lines.
+#             example:
+#             [guest] hello, thank you for coming!
+#             [host] it's my pleasure."""
+#         )
+#         result = convo_client.predict(
+#            message=text,
+# 		param_2=system_message,
+# 		param_3=512,
+# 		param_4=0.7,
+# 		param_5=0.95,
+# 		param_6=0,
+# 		param_7=-1,
+# 		param_8="meta-llama/Llama-3.3-70B-Instruct",
+# 		api_name="/chat"
+#         )
+#         print("Response from model:", result)
+#         return result.strip()
+#     return text
+
+def gen_dialogue(text, scnerioTitle):
     convo_client = resources.get_convo_client()
     if "[" not in text or "]" not in text:
-        system_message = """You are a chatbot which only replies shortly. You give different results every time 
-        and in the form of a dialogue between two characters talking about the given topic in just 10 to 15 lines. When starting each person's dialogue, only start it with: '[student]' or '[teacher]'. If you mention the names again, don't use brackets,brackets only come when starting the sentence.
-        example:
-        [student] how are you teacher? 
-        [teacher] I am good what about you? what brought you here today?
-        """
+        prompt = get_prompt_for(scnerioTitle)
         result = convo_client.predict(
            message=text,
-		param_2=system_message,
+		param_2=prompt,
 		param_3=512,
 		param_4=0.7,
 		param_5=0.95,
@@ -31,73 +111,38 @@ def generate_text(text):
 		param_7=-1,
 		param_8="meta-llama/Llama-3.3-70B-Instruct",
 		api_name="/chat"
-)
-        return result.strip()
-    return text
-
-def get_interviewer_applicant_dialogue(text):
-    """
-    Generates dialogue using the conversation client if the input text is not already in dialogue format.
-    """
-    print("function called, calling predict")
-    convo_client = resources.get_convo_client()
-    if "[" not in text or "]" not in text:
-        system_message = (
-            """Generate a very short dialogue between two characters conducting an interview. One character is the interviewer, and the other is the applicant.
-            use these labels ([interviewer] and [Applicant]) at the start of every individual's turn.
-            The interviewer asks relevant and tough questions about given topic, and the applicant provides concise answers.
-            Keep the dialogue engaging, natural, and end the dialogue in 10 to 15 lines.
-            example:
-            [Interviewer] hello, thank you for coming!
-            [Applicant] it's my pleasure."""
         )
-        result = convo_client.predict(
-           message=text,
-		param_2=system_message,
-		param_3=512,
-		param_4=0.7,
-		param_5=0.95,
-		param_6=0,
-		param_7=-1,
-		param_8="meta-llama/Llama-3.3-70B-Instruct",
-		api_name="/chat"
-        )
-        print("Response from model:", result)
         return result.strip()
-    return text
+    return
 
-
-def get_podcast_dialogue(text):
-    """
-    Generates dialogue using the conversation client if the input text is not already in dialogue format.
-    """
-    print("function called, calling predict")
-    convo_client = resources.get_convo_client()
-    if "[" not in text or "]" not in text:
-        system_message = (
-            """Generate a very short dialogue between two characters participating in the podcast. One character is the host, and the other is the guest. The dialogue should include discussion about the given topic(make it sound as practical as possible, even if the input is same try to generate different results).
+def get_prompt_for(text):
+    if text.lower() == "podcast":
+        return """Generate a very short dialogue between two characters participating in the podcast. One character is the host, and the other is the guest. The dialogue should include discussion about the given topic(make it sound as practical as possible, even if the input is same try to generate different results).
             use these labels ([host] and [guest]) at the start of every individual's turn.
             The host asks general questions and the guest answers them, both keeping the dialogue interesting, engaging and natural.
             End the dialogue in 10 to 15 lines.
             example:
             [guest] hello, thank you for coming!
             [host] it's my pleasure."""
-        )
-        result = convo_client.predict(
-           message=text,
-		param_2=system_message,
-		param_3=512,
-		param_4=0.7,
-		param_5=0.95,
-		param_6=0,
-		param_7=-1,
-		param_8="meta-llama/Llama-3.3-70B-Instruct",
-		api_name="/chat"
-        )
-        print("Response from model:", result)
-        return result.strip()
-    return text
-
+    
+    elif text.lower() == "interview":
+        return """Generate a very short dialogue between two characters conducting an interview. One character is the interviewer, and the other is the applicant.
+            use these labels ([interviewer] and [Applicant]) at the start of every individual's turn.
+            The interviewer asks relevant and tough questions about given topic, and the applicant provides concise answers.
+            Keep the dialogue engaging, natural, and end the dialogue in 10 to 15 lines.
+            example:
+            [Interviewer] hello, thank you for coming!
+            [Applicant] it's my pleasure"""
+    
+    elif text.lower() == "stu_teach":
+        return """You are a chatbot which only replies shortly. You give different results every time 
+        and in the form of a dialogue between two characters talking about the given topic in just 10 to 15 lines. When starting each person's dialogue, only start it with: '[student]' or '[teacher]'. If you mention the names again, don't use brackets,brackets only come when starting the sentence.
+        example:
+        [student] how are you teacher? 
+        [teacher] I am good what about you? what brought you here today?"""
+    
+    else:
+        return ""
 
 def get_recommended_links(query):
     try:
@@ -196,7 +241,7 @@ def recheck_for_errors(pipeline_results, output_path):
             elif error_speaker.lower() == "applicant":
                 applicant(error_text)
                 generated_file = "applicant_file.wav"
-            elif error_speaker.lower() == "Interviewer":
+            elif error_speaker.lower() == "interviewer":
                 interviewr(error_text)
                 generated_file = "interviewer_file.wav"
             elif error_speaker.lower() == "host":
@@ -232,6 +277,9 @@ def recheck_for_errors(pipeline_results, output_path):
             segment["lipsync"] = lipsync_result
 
     remove_garbage("../")
+    remove_garbage("../media/interview")
+    remove_garbage("../media/podcast")
+    remove_garbage("../media/stu_teach")
     return pipeline_results
 
 def rename_move(source, destination, filename):

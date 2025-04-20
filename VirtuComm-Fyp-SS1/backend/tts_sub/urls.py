@@ -9,5 +9,4 @@ urlpatterns = [
     path('single/', views.single_model, name='single_model'),
     path('interview/', views.interview, name='interview'),
     path('podcast/', views.podcast, name = "podcast"),
-    path('set-language/', views.set_language, name='set_language'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
