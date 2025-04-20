@@ -1,4 +1,3 @@
-// ScenarioSelection.jsx
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
@@ -141,48 +140,6 @@ const CardDescription = styled.p`
   margin-bottom: 1rem;
 `;
 
-const RoleOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(5px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  opacity: ${props => props.show ? 1 : 0};
-  transform: ${props => props.show ? 'translateY(0)' : 'translateY(100%)'};
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 3;
-`;
-
-const RoleButton = styled.button`
-  padding: 1rem 2.5rem;
-  margin: 0.7rem;
-  border: none;
-  border-radius: 30px;
-  background: ${props => props.selected ? 'linear-gradient(135deg, #FFD700, #FFA500)' : 'rgba(255, 255, 255, 0.9)'};
-  color: ${props => props.selected ? '#1a1c2c' : '#333'};
-  font-size: 1.2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    background: ${props => props.selected ? 'linear-gradient(135deg, #FFD700, #FFA500)' : '#ffffff'};
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-`;
-
 const LoadingSpinner = styled.div`
   display: inline-block;
   width: 50px;
@@ -219,7 +176,6 @@ const ScenarioSelection = () => {
   }, [navigate]);
 
   const [selectedScenario, setSelectedScenario] = useState('');
-  const [selectedRole, setSelectedRole] = useState('');
 
   const scenarios = [
     {
@@ -228,7 +184,6 @@ const ScenarioSelection = () => {
       description: 'Practice classroom interactions and educational scenarios',
       image: 'https://cdn.britannica.com/94/216094-050-DE56809C/teacher-at-chalkboard.jpg',
       background: 'linear-gradient(45deg, #2c3e50, #3498db)',
-      roles: ['teacher', 'student'],
     },
     {
       id: 'interview',
@@ -236,7 +191,6 @@ const ScenarioSelection = () => {
       description: 'Master professional interviews and improve your career prospects',
       image: '/img/stage1_5.png',
       background: 'linear-gradient(45deg, #2c3e50, #27ae60)',
-      roles: ['interviewer', 'interviewee'],
     },
     {
       id: 'podcast',
@@ -244,50 +198,19 @@ const ScenarioSelection = () => {
       description: 'Learn the art of engaging conversations and storytelling',
       image: 'https://www.atulhost.com/wp-content/uploads/2019/12/podcast.jpg',
       background: 'linear-gradient(45deg, #2c3e50, #e74c3c)',
-      roles: ['host', 'guest'],
-    },
-    {
-      id: 'single-model',
-      name: 'Single Model',
-      description: 'Practice solo presentations and monologues',
-      image: '/img/sin.png',
-      background: 'linear-gradient(45deg, #2c3e50, #9b59b6)',
-      roles: ['solo'],
-    }
-  ];
+    }];
 
   const scenarioRedirects = {
-    'teacher-student': {
-      teacher: '/stage1_4',
-      student: '/stage1_4',
-    },
-    'interview': {
-      interviewer: '/stage1_5',
-      interviewee: '/stage1_5',
-    },
-    'podcast': {
-      host: '/stage1_3',
-      guest: '/stage1_3',
-    },
-    'single-model': {
-      solo: '/stage1_1',
-    }
+    'teacher-student': '/stage1_4',
+    'interview': '/stage1_5',
+    'podcast': '/stage1_3',
+    'single-model': '/stage1_1',
   };
 
   const handleScenarioClick = (scenarioId) => {
     setSelectedScenario(scenarioId);
-    setSelectedRole(''); // reset role on new scenario selection
-  };
-
-  const handleRoleSelect = (scenarioId, role) => {
-    setSelectedRole(role);
-    const redirectUrl = scenarioRedirects[scenarioId][role];
-    axios.post('http://localhost:8000/api_tts/set-language/', { language: role }, { withCredentials: true })
-      .then(response => {
-        console.log('Role received: ', response.data.language);
-        window.location.href = redirectUrl;
-      })
-      .catch(error => console.log('Error posting role:', error));
+    const redirectUrl = scenarioRedirects[scenarioId];
+    window.location.href = redirectUrl;
   };
 
   if (isAuthenticated === null) {
@@ -303,7 +226,7 @@ const ScenarioSelection = () => {
       <Header>
         <Title>Communication Scenarios</Title>
         <Subtitle>
-          Choose your preferred scenario and role to enhance your communication skills
+          Choose your preferred scenario to enhance your communication skills
           through interactive practice sessions.
         </Subtitle>
       </Header>
@@ -319,21 +242,6 @@ const ScenarioSelection = () => {
               <CardTitle>{scenario.name}</CardTitle>
               <CardDescription>{scenario.description}</CardDescription>
             </CardContent>
-            <RoleOverlay show={selectedScenario === scenario.id}>
-              <CardTitle>Select Your Role</CardTitle>
-              {scenario.roles.map((role) => (
-                <RoleButton
-                  key={role}
-                  selected={selectedRole === role}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRoleSelect(scenario.id, role);
-                  }}
-                >
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </RoleButton>
-              ))}
-            </RoleOverlay>
           </ScenarioCard>
         ))}
       </CardsContainer>

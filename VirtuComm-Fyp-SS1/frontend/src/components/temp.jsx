@@ -7,6 +7,7 @@ export const AudioPlayerWithSubtitles = () => {
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const { audio } = useSharedAudio(); // Get audio from context
     const [currentSubtitleFile, setCurrentSubtitleFile] = useState(null); // Track current subtitle file
+    const [loading, setLoading] = useState(false);
 
     const baseMediaUrl = "http://localhost:8000/api_tts/media/podcast/";
 
@@ -28,18 +29,27 @@ export const AudioPlayerWithSubtitles = () => {
     useEffect(() => {
         if (!currentSubtitleFile) return;
 
-        const timestamp = new Date().getTime(); // Add timestamp to prevent caching
-        fetch(`${baseMediaUrl}${currentSubtitleFile}?t=${timestamp}`)
-            .then((response) => response.json())
-            .then((data) => {
+        const fetchSubtitles = async () => {
+            setLoading(true);
+            try {
+                const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+                const response = await fetch(`${baseMediaUrl}${currentSubtitleFile}?t=${timestamp}`);
+                const data = await response.json();
+                
                 if (data?.segments?.length > 0) {
                     setSegments(data.segments);
                     console.log("Subtitles loaded:", data.segments);
                 } else {
                     console.error("No segments found in subtitle file!");
                 }
-            })
-            .catch((error) => console.error("Error loading subtitle JSON:", error));
+            } catch (error) {
+                console.error("Error loading subtitle JSON:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchSubtitles();
     }, [currentSubtitleFile]);
 
     // Update subtitles based on audio playback
@@ -90,39 +100,149 @@ export const AudioPlayerWithSubtitles = () => {
     };
 
     return (
-        <div
-            style={{
-                marginTop: "20px",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                color: "white",
-                fontSize: "14px",
-                padding: "10px",
-                maxWidth: "80%",
-                width: "80%",
-                margin: "0 auto",
-                wordWrap: "break-word",
-                whiteSpace: "normal",
-                overflowY: "auto",
-                maxHeight: "150px", // Limit height, add scrolling if needed
-            }}
-        >
-            {currentSegmentIndex === -1 ? (
-                <strong>...</strong>
+        <div className="subtitle-wrapper">
+            {loading ? (
+                <div className="subtitle-loading">
+                    <div className="loading-spinner"></div>
+                </div>
+            ) : currentSegmentIndex === -1 ? (
+                <div className="subtitle-placeholder">...</div>
             ) : (
-                <>
-                    <strong>{segments[currentSegmentIndex]?.speaker}:</strong>
-                    <p style={{ margin: "5px 0", lineHeight: "1.5" }}>
+                <div className="subtitle-content">
+                    <div className="speaker-name">{segments[currentSegmentIndex]?.speaker}</div>
+                    <p className="subtitle-text">
                         {segments[currentSegmentIndex]?.words.map((word, index) => (
                             <span
                                 key={index}
-                                style={{ fontWeight: index === currentWordIndex ? "bold" : "normal" }}
+                                className={index === currentWordIndex ? "word-active" : "word-normal"}
                             >
                                 {word.word}{" "}
                             </span>
                         ))}
                     </p>
-                </>
+                </div>
             )}
+
+            {/* CSS Styles */}
+            <style jsx>{`
+                .subtitle-wrapper {
+                    background-color: rgba(0, 0, 0, 0.6);
+                    color: white;
+                    border-radius: 8px;
+                    padding: 12px 16px;
+                    width: 90%;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    transition: all 0.3s ease;
+                    animation: fadeIn 0.5s ease;
+                }
+
+                .subtitle-loading {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 60px;
+                }
+
+                .subtitle-placeholder {
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 18px;
+                    opacity: 0.7;
+                    padding: 10px 0;
+                }
+
+                .subtitle-content {
+                    animation: slideInUp 0.3s ease;
+                }
+
+                .speaker-name {
+                    font-weight: 600;
+                    font-size: 15px;
+                    margin-bottom: 6px;
+                    color: #f0f0f0;
+                    text-transform: capitalize;
+                }
+
+                .subtitle-text {
+                    margin: 5px 0;
+                    line-height: 1.5;
+                    font-size: 16px;
+                    font-weight: 400;
+                }
+
+                .word-active {
+                    font-weight: 700;
+                    color: #ffffff;
+                    position: relative;
+                }
+
+                .word-active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    width: 100%;
+                    height: 2px;
+                    background-color: #ffffff;
+                    animation: pulse 1s infinite;
+                }
+
+                .word-normal {
+                    font-weight: 400;
+                    color: rgba(255, 255, 255, 0.9);
+                }
+
+                @keyframes pulse {
+                    0% { opacity: 0.6; }
+                    50% { opacity: 1; }
+                    100% { opacity: 0.6; }
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                @keyframes slideInUp {
+                    from { transform: translateY(10px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+
+                /* Responsive adjustments */
+                @media (max-width: 768px) {
+                    .subtitle-wrapper {
+                        width: 95%;
+                        padding: 10px 14px;
+                    }
+
+                    .speaker-name {
+                        font-size: 14px;
+                    }
+
+                    .subtitle-text {
+                        font-size: 15px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .subtitle-wrapper {
+                        padding: 8px 12px;
+                    }
+
+                    .speaker-name {
+                        font-size: 13px;
+                    }
+
+                    .subtitle-text {
+                        font-size: 14px;
+                        line-height: 1.4;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
@@ -133,6 +253,7 @@ export const Subtitles_Stage1_4 = () => {
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const { audio } = useSharedAudio(); // Get audio from context
     const [currentSubtitleFile, setCurrentSubtitleFile] = useState(null); // Track current subtitle file
+    const [loading, setLoading] = useState(false);
 
     const baseMediaUrl = "http://localhost:8000/api_tts/media/stu_teach/";
 
@@ -154,18 +275,27 @@ export const Subtitles_Stage1_4 = () => {
     useEffect(() => {
         if (!currentSubtitleFile) return;
 
-        const timestamp = new Date().getTime(); // Add timestamp to prevent caching
-        fetch(`${baseMediaUrl}${currentSubtitleFile}?t=${timestamp}`)
-            .then((response) => response.json())
-            .then((data) => {
+        const fetchSubtitles = async () => {
+            setLoading(true);
+            try {
+                const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+                const response = await fetch(`${baseMediaUrl}${currentSubtitleFile}?t=${timestamp}`);
+                const data = await response.json();
+                
                 if (data?.segments?.length > 0) {
                     setSegments(data.segments);
                     console.log("Subtitles loaded:", data.segments);
                 } else {
                     console.error("No segments found in subtitle file!");
                 }
-            })
-            .catch((error) => console.error("Error loading subtitle JSON:", error));
+            } catch (error) {
+                console.error("Error loading subtitle JSON:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchSubtitles();
     }, [currentSubtitleFile]);
 
     // Update subtitles based on audio playback
@@ -216,42 +346,153 @@ export const Subtitles_Stage1_4 = () => {
     };
 
     return (
-        <div
-            style={{
-                marginTop: "20px",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                color: "white",
-                fontSize: "14px",
-                padding: "10px",
-                maxWidth: "80%",
-                width: "80%",
-                margin: "0 auto",
-                wordWrap: "break-word",
-                whiteSpace: "normal",
-                overflowY: "auto",
-                maxHeight: "150px", // Limit height, add scrolling if needed
-            }}
-        >
-            {currentSegmentIndex === -1 ? (
-                <strong>...</strong>
+        <div className="subtitle-wrapper">
+            {loading ? (
+                <div className="subtitle-loading">
+                    <div className="loading-spinner"></div>
+                </div>
+            ) : currentSegmentIndex === -1 ? (
+                <div className="subtitle-placeholder">...</div>
             ) : (
-                <>
-                    <strong>{segments[currentSegmentIndex]?.speaker}:</strong>
-                    <p style={{ margin: "5px 0", lineHeight: "1.5" }}>
+                <div className="subtitle-content">
+                    <div className="speaker-name">{segments[currentSegmentIndex]?.speaker}</div>
+                    <p className="subtitle-text">
                         {segments[currentSegmentIndex]?.words.map((word, index) => (
                             <span
                                 key={index}
-                                style={{ fontWeight: index === currentWordIndex ? "bold" : "normal" }}
+                                className={index === currentWordIndex ? "word-active" : "word-normal"}
                             >
                                 {word.word}{" "}
                             </span>
                         ))}
                     </p>
-                </>
+                </div>
             )}
+
+            {/* CSS Styles */}
+            <style jsx>{`
+                .subtitle-wrapper {
+                    background-color: rgba(0, 0, 0, 0.6);
+                    color: white;
+                    border-radius: 8px;
+                    padding: 12px 16px;
+                    width: 90%;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    transition: all 0.3s ease;
+                    animation: fadeIn 0.5s ease;
+                }
+
+                .subtitle-loading {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 60px;
+                }
+
+                .subtitle-placeholder {
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 18px;
+                    opacity: 0.7;
+                    padding: 10px 0;
+                }
+
+                .subtitle-content {
+                    animation: slideInUp 0.3s ease;
+                }
+
+                .speaker-name {
+                    font-weight: 600;
+                    font-size: 15px;
+                    margin-bottom: 6px;
+                    color: #f0f0f0;
+                    text-transform: capitalize;
+                }
+
+                .subtitle-text {
+                    margin: 5px 0;
+                    line-height: 1.5;
+                    font-size: 16px;
+                    font-weight: 400;
+                }
+
+                .word-active {
+                    font-weight: 700;
+                    color: #ffffff;
+                    position: relative;
+                }
+
+                .word-active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    width: 100%;
+                    height: 2px;
+                    background-color: #ffffff;
+                    animation: pulse 1s infinite;
+                }
+
+                .word-normal {
+                    font-weight: 400;
+                    color: rgba(255, 255, 255, 0.9);
+                }
+
+                @keyframes pulse {
+                    0% { opacity: 0.6; }
+                    50% { opacity: 1; }
+                    100% { opacity: 0.6; }
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                @keyframes slideInUp {
+                    from { transform: translateY(10px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+
+                /* Responsive adjustments */
+                @media (max-width: 768px) {
+                    .subtitle-wrapper {
+                        width: 95%;
+                        padding: 10px 14px;
+                    }
+
+                    .speaker-name {
+                        font-size: 14px;
+                    }
+
+                    .subtitle-text {
+                        font-size: 15px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .subtitle-wrapper {
+                        padding: 8px 12px;
+                    }
+
+                    .speaker-name {
+                        font-size: 13px;
+                    }
+
+                    .subtitle-text {
+                        font-size: 14px;
+                        line-height: 1.4;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
+
 
 export const Subtitles_Stage1_5 = () => {
     const [segments, setSegments] = useState([]);
@@ -259,6 +500,7 @@ export const Subtitles_Stage1_5 = () => {
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const { audio } = useSharedAudio(); // Get audio from context
     const [currentSubtitleFile, setCurrentSubtitleFile] = useState(null); // Track current subtitle file
+    const [loading, setLoading] = useState(false);
 
     const baseMediaUrl = "http://localhost:8000/api_tts/media/interview/";
 
@@ -280,18 +522,27 @@ export const Subtitles_Stage1_5 = () => {
     useEffect(() => {
         if (!currentSubtitleFile) return;
 
-        const timestamp = new Date().getTime(); // Add timestamp to prevent caching
-        fetch(`${baseMediaUrl}${currentSubtitleFile}?t=${timestamp}`)
-            .then((response) => response.json())
-            .then((data) => {
+        const fetchSubtitles = async () => {
+            setLoading(true);
+            try {
+                const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+                const response = await fetch(`${baseMediaUrl}${currentSubtitleFile}?t=${timestamp}`);
+                const data = await response.json();
+                
                 if (data?.segments?.length > 0) {
                     setSegments(data.segments);
                     console.log("Subtitles loaded:", data.segments);
                 } else {
                     console.error("No segments found in subtitle file!");
                 }
-            })
-            .catch((error) => console.error("Error loading subtitle JSON:", error));
+            } catch (error) {
+                console.error("Error loading subtitle JSON:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchSubtitles();
     }, [currentSubtitleFile]);
 
     // Update subtitles based on audio playback
@@ -342,39 +593,151 @@ export const Subtitles_Stage1_5 = () => {
     };
 
     return (
-        <div
-            style={{
-                marginTop: "20px",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                color: "white",
-                fontSize: "14px",
-                padding: "10px",
-                maxWidth: "80%",
-                width: "80%",
-                margin: "0 auto",
-                wordWrap: "break-word",
-                whiteSpace: "normal",
-                overflowY: "auto",
-                maxHeight: "150px", // Limit height, add scrolling if needed
-            }}
-        >
-            {currentSegmentIndex === -1 ? (
-                <strong>...</strong>
+        <div className="subtitle-wrapper">
+            {loading ? (
+                <div className="subtitle-loading">
+                    <div className="loading-spinner"></div>
+                </div>
+            ) : currentSegmentIndex === -1 ? (
+                <div className="subtitle-placeholder">...</div>
             ) : (
-                <>
-                    <strong>{segments[currentSegmentIndex]?.speaker}:</strong>
-                    <p style={{ margin: "5px 0", lineHeight: "1.5" }}>
+                <div className="subtitle-content">
+                    <div className="speaker-name">{segments[currentSegmentIndex]?.speaker}</div>
+                    <p className="subtitle-text">
                         {segments[currentSegmentIndex]?.words.map((word, index) => (
                             <span
                                 key={index}
-                                style={{ fontWeight: index === currentWordIndex ? "bold" : "normal" }}
+                                className={index === currentWordIndex ? "word-active" : "word-normal"}
                             >
                                 {word.word}{" "}
                             </span>
                         ))}
                     </p>
-                </>
+                </div>
             )}
+
+            {/* CSS Styles */}
+            <style jsx>{`
+                .subtitle-wrapper {
+                    background-color: rgba(0, 0, 0, 0.6);
+                    color: white;
+                    border-radius: 8px;
+                    padding: 12px 16px;
+                    width: 90%;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    transition: all 0.3s ease;
+                    animation: fadeIn 0.5s ease;
+                }
+
+                .subtitle-loading {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 60px;
+                }
+
+                .subtitle-placeholder {
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 18px;
+                    opacity: 0.7;
+                    padding: 10px 0;
+                }
+
+                .subtitle-content {
+                    animation: slideInUp 0.3s ease;
+                }
+
+                .speaker-name {
+                    font-weight: 600;
+                    font-size: 15px;
+                    margin-bottom: 6px;
+                    color: #f0f0f0;
+                    text-transform: capitalize;
+                }
+
+                .subtitle-text {
+                    margin: 5px 0;
+                    line-height: 1.5;
+                    font-size: 16px;
+                    font-weight: 400;
+                }
+
+                .word-active {
+                    font-weight: 700;
+                    color: #ffffff;
+                    position: relative;
+                }
+
+                .word-active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    width: 100%;
+                    height: 2px;
+                    background-color: #ffffff;
+                    animation: pulse 1s infinite;
+                }
+
+                .word-normal {
+                    font-weight: 400;
+                    color: rgba(255, 255, 255, 0.9);
+                }
+
+                @keyframes pulse {
+                    0% { opacity: 0.6; }
+                    50% { opacity: 1; }
+                    100% { opacity: 0.6; }
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                @keyframes slideInUp {
+                    from { transform: translateY(10px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+
+                /* Responsive adjustments */
+                @media (max-width: 768px) {
+                    .subtitle-wrapper {
+                        width: 95%;
+                        padding: 10px 14px;
+                    }
+
+                    .speaker-name {
+                        font-size: 14px;
+                    }
+
+                    .subtitle-text {
+                        font-size: 15px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .subtitle-wrapper {
+                        padding: 8px 12px;
+                    }
+
+                    .speaker-name {
+                        font-size: 13px;
+                    }
+
+                    .subtitle-text {
+                        font-size: 14px;
+                        line-height: 1.4;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
+
+
