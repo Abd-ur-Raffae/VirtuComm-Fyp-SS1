@@ -10,7 +10,8 @@ export function Avatar2({ isListening, ...props }) {
     const { playAudio, updateLipSync, jsonFile, audio, isPlaying, speaker } = useDialogueManager({ 
         dialogue: props.dialogue, 
         isListening, 
-        onComplete: props.onComplete 
+        onComplete: props.onComplete ,
+        avatarType: 'interviewer'
     });
 
     // Load model and animations
@@ -30,7 +31,10 @@ export function Avatar2({ isListening, ...props }) {
         const idleAction = actions['Idle'];
         const talkingAction = actions['Talking'];
     
-        if (!idleAction || !talkingAction) return;
+        if (!idleAction || !talkingAction)  {
+            console.error('Actions not found:', { idleAction, talkingAction });
+            return;
+        }
     
         idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
         talkingAction.setLoop(THREE.LoopRepeat, Infinity);
@@ -40,12 +44,12 @@ export function Avatar2({ isListening, ...props }) {
                 audio.currentTime >= segment.start_time && audio.currentTime <= segment.end_time
             );
     
-            if (currentSegment?.speaker === 'teacher') {
-                idleAction.fadeOut(0.2);
-                talkingAction.reset().fadeIn(0.2).play();
+            if (currentSegment?.speaker === 'interviewer') {
+                idleAction.stop();
+                talkingAction.reset().play();
             } else {
-                talkingAction.fadeOut(0.2);
-                idleAction.reset().fadeIn(0.2).play();
+                talkingAction.stop();
+                idleAction.reset().play();
             }
         }
     }, [isPlaying, jsonFile, audio, actions]);
@@ -56,7 +60,7 @@ export function Avatar2({ isListening, ...props }) {
                 audio?.currentTime >= segment.start_time && audio?.currentTime <= segment.end_time
             );
 
-            if (currentSegment?.speaker === 'teacher') {
+            if (currentSegment?.speaker === 'interviewer') {
                 updateLipSync(audio.currentTime, nodes);
             }
         }

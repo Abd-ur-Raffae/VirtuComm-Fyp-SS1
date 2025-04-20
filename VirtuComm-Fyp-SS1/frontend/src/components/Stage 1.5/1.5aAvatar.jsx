@@ -10,7 +10,8 @@ export function Avatar1({ isListening, ...props }) {
     const { playAudio, updateLipSync, jsonFile, audio, isPlaying, speaker } = useDialogueManager({ 
         dialogue: props.dialogue, 
         isListening, 
-        onComplete: props.onComplete 
+        onComplete: props.onComplete ,
+        avatarType : 'applicant'
     });
 
     // Load model and animations
@@ -30,7 +31,10 @@ export function Avatar1({ isListening, ...props }) {
         const idleAction = actions['Idle'];
         const talkingAction = actions['Talking'];
     
-        if (!idleAction || !talkingAction) return;
+        if (!idleAction || !talkingAction) {
+            console.error('Actions not found:', { idleAction, talkingAction });
+            return;
+        }
     
         idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
         talkingAction.setLoop(THREE.LoopRepeat, Infinity);
@@ -40,7 +44,7 @@ export function Avatar1({ isListening, ...props }) {
                 audio.currentTime >= segment.start_time && audio.currentTime <= segment.end_time
             );
     
-            if (currentSegment?.speaker === 'student') {
+            if (currentSegment?.speaker === 'applicant') {
                 idleAction.stop();
                 talkingAction.reset().play();
             } else {
@@ -56,7 +60,7 @@ export function Avatar1({ isListening, ...props }) {
                 audio?.currentTime >= segment.start_time && audio?.currentTime <= segment.end_time
             );
 
-            if (currentSegment?.speaker === 'student') {
+            if (currentSegment?.speaker === 'applicant') {
                 updateLipSync(audio.currentTime, nodes);
             }
         }

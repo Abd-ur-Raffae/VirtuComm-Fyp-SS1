@@ -9,13 +9,13 @@ import { useDialogueManager } from './1.4avatar_manager'; // Import the Dialogue
 
 export function Avatar1({ isListening, ...props }) {
   const { 
-    playAudio, 
-    // pauseAudio, 
+    playAudio,  
     updateLipSync, 
     jsonFile, 
     audio, 
-    // lipsync 
-  } = useDialogueManager({ dialogue: props.dialogue, isListening, onComplete: props.onComplete });
+    isPlaying,
+    speaker
+  } = useDialogueManager({ dialogue: props.dialogue, isListening, onComplete: props.onComplete,avatarType : 'student' });
 
   // Load model and animations
   const { scene } = useGLTF('/models/student_1.glb');
@@ -43,12 +43,12 @@ export function Avatar1({ isListening, ...props }) {
     idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
     talkingAction.setLoop(THREE.LoopRepeat, Infinity);
   
-    if (playAudio && jsonFile?.segments && audio) {
+    if (isPlaying && jsonFile?.segments && audio) {
       const currentSegment = jsonFile.segments.find(segment => 
         audio.currentTime >= segment.start_time && audio.currentTime <= segment.end_time
       );
   
-      console.log('Current Segment:', currentSegment);
+     // console.log('Current Segment:', currentSegment);
   
       if (currentSegment?.speaker === 'student') {
         idleAction.stop();
@@ -58,16 +58,16 @@ export function Avatar1({ isListening, ...props }) {
         idleAction.reset().play();
       }
     }
-  }, [playAudio, jsonFile, audio, actions]);
+  }, [isPlaying, jsonFile, audio, actions]);
   
   useFrame(() => {
-    if (audio && audio.currentTime !== undefined && playAudio) {
+    if (audio && audio.currentTime !== undefined && isPlaying) {
       const currentSegment = jsonFile?.segments?.find(segment => 
         audio?.currentTime >= segment.start_time && audio?.currentTime <= segment.end_time
       );
   
       if (currentSegment?.speaker === 'student') {
-        console.log('Updating Lip Sync:', audio.currentTime);
+       // console.log('Updating Lip Sync:', audio.currentTime);
         updateLipSync(audio.currentTime, nodes);
       }
     }
@@ -75,15 +75,15 @@ export function Avatar1({ isListening, ...props }) {
   
   
   
-  useEffect(() => {
-    if (audio) {
-      if (playAudio) {
-        audio.play();
-      } else {
-        audio.pause();
-      }
-    }
-  }, [playAudio, audio]);
+  // useEffect(() => {
+  //   if (audio) {
+  //     if (playAudio) {
+  //       audio.play();
+  //     } else {
+  //       audio.pause();
+  //     }
+  //   }
+  // }, [playAudio, audio]);
   
 
   return (

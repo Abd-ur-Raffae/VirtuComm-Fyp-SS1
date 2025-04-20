@@ -9,18 +9,20 @@ import { useDialogueManager } from './1.4avatar_manager'; // Import the Dialogue
 export function Avatar2({ dialogue, isListening, onComplete, ...props }) {
   const { 
     playAudio, 
-    // pauseAudio, 
-    updateLipSync, 
+     
+  updateLipSync, 
     jsonFile, 
     audio, 
-    // lipsync 
-  } = useDialogueManager({ dialogue, isListening, onComplete });
+    isPlaying,
+    speaker
+   
+  } = useDialogueManager({ dialogue, isListening, onComplete,avatarType:'teacher' });
 
   const { scene } = useGLTF('/models/teacher_female.glb');
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { nodes, materials } = useGraph(clone);
-  console.log("Nodes:", nodes);
-  console.log(Object.keys(nodes))
+  // console.log("Nodes:", nodes);
+  // console.log(Object.keys(nodes))
 
 
   const { animations: idleAnimations } = useFBX('/animations/Teacher_Standing_Idle.fbx');
@@ -35,14 +37,16 @@ export function Avatar2({ dialogue, isListening, onComplete, ...props }) {
   useEffect(() => {
     const idleAction = actions['Idle'];
     const talkingAction = actions['Talking'];
-    if (idleAction) {
-      idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
+    if (!idleAction || !talkingAction) {
+      console.error('Actions not found:', { idleAction, talkingAction });
+      return;
     }
-    if (talkingAction) {
-      talkingAction.setLoop(THREE.LoopRepeat, Infinity);
-    }
+    
+    idleAction.reset().play().setLoop(THREE.LoopRepeat, Infinity);
+    talkingAction.setLoop(THREE.LoopRepeat, Infinity);
+   
   
-    if (playAudio && jsonFile?.segments && audio) {
+    if (isPlaying && jsonFile?.segments && audio) {
       const currentSegment = jsonFile.segments.find(segment => 
         audio.currentTime >= segment.start_time && audio.currentTime <= segment.end_time
       );
@@ -60,20 +64,20 @@ export function Avatar2({ dialogue, isListening, onComplete, ...props }) {
       idleAction?.stop();
       talkingAction?.stop();
     };
-  }, [playAudio, jsonFile, audio, actions]);
+  }, [isPlaying, jsonFile, audio, actions]);
   
-  useEffect(() => {
-    if (audio) {
-      if (playAudio) {
-        audio.play();
-      } else {
-        audio.pause();
-      }
-    }
-  }, [playAudio, audio]);
+  // useEffect(() => {
+  //   if (audio) {
+  //     if (playAudio) {
+  //       audio.play();
+  //     } else {
+  //       audio.pause();
+  //     }
+  //   }
+  // }, [playAudio, audio]);
   
   useFrame(() => {
-    if (audio && audio.currentTime !== undefined && playAudio) {
+    if (audio && audio.currentTime !== undefined && isPlaying) {
       const currentSegment = jsonFile?.segments?.find(segment => 
         audio?.currentTime >= segment.start_time && audio?.currentTime <= segment.end_time
       );

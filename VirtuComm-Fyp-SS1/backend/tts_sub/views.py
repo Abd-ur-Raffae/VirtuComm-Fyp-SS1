@@ -93,7 +93,7 @@ def interview(request):
         output_folder = os.path.abspath(output_folder)
 
         # Process the pipeline for each conversation line concurrently.
-        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=12)
 
         # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
@@ -146,7 +146,7 @@ def podcast(request):
         output_folder = os.path.abspath(output_folder)
 
         # Process the pipeline for each conversation line concurrently.
-        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=4)
+        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_workers=12)
 
         # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
