@@ -271,7 +271,7 @@ const Project1_3 = () => {
                 }
 
                 .sidebar-toggle.active {
-                    right: 320px;
+                    right: 600px;
                 }
 
                 .toggle-icon {
@@ -293,7 +293,7 @@ const Project1_3 = () => {
                     position: absolute;
                     right: 0;
                     top: 0;
-                    width: 320px;
+                    width:600px;
                     height: 100%;
                     background: ${theme === "dark" ? "rgba(30, 30, 40, 0.9)" : "rgba(245, 245, 247, 0.9)"};
                     border-left: 1px solid ${theme === "dark" ? "rgba(80, 80, 100, 0.3)" : "rgba(220, 220, 230, 0.5)"};

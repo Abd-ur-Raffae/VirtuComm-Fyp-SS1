@@ -126,7 +126,7 @@ export const ChatScreen = ({ className }) => {
         </>
       ) : (
         <div className="resource-error">
-          <p>Unable to load resources. Please try again later.</p>
+          <p>First enter the topic name to see related suggestions .</p>
         </div>
       )}
     </div>
@@ -259,7 +259,7 @@ export const Stu_teach_links = ({ className }) => {
         </>
       ) : (
         <div className="resource-error">
-          <p>Unable to load resources. Please try again later.</p>
+          <p>First enter the topic name to see related suggestions .</p>
         </div>
       )}
     </div>
@@ -392,7 +392,7 @@ export const Podcast_links = ({ className }) => {
         </>
       ) : (
         <div className="resource-error">
-          <p>Unable to load resources. Please try again later.</p>
+          <p>First enter the topic name to see related suggestions .</p>
         </div>
       )}
 

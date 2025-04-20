@@ -88,26 +88,22 @@ export const User_tts = () => {
                     flex-direction: column;
                     justify-content: center;
                     padding: 15px;
-                     align-items: center; 
                 }
 
                 .tts-form {
                     display: flex;
                     flex-direction: column;
                     gap: 15px;
-                    width: 12%;
+                    width: 100%;
                     transition: opacity 0.3s ease;
-                    align-items: center; 
                 }
 
                 .tts-form.fade-out {
                     opacity: 0.5;
-                     align-items: center; 
                 }
 
                 .input-wrapper {
                     width: 100%;
-                     align-items: center; 
                 }
 
                 .submit-button {
@@ -123,7 +119,6 @@ export const User_tts = () => {
                     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                     align-self: flex-end;
                     margin-top: 10px;
-                     align-items: center; 
                 }
 
                 .dark-theme .submit-button {
