@@ -7,7 +7,7 @@ class AppResources:
         print("Initializing Gradio clients...")
         self.convo_client = Client("Nymbo/Serverless-TextGen-Hub")
         self.whisper_client = Client("jawwad1234/whisper-model")
-        self.tts_client = Client("jawwad1234/Edge-TTS-Text-to-Speech")
+        self.tts_client = Client("jawwad1234/text-to-speech")
         self.links_client = Client("jawwad1234/gallKro")
         print("Gradio clients initialized.")
 
