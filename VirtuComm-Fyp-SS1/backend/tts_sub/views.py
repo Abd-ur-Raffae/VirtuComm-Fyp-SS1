@@ -8,7 +8,7 @@ from .text_to_audio_single import generate_audio_from_plain_text
 from .audio_to_json_single import audio_to_sub_single
 from .utilities import generate_lipsync_for_patch,recheck_for_errors,get_recommended_links, gen_dialogue
 from concurrent.futures import ThreadPoolExecutor
-import os,json
+import os,json, time
 
 
 
@@ -86,7 +86,7 @@ def interview(request):
 
         # Process the pipeline for each conversation line concurrently.
         max_cores = os.cpu_count()
-        pipeline_results = process_conversation_pipeline(result_text, output_folder, max_cores)
+        pipeline_results = process_conversation_pipeline(result_text, output_folder)
 
         # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
@@ -111,6 +111,7 @@ def interview(request):
 
 @api_view(['POST'])
 def podcast(request):
+    start_time = time.time()
     try:
         text = request.data.get("text", "")
 
@@ -148,6 +149,8 @@ def podcast(request):
             json.dump(final_data, json_file, ensure_ascii=False, indent=4)
 
         final_result = recheck_for_errors(pipeline_results, output_folder)
+        end_time  =time.time()
+        print(f"pipeline completed in: {end_time - start_time:.2f}")
         return Response({
             "message": "Pipeline executed successfully",
             "pipeline_results": final_result,

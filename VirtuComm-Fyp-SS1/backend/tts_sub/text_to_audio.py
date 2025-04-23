@@ -1,128 +1,118 @@
+# text_to_audio.py
+
 import os
-import re
-from .apps import resources
 import shutil
-from concurrent.futures import ThreadPoolExecutor
-from pydub import AudioSegment
-from . utilities import generate_lipsync_for_patch
-from .audio_to_json import transcribe_audio_api  # Import the transcription module
+import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from .voiceGen import student, teacher, applicant, interviewr, guest, host
+from .audio_to_json import transcribe_audio_api, transcribe_audios_in_folder_parallel
+from .utilities import generate_lipsync_for_patch
 
-from .voiceGen import student, teacher, applicant, interviewr, guest, host  # Your TTS functions
-
-def text_to_conversation_with_tags(text):
-    """
-    Converts text with speaker tags into a list of (speaker, line) tuples.
-    """
+def text_to_conversation_with_tags(text: str):
     pattern = r"\[([^\]]+)\]\s*(.*)"
-    matches = re.findall(pattern, text)
-    return [(speaker.strip(), sentence.strip()) for speaker, sentence in matches]
+    return [(sp.strip(), ln.strip()) for sp, ln in re.findall(pattern, text)]
 
-def generate_audio_for_sentence(speaker, line_text, index, output_dir):
-    """
-    Generates the audio file for a single sentence.
-    """
-    output_file = os.path.join(output_dir, f"{index:03d}_{speaker}.wav")
-    temp_file = os.path.join(output_dir, f"temp_{index}.wav")
-    try:
-        print(f"Generating audio for {speaker}: {line_text}")
-        if speaker.lower() == "student":
-            student(line_text)
-            generated_file = "student_file.wav"
+def generate_audio_for_sentence(speaker: str, line: str, idx: int, out_dir: str):
+    wav_name  = f"{idx:03d}_{speaker}.wav"
+    wav_path  = os.path.join(out_dir, wav_name)
+    tmp_name  = f"{idx:03d}_{speaker}_tmp.wav"
+    tmp_path  = os.path.join(out_dir, tmp_name)
 
-        elif speaker.lower() == "teacher":
-            teacher(line_text)
-            generated_file = "teacher_file.wav"
+    print(f"Generating audio for {speaker}: {line}")
+    # dispatch to your FastAPI‑backed TTS under the covers:
+    if   speaker.lower() == "student":    student(line)
+    elif speaker.lower() == "teacher":    teacher(line)
+    elif speaker.lower() == "applicant":  applicant(line)
+    elif speaker.lower() == "interviewer": interviewr(line)
+    elif speaker.lower() == "guest":      guest(line)
+    elif speaker.lower() == "host":       host(line)
+    else:
+        print(f"Unknown speaker {speaker}")
+        return None
 
-        elif speaker.lower() == "applicant":
-            applicant(line_text)
-            generated_file = "applicant_file.wav"
+    # wait & rename
+    gen_file = f"{speaker.lower()}_file.wav"
+    for _ in range(5):
+        if os.path.exists(gen_file):
+            shutil.move(gen_file, tmp_path)
+            os.rename(tmp_path, wav_path)
+            print(f"→ {wav_path}")
+            return wav_path
 
-        elif speaker.lower() == "interviewer":
-            interviewr(line_text)
-            generated_file = "interviewer_file.wav"
-
-        elif speaker.lower() == "guest":
-            guest(line_text)
-            generated_file = "guest_file.wav"
-
-        elif speaker.lower() == "host":
-            host(line_text)
-            generated_file = "host_file.wav"
-        
-
-            
-        else:
-            print(f"Warning: Unrecognized speaker '{speaker}'")
-            return None
-
-        # Wait for the generated file to appear and then move/rename it.
-        retries = 5
-        for _ in range(retries):
-            if os.path.exists(generated_file):
-                shutil.move(generated_file, temp_file)
-                os.rename(temp_file, output_file)
-                print(f"Generated and renamed: {output_file}")
-                return output_file
-            # else:
-            #     time.sleep(0.5)
-        print(f"Error: File '{generated_file}' not found after retries for {speaker}.")
-    except Exception as e:
-        print(f"Error generating audio for {speaker}: {e}")
+    print(f"Failed to find {gen_file}")
     return None
-
-def process_line_pipeline(speaker, line_text, index, output_dir, whisper_client):
-    """
-    Processes a single conversation line:
-      1. Generate audio.
-      2. Transcribe the audio.
-      3. Generate lip sync JSON.
-    Returns a dictionary with the results.
-    """
-    result = {"speaker": speaker, "text": line_text, "index": index}
-    audio_file = generate_audio_for_sentence(speaker, line_text, index, output_dir)
-    if not audio_file:
-        result["error"] = "Audio generation failed"
-        return result
-    result["audio_file"] = audio_file
-
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        future_transcription = executor.submit(transcribe_audio_api,audio_file)
-        future_lipsync = executor.submit(generate_lipsync_for_patch,audio_file)
-
-        # Get the results
-        result["transcription"] = future_transcription.result()
-        result["lipsync"] = future_lipsync.result()
-
-    return result
-
-def process_conversation_pipeline(text, output_dir, max_workers):
-    """
-    Processes the entire conversation:
-      - Parses the dialogue.
-      - For each line, concurrently generates audio, transcribes it, and creates lip sync JSON.
-    Returns a list of result dictionaries.
-    """
-    whisper_client = resources.get_whisper_client()
-    conversation = text_to_conversation_with_tags(text)
-    if not conversation:
-        print("Error: No valid conversation found in the text.")
+def process_conversation_pipeline(text: str, output_dir: str, post_workers: int = None):
+    # A) Parse
+    conv = text_to_conversation_with_tags(text)
+    if not conv:
         return []
 
-       
+    # Prepare folder
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
-
-    # Create a new empty folder
     os.makedirs(output_dir, exist_ok=True)
 
+    # B) Stage 1: Generate all audios
+    all_audio_paths = {}
+    with ThreadPoolExecutor(max_workers=len(conv)) as exec_gen:
+        gen_futs = {
+            exec_gen.submit(generate_audio_for_sentence, sp, ln, i, output_dir): i
+            for i, (sp, ln) in enumerate(conv)
+        }
+
+        for fut in as_completed(gen_futs):
+            i = gen_futs[fut]
+            try:
+                result = fut.result()
+                if result:
+                    all_audio_paths[i] = result
+            except Exception as e:
+                print(f"[ERROR] Audio gen failed for index {i}: {e}")
+
+    # C) Transcription (parallel on valid files)
+    if post_workers is None:
+        post_workers = len(all_audio_paths)/2
+
+    trans_map = {}
+    lipsync_map = {}
+
+    valid_audio_files = list(all_audio_paths.values())
+
+    # C.1 Transcription
+    try:
+        transcription_entries = transcribe_audios_in_folder_parallel(output_dir, max_workers=post_workers)
+        trans_map = {
+            os.path.join(output_dir, entry["filename"]): entry
+            for entry in transcription_entries
+        }
+    except Exception as e:
+        print(f"[ERROR] Transcription stage failed: {e}")
+
+    # C.2 Lipsync
+    with ThreadPoolExecutor(max_workers=post_workers) as exec_lip:
+        lip_futs = {
+            exec_lip.submit(generate_lipsync_for_patch, wav): wav
+            for wav in valid_audio_files
+        }
+        for fut in as_completed(lip_futs):
+            wav = lip_futs[fut]
+            try:
+                lipsync_map[wav] = fut.result()
+            except Exception as e:
+                print(f"[ERROR] Lipsync failed for {wav}: {e}")
+
+    # D) Assemble all results, including missing audio
     results = []
-    args = [(speaker, line_text, i, output_dir, whisper_client)
-            for i, (speaker, line_text) in enumerate(conversation)]
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(process_line_pipeline, *arg) for arg in args]
-        for future in futures:
-            res = future.result()
-            results.append(res)
-    results.sort(key=lambda x: x.get("index", 0))
+    for i, (sp, ln) in enumerate(conv):
+        wav = os.path.join(output_dir, f"{i:03d}_{sp}.wav")
+        results.append({
+            "speaker": sp,
+            "text": ln,
+            "index": i,
+            "audio_file": wav,
+            "transcription": trans_map.get(wav),
+            "lipsync": lipsync_map.get(wav)
+        })
+
     return results

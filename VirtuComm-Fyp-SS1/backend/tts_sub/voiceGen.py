@@ -1,7 +1,77 @@
-from tts_sub.apps import resources
-import shutil
 import os
+import tempfile
+import requests
+from .apps import resources
+import shutil
 from pydub import AudioSegment
+
+
+# Try to read the hosted URL from an env var, otherwise hard‑code your FastAPI endpoint
+TTS_API_URL = os.getenv(
+    "TTS_API_URL",
+    "https://jawwad1234-fastapi-edge-tts.hf.space/tts"
+)
+
+def _call_tts(text: str, voice_label: str, rate: int, pitch: int) -> str:
+    """
+    Sends text to the TTS API, saves the returned MP3 to a temp file,
+    and returns the temp file path.
+    """
+    payload = {
+        "text": text,
+        "voice": voice_label,
+        "rate": rate,
+        "pitch": pitch
+    }
+    resp = requests.post(TTS_API_URL, json=payload)
+    resp.raise_for_status()
+    # write the binary MP3 to a temp file
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+    tmp.write(resp.content)
+    tmp.close()
+    return tmp.name
+
+def student(text: str):
+    voice = "en-US-RogerNeural - en-US (Male)"
+    rate = 12
+    pitch = 17
+    mp3_path = _call_tts(text, voice, rate, pitch)
+    process_audio_file(mp3_path, "student_file.wav")
+
+def teacher(text: str):
+    voice = "en-US-EmmaNeural - en-US (Female)"
+    rate = -11
+    pitch = 0
+    mp3_path = _call_tts(text, voice, rate, pitch)
+    process_audio_file(mp3_path, "teacher_file.wav")
+
+def interviewr(text: str):
+    voice = "en-US-AndrewNeural - en-US (Male)"
+    rate = 0
+    pitch = 0
+    mp3_path = _call_tts(text, voice, rate, pitch)
+    process_audio_file(mp3_path, "interviewer_file.wav")
+
+def applicant(text: str):
+    voice = "en-US-BrianMultilingualNeural - en-US (Male)"
+    rate = 0
+    pitch = 9
+    mp3_path = _call_tts(text, voice, rate, pitch)
+    process_audio_file(mp3_path, "applicant_file.wav")
+
+def guest(text: str):
+    voice = "en-US-BrianNeural - en-US (Male)"
+    rate = 0
+    pitch = 0
+    mp3_path = _call_tts(text, voice, rate, pitch)
+    process_audio_file(mp3_path, "guest_file.wav")
+
+def host(text: str):
+    voice = "en-US-ChristopherNeural - en-US (Male)"
+    rate = 0
+    pitch = 0
+    mp3_path = _call_tts(text, voice, rate, pitch)
+    process_audio_file(mp3_path, "host_file.wav")
 
 
 def process_audio_file(mp3_path: str, wav_path: str):
@@ -11,76 +81,3 @@ def process_audio_file(mp3_path: str, wav_path: str):
     audio = AudioSegment.from_mp3(mp3_dest_path)
     audio.export(wav_path, format="wav")
     os.remove(mp3_dest_path)
-
-
-def student(text: str):
-    tts_client = resources.get_tts_client()
-    voice = "en-US-RogerNeural - en-US (Male)"
-    rate = 12
-    pitch = 17
-
-    result = tts_client.predict(
-        text=text, voice=voice, rate=rate, pitch=pitch, api_name="/predict"
-    )
-    audio_path = result[0]
-    process_audio_file(audio_path, "student_file.wav")
-
-
-def teacher(text: str):
-    tts_client = resources.get_tts_client()
-    voice = "en-US-EmmaNeural - en-US (Female)"
-    rate = -11
-    pitch = 0
-
-    result = tts_client.predict(
-        text=text, voice=voice, rate=rate, pitch=pitch, api_name="/predict"
-    )
-    audio_path = result[0]
-    process_audio_file(audio_path, "teacher_file.wav")
-
-def interviewr(text: str):
-    tts_client = resources.get_tts_client()
-    voice = "en-US-AndrewNeural - en-US (Male)"
-    rate = 0
-    pitch = 0
-
-    result = tts_client.predict(
-        text=text, voice=voice, rate=rate, pitch=pitch, api_name="/predict"
-    )
-    audio_path = result[0]
-    process_audio_file(audio_path, "interviewer_file.wav")
-
-def applicant(text: str):
-    tts_client = resources.get_tts_client()
-    voice = "en-US-BrianMultilingualNeural - en-US (Male)"
-    rate = 0
-    pitch = 9
-
-    result = tts_client.predict(
-        text=text, voice=voice, rate=rate, pitch=pitch, api_name="/predict"
-    )
-    audio_path = result[0]
-    process_audio_file(audio_path, "applicant_file.wav")
-
-def guest (text: str):
-    tts_client = resources.get_tts_client()
-    voice = "en-US-BrianNeural - en-US (Male)"
-    rate = 0
-    pitch = 0
-    result = tts_client.predict(
-        text = text, voice = voice, rate = rate, pitch = pitch, api_name="/predict"
-        )
-    audio_path = result[0]
-    process_audio_file(audio_path,"guest_file.wav")
-
-
-def host (text: str):
-    tts_client = resources.get_tts_client()
-    voice = "en-US-ChristopherNeural - en-US (Male)"
-    rate = 0
-    pitch = 0
-    result = tts_client.predict(
-        text = text, voice = voice, rate = rate, pitch = pitch, api_name="/predict"
-        )
-    audio_path = result[0]
-    process_audio_file(audio_path,"host_file.wav")
