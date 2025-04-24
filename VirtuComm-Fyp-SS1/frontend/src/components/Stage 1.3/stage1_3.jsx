@@ -229,10 +229,11 @@ const Project1_3 = () => {
 
                 /* TTS Container */
                 .tts-container {
-                    flex: 0.5;
+                    flex: 0.4;
                     border-radius: 12px;
                     padding: 15px;
                     transition: all 0.3s ease;
+                    height: 80px
                 }
 
                 .tts-container.dark-theme {

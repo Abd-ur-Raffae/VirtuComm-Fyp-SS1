@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useSharedAudio } from "../Stage 1.3/1.3AudioContext"; // Use shared audio
 
-// Create a singleton instance to track if audio is already being managed
-// and to share data between avatar instances
+// Shared singleton manager for syncing audio state
 const audioManagerState = {
     isAudioBeingManaged: false,
     currentManager: null,
-    // Add shared state for all avatars
     sharedData: {
         jsonFile: null,
         lipsync: null,
@@ -17,58 +15,32 @@ const audioManagerState = {
 };
 
 export function useDialogueManager({ dialogue, isListening, onComplete, avatarType }) {
-    const { audio, setAudio } = useSharedAudio(); // Get shared audio context
+    const { audio, setAudio } = useSharedAudio(); // Shared audio context
     const [lipsync, setLipSyncData] = useState(null);
     const [jsonFile, setJsonData] = useState(null);
     const [currentDialogueIndex, setCurrentDialogueIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [speaker, setSpeaker] = useState(null); // Current speaker (student or teacher)
-    const instanceId = useRef(Math.random().toString(36).substring(7)); // Generate unique ID for this instance
+    const [speaker, setSpeaker] = useState(null); // host or guest
+    const instanceId = useRef(Math.random().toString(36).substring(7)); // Unique instance ID
 
     const baseMediaUrl = "http://localhost:8000/api_tts/media/interview/";
 
-    // Define the updateLipSync function
     const updateLipSync = (currentTime, nodes) => {
-        // Use local lipsync data or shared lipsync data
         const lipSyncData = lipsync || audioManagerState.sharedData.lipsync;
         if (!lipSyncData) return;
 
         const matchSound = {
-            A: 'aa',
-            B: 'kk',
-            C: 'ih',
-            D: 'CH',
-            E: 'E',
-            F: 'FF',
-            G: 'RR',
-            H: 'TH',
-            I: 'ih',
-            J: 'CH',
-            K: 'kk',
-            L: 'RR',
-            M: 'PP',
-            N: 'nn',
-            O: 'oh',
-            P: 'PP',
-            Q: 'kk',
-            R: 'RR',
-            S: 'SS',
-            T: 'TH',
-            U: 'ou',
-            V: 'FF',
-            W: 'ou',
-            X: 'SS',
-            Y: 'ih',
-            Z: 'SS',
+            A: 'aa', B: 'kk', C: 'ih', D: 'CH', E: 'E', F: 'FF', G: 'RR',
+            H: 'TH', I: 'ih', J: 'CH', K: 'kk', L: 'RR', M: 'PP', N: 'nn',
+            O: 'oh', P: 'PP', Q: 'kk', R: 'RR', S: 'SS', T: 'TH', U: 'ou',
+            V: 'FF', W: 'ou', X: 'SS', Y: 'ih', Z: 'SS',
         };
 
-        // Reset all morph targets
         Object.values(matchSound).forEach((value) => {
             nodes.AvatarHead.morphTargetInfluences[nodes.AvatarHead.morphTargetDictionary[value]] = 0;
             nodes.AvatarTeethLower.morphTargetInfluences[nodes.AvatarTeethLower.morphTargetDictionary[value]] = 0;
         });
 
-        // Update morph targets based on the current time
         lipSyncData.mouthCues.forEach((mouthCue) => {
             if (currentTime >= mouthCue.start && currentTime <= mouthCue.end) {
                 nodes.AvatarHead.morphTargetInfluences[nodes.AvatarHead.morphTargetDictionary[matchSound[mouthCue.value]]] = 1;
@@ -77,37 +49,31 @@ export function useDialogueManager({ dialogue, isListening, onComplete, avatarTy
         });
     };
 
-    // Effect to sync local state with shared state for non-manager avatars
+    // Sync shared state for non-manager avatars
     useEffect(() => {
-        // If this instance is not the manager, sync with shared state
         if (audioManagerState.currentManager !== instanceId.current) {
             const syncInterval = setInterval(() => {
                 setJsonData(audioManagerState.sharedData.jsonFile);
                 setLipSyncData(audioManagerState.sharedData.lipsync);
                 setIsPlaying(audioManagerState.sharedData.isPlaying);
                 setSpeaker(audioManagerState.sharedData.speaker);
-            }, 100); // Check for updates every 100ms
-            
+            }, 100);
             return () => clearInterval(syncInterval);
         }
     }, []);
 
-    // Set this instance as the current manager when component mounts
+    // Assign manager role on mount
     useEffect(() => {
-        // If this is the first avatar (guest/student), it will manage audio
-        // If this is the second avatar (host/teacher), it will only manage audio if it's not already being managed
-        const shouldManageAudio = avatarType === 'interviewer' || (!audioManagerState.isAudioBeingManaged);
-        
+        const shouldManageAudio = avatarType === 'Applicant' || !audioManagerState.isAudioBeingManaged;
+
         if (shouldManageAudio) {
             audioManagerState.isAudioBeingManaged = true;
             audioManagerState.currentManager = instanceId.current;
-            
+
             return () => {
-                // Clean up when this component unmounts
                 if (audioManagerState.currentManager === instanceId.current) {
                     audioManagerState.isAudioBeingManaged = false;
                     audioManagerState.currentManager = null;
-                    // Clear shared data
                     audioManagerState.sharedData = {
                         jsonFile: null,
                         lipsync: null,
@@ -120,7 +86,7 @@ export function useDialogueManager({ dialogue, isListening, onComplete, avatarTy
         }
     }, [avatarType]);
 
-    // Effect to update shared state when local state changes (for manager avatar)
+    // Update shared state when local state changes (if manager)
     useEffect(() => {
         if (audioManagerState.currentManager === instanceId.current) {
             audioManagerState.sharedData.jsonFile = jsonFile;
@@ -131,77 +97,53 @@ export function useDialogueManager({ dialogue, isListening, onComplete, avatarTy
         }
     }, [jsonFile, lipsync, isPlaying, speaker, audio]);
 
+    // Fetch and play audio for current dialogue index
     useEffect(() => {
-        // Only fetch and play audio if this instance is the current manager
-        if (audioManagerState.currentManager !== instanceId.current) {
-            return; // Skip audio fetching and playing for non-manager instances
-        }
+        if (audioManagerState.currentManager !== instanceId.current) return;
 
         const fetchData = async (index) => {
             try {
-                const timestamp = new Date().getTime(); // Cache-busting
-                const paddedIndex = String(index).padStart(3, '0'); // Pad index to 3 digits (e.g., 000, 001, etc.)
+                const paddedIndex = String(index).padStart(3, '0');
+                const timestamp = new Date().getTime();
+                const currentSpeaker = index % 2 === 0 ? "Interviewer" : "Applicant";
 
-                // Try fetching files for both student and teacher
-                const speakers = ["interviewer", "applicant"];
-                let jsonData = null;
-                let lipSyncData = null;
-                let audioFile = null;
-                let currentSpeaker = null;
+                const jsonFileName = `${paddedIndex}_${currentSpeaker}_sub.json`;
+                const lipSyncFileName = `${paddedIndex}_${currentSpeaker}_lipsync.json`;
+                const wavFileName = `${paddedIndex}_${currentSpeaker}.wav`;
 
-                for (const currentSpeakerCandidate of speakers) {
-                    const jsonFileName = `${paddedIndex}_${currentSpeakerCandidate}_sub.json`;
-                    const lipSyncFileName = `${paddedIndex}_${currentSpeakerCandidate}_lipsync.json`;
-                    const wavFileName = `${paddedIndex}_${currentSpeakerCandidate}.wav`;
+                const [jsonResponse, lipSyncResponse, audioResponse] = await Promise.all([
+                    fetch(`${baseMediaUrl}${jsonFileName}?t=${timestamp}`),
+                    fetch(`${baseMediaUrl}${lipSyncFileName}?t=${timestamp}`),
+                    fetch(`${baseMediaUrl}${wavFileName}?t=${timestamp}`)
+                ]);
 
-                    // Fetch JSON file
-                    const jsonResponse = await fetch(`${baseMediaUrl}${jsonFileName}?t=${timestamp}`);
-                    if (!jsonResponse.ok) continue; // Skip if file not found
-
-                    // Fetch LipSync file
-                    const lipSyncResponse = await fetch(`${baseMediaUrl}${lipSyncFileName}?t=${timestamp}`);
-                    if (!lipSyncResponse.ok) continue; // Skip if file not found
-
-                    // Fetch audio file
-                    const audioResponse = await fetch(`${baseMediaUrl}${wavFileName}?t=${timestamp}`);
-                    if (!audioResponse.ok) continue; // Skip if file not found
-
-                    // If all files are found, set the data
-                    jsonData = await jsonResponse.json();
-                    lipSyncData = await lipSyncResponse.json();
-                    audioFile = new Audio(`${baseMediaUrl}${wavFileName}?t=${timestamp}`);
-                    currentSpeaker = currentSpeakerCandidate;
-                    break; // Exit loop if files are found
-                }
-
-                if (!jsonData || !lipSyncData || !audioFile) {
-                    // No files found for this index, stop the process
-                    console.log("No more files found. Dialogue complete.");
-                    onComplete?.(); // Trigger onComplete callback
+                if (!jsonResponse.ok || !lipSyncResponse.ok || !audioResponse.ok) {
+                    console.log("No more files found or one of the required files is missing.");
+                    onComplete?.();
                     return;
                 }
 
-                // Set the data
+                const jsonData = await jsonResponse.json();
+                const lipSyncData = await lipSyncResponse.json();
+                const audioFile = new Audio(`${baseMediaUrl}${wavFileName}?t=${timestamp}`);
+
                 setJsonData(jsonData);
                 setLipSyncData(lipSyncData);
                 setAudio(audioFile);
                 setSpeaker(currentSpeaker);
 
-                // Play the audio automatically when it's loaded
                 audioFile.onloadeddata = () => {
                     audioFile.play().catch((error) => console.error("Play request failed:", error));
                     setIsPlaying(true);
                 };
 
-                // When the audio ends, move to the next dialogue
                 audioFile.onended = () => {
                     setIsPlaying(false);
-                    setCurrentDialogueIndex((prevIndex) => prevIndex + 1); // Move to the next index
+                    setCurrentDialogueIndex((prevIndex) => prevIndex + 1);
                 };
 
             } catch (error) {
                 console.error(error.message);
-                // If an error occurs, skip to the next index
                 setCurrentDialogueIndex((prevIndex) => prevIndex + 1);
             }
         };
