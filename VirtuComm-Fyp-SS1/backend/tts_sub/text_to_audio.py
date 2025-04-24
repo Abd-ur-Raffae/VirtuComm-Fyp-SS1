@@ -6,8 +6,8 @@ import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .voiceGen import student, teacher, applicant, interviewr, guest, host
-from .audio_to_json import transcribe_audio_api, transcribe_audios_in_folder_parallel
-from .utilities import generate_lipsync_for_patch
+from .audio_to_json import transcribe_audio_api, transcribe_audios_in_folder_parallel, transcribe_audios_in_folder_batch
+from .utilities import generate_lipsync_batch
 
 def text_to_conversation_with_tags(text: str):
     pattern = r"\[([^\]]+)\]\s*(.*)"
@@ -69,39 +69,61 @@ def process_conversation_pipeline(text: str, output_dir: str, post_workers: int 
                     all_audio_paths[i] = result
             except Exception as e:
                 print(f"[ERROR] Audio gen failed for index {i}: {e}")
+    # 🧼 Sanitize audio filenames — remove any `_tmp` before extension
+    for filename in os.listdir(output_dir):
+        if filename.endswith(".wav") and "_tmp.wav" in filename:
+            clean_name = filename.replace("_tmp", "")
+            src = os.path.join(output_dir, filename)
+            dst = os.path.join(output_dir, clean_name)
 
-    # C) Transcription (parallel on valid files)
+            # Make sure not to overwrite something
+            if not os.path.exists(dst):
+                os.rename(src, dst)
+                print(f"[CLEANUP] Renamed {filename} ➜ {clean_name}")
+            else:
+                print(f"[SKIPPED] {clean_name} already exists. Skipped renaming.")
+
+    # Refresh audio paths after cleanup
+    valid_audio_files = list(all_audio_paths.values())
+    # C & D: Transcription and Lipsync in parallel
     if post_workers is None:
-        post_workers = len(all_audio_paths)/2
-
-    trans_map = {}
-    lipsync_map = {}
+        post_workers = len(all_audio_paths)
 
     valid_audio_files = list(all_audio_paths.values())
 
-    # C.1 Transcription
-    try:
-        transcription_entries = transcribe_audios_in_folder_parallel(output_dir, max_workers=post_workers)
-        trans_map = {
-            os.path.join(output_dir, entry["filename"]): entry
-            for entry in transcription_entries
-        }
-    except Exception as e:
-        print(f"[ERROR] Transcription stage failed: {e}")
+    # Prepare executor
+    with ThreadPoolExecutor(max_workers=2) as master_exec:
+        # Launch transcription using batch call now
+        trans_fut = master_exec.submit(
+            transcribe_audios_in_folder_batch,
+            output_dir
+        )
+        # trans_fut = master_exec.submit(
+        #     transcribe_audios_in_folder_parallel,
+        #     output_dir,
+        #     max_workers=post_workers
+        # )
 
-    # C.2 Lipsync
-    with ThreadPoolExecutor(max_workers=post_workers) as exec_lip:
-        lip_futs = {
-            exec_lip.submit(generate_lipsync_for_patch, wav): wav
-            for wav in valid_audio_files
-        }
-        for fut in as_completed(lip_futs):
-            wav = lip_futs[fut]
-            try:
-                lipsync_map[wav] = fut.result()
-            except Exception as e:
-                print(f"[ERROR] Lipsync failed for {wav}: {e}")
+        # Launch lipsync
+        lipsync_fut = master_exec.submit(generate_lipsync_batch, valid_audio_files)
 
+        # Gather results
+        trans_map = {}
+        lipsync_map = {}
+
+        try:
+            transcription_entries = trans_fut.result()
+            trans_map = {
+                os.path.join(output_dir, entry["filename"]): entry
+                for entry in transcription_entries
+            }
+        except Exception as e:
+            print(f"[ERROR] Transcription stage failed: {e}")
+
+        try:
+            lipsync_map = lipsync_fut.result()
+        except Exception as e:
+            print(f"[ERROR] Lipsync stage failed: {e}")
     # D) Assemble all results, including missing audio
     results = []
     for i, (sp, ln) in enumerate(conv):

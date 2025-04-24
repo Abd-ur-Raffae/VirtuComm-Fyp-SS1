@@ -1,6 +1,6 @@
 import os,re
 from .apps import resources 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import subprocess
 import shutil
 from gradio_client import Client
@@ -9,93 +9,6 @@ from .voiceGen import student,teacher,applicant,interviewr,guest, host
 
 
 
-# def generate_text(text):
-#     """
-#     Generates dialogue using the conversation client if the input text is not already in dialogue format.
-#     """
-#     convo_client = resources.get_convo_client()
-#     if "[" not in text or "]" not in text:
-#         system_message = """You are a chatbot which only replies shortly. You give different results every time 
-#         and in the form of a dialogue between two characters talking about the given topic in just 10 to 15 lines. When starting each person's dialogue, only start it with: '[student]' or '[teacher]'. If you mention the names again, don't use brackets,brackets only come when starting the sentence.
-#         example:
-#         [student] how are you teacher? 
-#         [teacher] I am good what about you? what brought you here today?
-#         """
-#         result = convo_client.predict(
-#            message=text,
-# 		param_2=system_message,
-# 		param_3=512,
-# 		param_4=0.7,
-# 		param_5=0.95,
-# 		param_6=0,
-# 		param_7=-1,
-# 		param_8="meta-llama/Llama-3.3-70B-Instruct",
-# 		api_name="/chat"
-# )
-#         return result.strip()
-#     return text
-
-# def get_interviewer_applicant_dialogue(text):
-#     """
-#     Generates dialogue using the conversation client if the input text is not already in dialogue format.
-#     """
-#     print("function called, calling predict")
-#     convo_client = resources.get_convo_client()
-#     if "[" not in text or "]" not in text:
-#         system_message = (
-#             """Generate a very short dialogue between two characters conducting an interview. One character is the interviewer, and the other is the applicant.
-#             use these labels ([interviewer] and [Applicant]) at the start of every individual's turn.
-#             The interviewer asks relevant and tough questions about given topic, and the applicant provides concise answers.
-#             Keep the dialogue engaging, natural, and end the dialogue in 10 to 15 lines.
-#             example:
-#             [Interviewer] hello, thank you for coming!
-#             [Applicant] it's my pleasure."""
-#         )
-#         result = convo_client.predict(
-#            message=text,
-# 		param_2=system_message,
-# 		param_3=512,
-# 		param_4=0.7,
-# 		param_5=0.95,
-# 		param_6=0,
-# 		param_7=-1,
-# 		param_8="meta-llama/Llama-3.3-70B-Instruct",
-# 		api_name="/chat"
-#         )
-#         return result.strip()
-#     return text
-
-
-# def get_podcast_dialogue(text):
-#     """
-#     Generates dialogue using the conversation client if the input text is not already in dialogue format.
-#     """
-#     print("function called, calling predict")
-#     convo_client = resources.get_convo_client()
-#     if "[" not in text or "]" not in text:
-#         system_message = (
-#             """Generate a very short dialogue between two characters participating in the podcast. One character is the host, and the other is the guest. The dialogue should include discussion about the given topic(make it sound as practical as possible, even if the input is same try to generate different results).
-#             use these labels ([host] and [guest]) at the start of every individual's turn.
-#             The host asks general questions and the guest answers them, both keeping the dialogue interesting, engaging and natural.
-#             End the dialogue in 10 to 15 lines.
-#             example:
-#             [guest] hello, thank you for coming!
-#             [host] it's my pleasure."""
-#         )
-#         result = convo_client.predict(
-#            message=text,
-# 		param_2=system_message,
-# 		param_3=512,
-# 		param_4=0.7,
-# 		param_5=0.95,
-# 		param_6=0,
-# 		param_7=-1,
-# 		param_8="meta-llama/Llama-3.3-70B-Instruct",
-# 		api_name="/chat"
-#         )
-#         print("Response from model:", result)
-#         return result.strip()
-#     return text
 
 def gen_dialogue(text, scnerioTitle):
     convo_client = resources.get_convo_client()
@@ -147,7 +60,7 @@ def get_prompt_for(text):
 def get_recommended_links(query):
     try:
         print("Initializing links client...")
-        links = resources.getLinks_client()
+        links = resources.get_links_client()
 
         if not links:
             print("Error: get_links_client() returned None.")
@@ -175,49 +88,57 @@ def get_recommended_links(query):
         return []
     
 
-def generate_lipsync_for_patch(audio_file):
-    """
-    Generates a Rhubarb Lip Sync JSON file for a single audio patch.
-    The generated JSON file is saved in the same folder as the audio file, with the audio's base name
-    extended by '_lipsync.json'. Returns the path to the generated JSON file.
-    """
-    base, ext = os.path.splitext(audio_file)
-    json_file = f"{base}_lipsync.json"
-    
-    if not os.path.exists(audio_file):
-        print(f"Error: Audio file not found at {audio_file}")
-        return None
-    
-    try:
-        # Construct the full path to the rhubarb executable
-        rhubarb_path = os.path.join("Rhubarb-Lip-Sync-1.13.0-Windows", "rhubarb.exe")
-        
-        # Define the command as a list of arguments
-        command = [
-            rhubarb_path,
-            "-f", "json",
-            audio_file,
-            "-o", json_file
-        ]
 
-        # Run the command using subprocess.run
-        result = subprocess.run(command, check=True, capture_output=True, text=True)
-        
-        # Verify that the JSON file was created at the desired location.
+def generate_lipsync_for_single(audio_file):
+    base, _ = os.path.splitext(audio_file)
+    json_file = f"{base}_lipsync.json"
+
+    if not os.path.exists(audio_file):
+        print(f"[ERROR] Audio not found: {audio_file}")
+        return None
+
+    rhubarb_path = os.path.join("Rhubarb-Lip-Sync-1.13.0-Windows", "rhubarb.exe")
+    command = [rhubarb_path, "-f", "json", audio_file, "-o", json_file]
+
+    try:
+        subprocess.run(command, check=True, capture_output=True, text=True)
         if os.path.exists(json_file):
-            print(f"Lip sync JSON generated: {json_file}")
+            print(f"[✓] Lipsync JSON generated: {json_file}")
             return json_file
         else:
-            print(f"Error: Expected lipsync JSON not found at {json_file}")
+            print(f"[ERROR] Expected output not found: {json_file}")
             return None
     except subprocess.CalledProcessError as e:
-        print(f"Error generating lipsync for {audio_file}: {e}")
-        print(f"Command output: {e.stdout}")
-        print(f"Command error: {e.stderr}")
+        print(f"[ERROR] Rhubarb failed on {audio_file}")
+        print(e.stderr)
         return None
     except Exception as e:
-        print(f"Unexpected error generating lipsync for {audio_file}: {e}")
+        print(f"[ERROR] Unexpected failure on {audio_file}: {e}")
         return None
+
+
+def generate_lipsync_batch(audio_files, max_workers=None):
+    """
+    Generates lipsync JSONs for all provided audio files in parallel.
+    Returns a dictionary: {audio_file_path: lipsync_json_path}
+    """
+    results = {}
+
+    with ThreadPoolExecutor(max_workers=max_workers or len(audio_files)) as executor:
+        future_to_audio = {
+            executor.submit(generate_lipsync_for_single, audio): audio
+            for audio in audio_files
+        }
+        for future in as_completed(future_to_audio):
+            audio = future_to_audio[future]
+            try:
+                result = future.result()
+                if result:
+                    results[audio] = result
+            except Exception as e:
+                print(f"[ERROR] Future failed for {audio}: {e}")
+
+    return results
 
 
 
@@ -265,7 +186,7 @@ def recheck_for_errors(pipeline_results, output_path):
 
             with ThreadPoolExecutor(max_workers=2) as executor:
                 future_transcription = executor.submit(transcribe_audio_api,full_path)
-                future_lipsync = executor.submit(generate_lipsync_for_patch,full_path)
+                future_lipsync = executor.submit(generate_lipsync_for_single,full_path)
 
                 transcription_result = future_transcription.result()
                 lipsync_result  =future_lipsync.result()

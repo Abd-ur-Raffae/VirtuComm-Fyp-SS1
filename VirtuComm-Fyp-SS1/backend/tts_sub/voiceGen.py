@@ -7,10 +7,7 @@ from pydub import AudioSegment
 
 
 # Try to read the hosted URL from an env var, otherwise hard‑code your FastAPI endpoint
-TTS_API_URL = os.getenv(
-    "TTS_API_URL",
-    "https://jawwad1234-fastapi-edge-tts.hf.space/tts"
-)
+TTS_API_URL = resources.get_edge_tts_api_url()
 
 def _call_tts(text: str, voice_label: str, rate: int, pitch: int) -> str:
     """

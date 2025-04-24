@@ -1,6 +1,7 @@
 # audio_to_json.py
 
 import os
+from .apps import resources
 import json
 import glob
 import requests
@@ -8,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
 # Change this to your actual endpoint (or set via ENV var)
-WHISPER_API_URL = "https://jawwad1234-fast-api-whisper.hf.space/subtitles"
+WHISPER_API_URL = resources.get_whisper_api_url()
 
 # ─── SINGLE‑FILE TRANSCIBE ────────────────────────────────────────────────────
 def transcribe_audio_api(audio_path: str) -> dict:
@@ -31,6 +32,7 @@ def transcribe_audio_api(audio_path: str) -> dict:
     with open(json_path, "w", encoding="utf-8") as jf:
         json.dump(entry, jf, ensure_ascii=False, indent=2)
 
+    print(f"Subtitle file generated: {json_path}")
     return entry
 
 # ─── BATCH ALL AT ONCE ────────────────────────────────────────────────────────

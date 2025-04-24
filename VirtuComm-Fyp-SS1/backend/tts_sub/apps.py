@@ -6,24 +6,27 @@ class AppResources:
         # Preload the Gradio clients
         print("Initializing Gradio clients...")
         self.convo_client = Client("Nymbo/Serverless-TextGen-Hub")
-        self.whisper_client = Client("jawwad1234/whisper-model")
-        #self.tts_client = Client("jawwad1234/text-to-speech")
         self.links_client = Client("jawwad1234/gallKro")
         print("Gradio clients initialized.")
 
+        # Preload FastAPI endpoints
+        print("Storing FastAPI endpoints...")
+        self.whisper_api_url = "https://jawwad1234-fast-api-whisper.hf.space/subtitles"
+        self.edge_tts_api_url = "https://jawwad1234-fastapi-edge-tts.hf.space/tts"
+        print("FastAPI endpoints stored.")
 
     def get_convo_client(self):
         return self.convo_client
-    
-    def get_whisper_client(self):
-        return self.whisper_client
 
-    def get_tts_client(self):
-        return self.tts_client
-    
-    def getLinks_client(self):
+    def get_links_client(self):
         return self.links_client
 
+    def get_whisper_api_url(self):
+        return self.whisper_api_url
+
+    def get_edge_tts_api_url(self):
+        return self.edge_tts_api_url
+
+# Initialize only once when the server starts
 if os.environ.get("RUN_MAIN") == "true":
-    # Create a global instance to be used across the app
     resources = AppResources()

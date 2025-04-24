@@ -6,7 +6,7 @@ from .text_to_audio import process_conversation_pipeline # Import audio generati
 from pydub import AudioSegment
 from .text_to_audio_single import generate_audio_from_plain_text
 from .audio_to_json_single import audio_to_sub_single
-from .utilities import generate_lipsync_for_patch,recheck_for_errors,get_recommended_links, gen_dialogue
+from .utilities import generate_lipsync_for_single,recheck_for_errors,get_recommended_links, gen_dialogue
 from concurrent.futures import ThreadPoolExecutor
 import os,json, time
 
@@ -207,7 +207,7 @@ def single_model(request):
             #running lispin and subtitle geneartion parallely SHAYD
             transcription_path = "media/final_single.json"
             with ThreadPoolExecutor(max_workers=2) as executer:
-                executer.submit(generate_lipsync_for_patch,output_audio_path)
+                executer.submit(generate_lipsync_for_single,output_audio_path)
                 executer.submit(audio_to_sub_single, output_audio_path)
 
             return Response({
