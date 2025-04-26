@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SearchInput from "./custom elements/input.jsx";
 import TypeSuggestions from './custom elements/input_2.jsx';
@@ -9,7 +9,8 @@ const TtsForm = ({ apiEndpoint }) => {
     const [success, setSuccess] = useState('');
     const [csrfToken, setCsrfToken] = useState('');
     const [loading, setLoading] = useState(false);
-    const [fadeOut, setFadeOut] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const progressInterval = useRef(null);
 
     useEffect(() => {
         const fetchCsrfToken = async () => {
@@ -20,7 +21,6 @@ const TtsForm = ({ apiEndpoint }) => {
                 console.error('Error fetching CSRF token:', error);
             }
         };
-
         fetchCsrfToken();
     }, []);
 
@@ -31,28 +31,46 @@ const TtsForm = ({ apiEndpoint }) => {
     const handleDouble = async (e) => {
         e.preventDefault();
         setError('');
-        setFadeOut(true);
+        setSuccess('');
+        setProgress(0);
         setLoading(true);
+
+        progressInterval.current = setInterval(() => {
+            setProgress((prev) => {
+                if (prev < 95) {
+                    return prev + 2;
+                } else {
+                    return prev;
+                }
+            });
+        }, 1000); // Progresses roughly over ~50 seconds
+
         try {
-            console.log('Submitting form data:', formData);
             const response = await axios.post(apiEndpoint, formData, {
                 withCredentials: true,
                 headers: {
                     'X-CSRFToken': csrfToken,
                 },
             });
-            console.log('Response:', response);
             if (response.status === 201) {
                 setSuccess('Text converted to audio successfully!');
+                clearInterval(progressInterval.current);
+                setProgress(100);
+
+                // Wait 3 seconds, then refresh the page
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
             } else {
-                console.error('Unexpected response status:', response.status);
                 setError('Something went wrong. Please try again.');
+                clearInterval(progressInterval.current);
+                setLoading(false);
             }
         } catch (error) {
             console.error('Submit Error:', error.response || error.message);
             setError('An error occurred while submitting the form.');
-        } finally {
-            setTimeout(() => setLoading(false));
+            clearInterval(progressInterval.current);
+            setLoading(false);
         }
     };
 
@@ -62,7 +80,7 @@ const TtsForm = ({ apiEndpoint }) => {
             {success && <div className="alert alert-success">{success}</div>}
             
             {!loading ? (
-                <form className={`tts-form ${fadeOut ? "fade-out" : ""}`} onSubmit={handleDouble}>
+                <form className="tts-form" onSubmit={handleDouble}>
                     <div className="input-wrapper">
                         <SearchInput value={formData.text} onChange={handleChange} />
                     </div>
@@ -76,7 +94,10 @@ const TtsForm = ({ apiEndpoint }) => {
                 </form>
             ) : (
                 <div className="loading-container">
-                    <div className="loading-spinner"></div>
+                    <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                    </div>
+                    <p>{progress}%</p>
                     <p>Processing your request...</p>
                 </div>
             )}
@@ -96,11 +117,6 @@ const TtsForm = ({ apiEndpoint }) => {
                     flex-direction: column;
                     gap: 15px;
                     width: 100%;
-                    transition: opacity 0.3s ease;
-                }
-
-                .tts-form.fade-out {
-                    opacity: 0.5;
                 }
 
                 .input-wrapper {
@@ -117,23 +133,13 @@ const TtsForm = ({ apiEndpoint }) => {
                     font-weight: 500;
                     cursor: pointer;
                     transition: all 0.2s ease;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                     align-self: flex-end;
                     margin-top: 10px;
-                }
-
-                .dark-theme .submit-button {
-                    background-color: var(--dark-accent, #0d84ff);
                 }
 
                 .submit-button:hover:not(:disabled) {
                     background-color: var(--light-accent-hover, #0055aa);
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-                }
-
-                .dark-theme .submit-button:hover:not(:disabled) {
-                    background-color: var(--dark-accent-hover, #3a9fff);
                 }
 
                 .submit-button:disabled {
@@ -147,7 +153,6 @@ const TtsForm = ({ apiEndpoint }) => {
                     border-radius: 6px;
                     margin-bottom: 15px;
                     font-size: 14px;
-                    animation: fadeIn 0.3s ease;
                 }
 
                 .alert-error {
@@ -169,48 +174,26 @@ const TtsForm = ({ apiEndpoint }) => {
                     justify-content: center;
                     height: 100%;
                     gap: 15px;
-                    animation: fadeIn 0.3s ease;
+                }
+
+                .progress-bar {
+                    width: 200px;
+                    background-color: #eee;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    height: 8px;
+                }
+
+                .progress-fill {
+                    background-color: #28a745;
+                    height: 100%;
+                    width: 0;
+                    transition: width 0.5s ease;
                 }
 
                 .loading-container p {
-                    color: var(--light-text-secondary, #666666);
                     font-size: 14px;
-                }
-
-                .dark-theme .loading-container p {
-                    color: var(--dark-text-secondary, #cccccc);
-                }
-
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-
-                @media (max-width: 768px) {
-                    .tts-form-container {
-                        padding: 12px;
-                    }
-
-                    .submit-button {
-                        padding: 10px 16px;
-                        font-size: 15px;
-                    }
-                }
-
-                @media (max-width: 480px) {
-                    .tts-form-container {
-                        padding: 10px;
-                    }
-
-                    .tts-form {
-                        gap: 12px;
-                    }
-
-                    .submit-button {
-                        padding: 8px 14px;
-                        font-size: 14px;
-                        width: 100%;
-                    }
+                    color: var(--light-text-secondary, #666666);
                 }
             `}</style>
         </div>
@@ -218,13 +201,13 @@ const TtsForm = ({ apiEndpoint }) => {
 };
 
 export const User_tts = () => {
-    return <TtsForm apiEndpoint="http://localhost:8000/api_tts/podcast/"/>;
+    return <TtsForm apiEndpoint="http://localhost:8000/api_tts/podcast/" />;
 };
 
 export const Interview = () => {
-    return <TtsForm apiEndpoint="http://localhost:8000/api_tts/interview/"/>;
+    return <TtsForm apiEndpoint="http://localhost:8000/api_tts/interview/" />;
 };
 
 export const StudentTeacher = () => {
-    return <TtsForm apiEndpoint="http://localhost:8000/api_tts/TextToAudio/"/>;
+    return <TtsForm apiEndpoint="http://localhost:8000/api_tts/TextToAudio/" />;
 };
