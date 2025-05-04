@@ -87,3 +87,10 @@
   .suggestion-item.selected {
     background-color: #ddd; /* Highlight selected suggestion */
   }
+  .suggestion-item.highlighted {
+    background-color: #f0f0f0;
+    cursor: pointer;
+  }
+  .suggestion-item strong {
+    font-weight: bold;
+  }

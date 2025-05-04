@@ -82,7 +82,7 @@ const TtsForm = ({ apiEndpoint }) => {
             {!loading ? (
                 <form className="tts-form" onSubmit={handleDouble}>
                     <div className="input-wrapper">
-                        <SearchInput value={formData.text} onChange={handleChange} />
+                        <TypeSuggestions value={formData.text} onChange={handleChange} />
                     </div>
                     <button 
                         type="submit" 
@@ -110,17 +110,21 @@ const TtsForm = ({ apiEndpoint }) => {
                     flex-direction: column;
                     justify-content: center;
                     padding: 15px;
+                    align-items: center;
                 }
 
                 .tts-form {
                     display: flex;
                     flex-direction: column;
                     gap: 15px;
+                    align-items: center;
                     width: 100%;
                 }
 
                 .input-wrapper {
-                    width: 100%;
+                    display: flex;
+                    width: 230px;
+                    justify-content: center;
                 }
 
                 .submit-button {
@@ -133,7 +137,7 @@ const TtsForm = ({ apiEndpoint }) => {
                     font-weight: 500;
                     cursor: pointer;
                     transition: all 0.2s ease;
-                    align-self: flex-end;
+                    align-self: center;
                     margin-top: 10px;
                 }
 
