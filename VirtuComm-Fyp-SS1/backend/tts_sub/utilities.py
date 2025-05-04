@@ -13,21 +13,19 @@ from .voiceGen import student,teacher,applicant,interviewr,guest, host
 def gen_dialogue(text, scnerioTitle):
     convo_client = resources.get_convo_client()
     if "[" not in text or "]" not in text:
-        prompt = get_prompt_for(scnerioTitle)
+        prompt = get_prompt_for(scnerioTitle) 
         result = convo_client.predict(
-           message=text,
-		param_2=prompt,
-		param_3=512,
-		param_4=0.7,
-		param_5=0.95,
-		param_6=0,
-		param_7=-1,
-		param_8="meta-llama/Llama-3.3-70B-Instruct",
+		message=text,
+		system_message=prompt,
+		max_tokens=512,
+		temperature=0.7,
+		top_p=0.95,
 		api_name="/chat"
-        )
+)
         return result.strip()
+    
     return
-
+    
 def get_prompt_for(text):
     if text.lower() == "podcast":
         return """Generate a very short dialogue between two characters participating in the podcast. One character is the host, and the other is the guest. The dialogue should include discussion about the given topic(make it sound as practical as possible, even if the input is same try to generate different results).

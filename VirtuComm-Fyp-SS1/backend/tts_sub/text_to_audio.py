@@ -8,40 +8,52 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from .voiceGen import student, teacher, applicant, interviewr, guest, host
 from .audio_to_json import transcribe_audio_api, transcribe_audios_in_folder_parallel, transcribe_audios_in_folder_batch
 from .utilities import generate_lipsync_batch
+import time
 
 def text_to_conversation_with_tags(text: str):
     pattern = r"\[([^\]]+)\]\s*(.*)"
     return [(sp.strip(), ln.strip()) for sp, ln in re.findall(pattern, text)]
 
 def generate_audio_for_sentence(speaker: str, line: str, idx: int, out_dir: str):
-    wav_name  = f"{idx:03d}_{speaker}.wav"
-    wav_path  = os.path.join(out_dir, wav_name)
-    tmp_name  = f"{idx:03d}_{speaker}_tmp.wav"
-    tmp_path  = os.path.join(out_dir, tmp_name)
+    wav_name = f"{idx:03d}_{speaker}.wav"
+    wav_path = os.path.join(out_dir, wav_name)
+    tmp_name = f"{idx:03d}_{speaker}_tmp.wav"
+    tmp_path = os.path.join(out_dir, tmp_name)
 
     print(f"Generating audio for {speaker}: {line}")
-    # dispatch to your FastAPI‑backed TTS under the covers:
-    if   speaker.lower() == "student":    student(line)
-    elif speaker.lower() == "teacher":    teacher(line)
-    elif speaker.lower() == "applicant":  applicant(line)
-    elif speaker.lower() == "interviewer": interviewr(line)
-    elif speaker.lower() == "guest":      guest(line)
-    elif speaker.lower() == "host":       host(line)
-    else:
-        print(f"Unknown speaker {speaker}")
+
+    # Dispatch to speaker
+    try:
+        if speaker.lower() == "student":    student(line)
+        elif speaker.lower() == "teacher":    teacher(line)
+        elif speaker.lower() == "applicant":  applicant(line)
+        elif speaker.lower() == "interviewer": interviewr(line)
+        elif speaker.lower() == "guest":      guest(line)
+        elif speaker.lower() == "host":       host(line)
+        else:
+            print(f"[ERROR] Unknown speaker '{speaker}'")
+            return None
+    except Exception as e:
+        print(f"[ERROR] Failed to generate audio for '{speaker}': {e}")
         return None
 
-    # wait & rename
+    # Check if generated file exists
     gen_file = f"{speaker.lower()}_file.wav"
-    for _ in range(5):
-        if os.path.exists(gen_file):
-            shutil.move(gen_file, tmp_path)
-            os.rename(tmp_path, wav_path)
-            print(f"→ {wav_path}")
-            return wav_path
+    if not os.path.exists(gen_file):
+        print(f"[ERROR] Expected file not found for speaker '{speaker}': {gen_file}")
+        return None
 
-    print(f"Failed to find {gen_file}")
-    return None
+    # Move and rename
+    try:
+        shutil.move(gen_file, tmp_path)
+        os.rename(tmp_path, wav_path)
+        print(f"→ {wav_path}")
+        return wav_path
+    except Exception as e:
+        print(f"[ERROR] Moving/renaming failed for '{speaker}': {e}")
+        return None
+
+
 def process_conversation_pipeline(text: str, output_dir: str, post_workers: int = None):
     # A) Parse
     conv = text_to_conversation_with_tags(text)
@@ -94,15 +106,15 @@ def process_conversation_pipeline(text: str, output_dir: str, post_workers: int 
     # Prepare executor
     with ThreadPoolExecutor(max_workers=2) as master_exec:
         # Launch transcription using batch call now
-        trans_fut = master_exec.submit(
-            transcribe_audios_in_folder_batch,
-            output_dir
-        )
         # trans_fut = master_exec.submit(
-        #     transcribe_audios_in_folder_parallel,
-        #     output_dir,
-        #     max_workers=post_workers
+        #     transcribe_audios_in_folder_batch,
+        #     output_dir
         # )
+        trans_fut = master_exec.submit(
+            transcribe_audios_in_folder_parallel,
+            output_dir,
+            max_workers=post_workers
+        )
 
         # Launch lipsync
         lipsync_fut = master_exec.submit(generate_lipsync_batch, valid_audio_files)
