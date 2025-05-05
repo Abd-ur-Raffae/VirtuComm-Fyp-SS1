@@ -170,3 +170,12 @@ AUTH_USER_MODEL = 'ourApp.User'  # Replace 'your_app_name' with the actual name 
 
 # Rhubarb lip-sync path
 RHUBARB_PATH = os.path.join(BASE_DIR, 'Rhubarb-Lip-Sync-1.13.0-Windows', 'rhubarb')
+
+# Email settings (using Gmail as example)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'virtucomm1@gmail.com'
+EMAIL_HOST_PASSWORD = 'nigga@stake'  # Use Gmail App Password, not your Gmail login
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
@@ -7,6 +6,10 @@ from .serializers import UserSerializer
 from django.contrib.auth import authenticate, login
 from django.middleware.csrf import get_token
 from django.contrib.auth import logout
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.core.mail import send_mail
+import json
 
 @api_view(['POST'])
 def register(request):
@@ -75,3 +78,32 @@ def check_login_status(request):
             'username': request.user.username  # Add username
         }, status=status.HTTP_200_OK)
     return Response({'isAuthenticated': False}, status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+def contact_view(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            name = data.get("name")
+            email = data.get("email")
+            subject = data.get("subject")
+            message = data.get("message")
+
+            if not all([name, email, subject, message]):
+                return JsonResponse({"error": "All fields are required."}, status=400)
+
+            # Send confirmation email to the user
+            send_mail(
+                subject="We received your query",
+                message=f"Hi {name},\n\nWe received your query about '{subject}'. We'll get back to you as soon as possible.\n\nThanks,\nTeam",
+                from_email="yourprojectemail@example.com",
+                recipient_list=[email],
+                fail_silently=False,
+            )
+
+            return JsonResponse({"message": "Query submitted successfully."}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)

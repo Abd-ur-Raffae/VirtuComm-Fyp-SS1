@@ -3,15 +3,14 @@ import "./input.css";
 import Loader from "./loader.jsx";
 import "./loader.css";
 
-const TypeSuggestions = () => {
-  const [inputText, setInputText] = useState("");
+const TypeSuggestions = ({ value, onChange }) => {
   const [responseText, setResponseText] = useState([]);
   const [loading, setLoading] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (!inputText.trim()) {
+    if (!value.trim()) {
       setResponseText([]);
       setLoading(false);
       return;
@@ -22,7 +21,7 @@ const TypeSuggestions = () => {
 
     const timeout = setTimeout(() => {
       fetch(
-        `https://jawwad1234-typeSuggestions.hf.space/suggest?q=${encodeURIComponent(inputText)}`,
+        `https://jawwad1234-typeSuggestions.hf.space/suggest?q=${encodeURIComponent(value)}`,
         { signal: controller.signal }
       )
         .then((res) => res.json())
@@ -44,7 +43,7 @@ const TypeSuggestions = () => {
       controller.abort();
       clearTimeout(timeout);
     };
-  }, [inputText]);
+  }, [value]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -57,7 +56,7 @@ const TypeSuggestions = () => {
   }, []);
 
   const handleSuggestionClick = (suggestion) => {
-    setInputText(suggestion);
+    onChange(suggestion);
     setResponseText([]);
   };
 
@@ -72,19 +71,19 @@ const TypeSuggestions = () => {
       setHighlightIndex((prev) => (prev - 1 + responseText.length) % responseText.length);
     } else if (e.key === "Enter" && highlightIndex >= 0) {
       e.preventDefault();
-      setInputText(responseText[highlightIndex]);
+      onChange(responseText[highlightIndex]);
       setResponseText([]);
     }
   };
 
   const highlightMatch = (text) => {
-    const idx = text.toLowerCase().indexOf(inputText.toLowerCase());
+    const idx = text.toLowerCase().indexOf(value.toLowerCase());
     if (idx === -1) return text;
     return (
       <>
         {text.slice(0, idx)}
-        <strong>{text.slice(idx, idx + inputText.length)}</strong>
-        {text.slice(idx + inputText.length)}
+        <strong>{text.slice(idx, idx + value.length)}</strong>
+        {text.slice(idx + value.length)}
       </>
     );
   };
@@ -97,18 +96,18 @@ const TypeSuggestions = () => {
           placeholder="Type your text"
           required
           type="text"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
         />
         {loading && <div className="loader-overlay"><Loader /></div>}
         <button
           className="reset"
           type="button"
-          onClick={() => setInputText("")}
-          style={{ opacity: inputText ? 1 : 0, visibility: inputText ? "visible" : "hidden" }}
+          onClick={() => onChange("")}
+          style={{ opacity: value ? 1 : 0, visibility: value ? "visible" : "hidden" }}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          ×
         </button>
       </form>
 
