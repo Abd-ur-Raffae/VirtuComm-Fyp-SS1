@@ -15,13 +15,13 @@ export function Avatar1({ isListening, ...props }) {
     });
 
     // Load model and animations
-    const { scene } = useGLTF('/models/student_1.glb');
+    const { scene } = useGLTF('/models/ceo.glb');
     const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
     const { nodes, materials } = useGraph(clone);
 
     const { animations: idleAnimations } = useFBX('/animations/Teacher_sitting.fbx');
     idleAnimations[0].name = 'Idle';
-    const { animations: talkingAnimations } = useFBX('/animations/Teacher_talking.fbx');
+    const { animations: talkingAnimations } = useFBX('/animations/talk_may.fbx');
     talkingAnimations[0].name = 'Talking';
 
     const group = useRef();
@@ -69,19 +69,20 @@ export function Avatar1({ isListening, ...props }) {
   return (
     <group
       {...props}
-      position={[-2.05, -1.05, 3.51]}
-      rotation={[0, 1.4, 0]}
-      scale={1.5}
+      position={[-2.05, -1.05, 3.3]}
+      rotation={[0, 1.6, 0]}
+      scale={1.3
+
+      }
       dispose={null}
       ref={group}
     >
       <primitive object={nodes.Hips} />
-      <skinnedMesh geometry={nodes.AvatarBody.geometry} material={materials.AvatarBody} skeleton={nodes.AvatarBody.skeleton} />
+        <skinnedMesh geometry={nodes.AvatarBody.geometry} material={materials.AvatarBody} skeleton={nodes.AvatarBody.skeleton} />
         <skinnedMesh geometry={nodes.AvatarLeftEyeball.geometry} material={materials.AvatarLeftEyeball} skeleton={nodes.AvatarLeftEyeball.skeleton} />
         <skinnedMesh geometry={nodes.AvatarRightEyeball.geometry} material={materials.AvatarRightEyeball} skeleton={nodes.AvatarRightEyeball.skeleton} />
         <skinnedMesh geometry={nodes.AvatarTeethUpper.geometry} material={materials.AvatarTeethUpper} skeleton={nodes.AvatarTeethUpper.skeleton} />
         <skinnedMesh geometry={nodes.glasses.geometry} material={materials.glasses} skeleton={nodes.glasses.skeleton} />
-        <skinnedMesh geometry={nodes.haircut.geometry} material={materials.haircut} skeleton={nodes.haircut.skeleton} />
         <skinnedMesh geometry={nodes.outfit.geometry} material={materials.outfit} skeleton={nodes.outfit.skeleton} />
         <skinnedMesh name="AvatarEyelashes" geometry={nodes.AvatarEyelashes.geometry} material={materials.AvatarEyelashes} skeleton={nodes.AvatarEyelashes.skeleton} morphTargetDictionary={nodes.AvatarEyelashes.morphTargetDictionary} morphTargetInfluences={nodes.AvatarEyelashes.morphTargetInfluences} />
         <skinnedMesh name="AvatarHead" geometry={nodes.AvatarHead.geometry} material={materials.AvatarHead} skeleton={nodes.AvatarHead.skeleton} morphTargetDictionary={nodes.AvatarHead.morphTargetDictionary} morphTargetInfluences={nodes.AvatarHead.morphTargetInfluences} />
@@ -92,4 +93,4 @@ export function Avatar1({ isListening, ...props }) {
 
 export default Avatar1;
 
-useGLTF.preload('/models/student_1.glb');
+useGLTF.preload('/models/ceo.glb');

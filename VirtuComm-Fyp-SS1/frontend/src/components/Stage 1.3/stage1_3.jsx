@@ -92,7 +92,7 @@ const Project1_3 = () => {
                         <div className={`canvas-container ${theme === "dark" ? "dark-theme" : "light-theme"}`}>
                             <Canvas 
                                 shadows 
-                                camera={{ position: [0.8, 1, 8], rotation: [0, 0, 0], fov: 20 }}
+                                camera={{ position: [0.8, 1, 8], rotation: [0, 0, 0], fov: 28 }}
                                 className="main-canvas"
                             >
                                 <color attach="background" args={theme === "dark" ? ["#1E1E1E"] : ["#f5f5f7"]} />
