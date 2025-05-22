@@ -33,7 +33,7 @@ def get_prompt_for(text):
     text = text.lower()
     if text == "podcast":
         return (
-            "Generate a very short dialogue between two characters "
+            "Generate a very short dialogue between two male characters "
             "participating in the podcast. One character is the host, "
             "and the other is the guest. The dialogue should include "
             "discussion about the given topic (make it sound as practical "
