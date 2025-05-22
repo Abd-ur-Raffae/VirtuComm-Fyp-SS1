@@ -1,22 +1,24 @@
-from gradio_client import Client
+# apps.py
 import os
+from gradio_client import Client
 
 class AppResources:
     def __init__(self):
-        # Preload the Gradio clients
-        print("Initializing Gradio clients...")
-        self.convo_client = Client("muryshev/Qwen-2.5-72B-Instruct")
+        print("Initializing clients...")
+        # Point to your new FastAPI chat endpoint instead of a Gradio model
+        self.chat_api_url = os.getenv(
+            "CHAT_API_URL",
+            "https://jawwad1234-chatbot.hf.space/chat"
+        )
+        # Your existing links client
         self.links_client = Client("jawwad1234/gallKro")
-        print("Gradio clients initialized.")
-
-        # Preload FastAPI endpoints
-        print("Storing FastAPI endpoints...")
+        # Other endpoints
         self.whisper_api_url = "https://jawwad1234-fast-api-whisper.hf.space/subtitles"
-        self.edge_tts_api_url = "https://jawwad1234-fastapi-edge-tts.hf.space/tts"
-        print("FastAPI endpoints stored.")
+        self.edge_tts_api_url   = "https://jawwad1234-fastapi-edge-tts.hf.space/tts"
+        print("Clients initialized.")
 
-    def get_convo_client(self):
-        return self.convo_client
+    def get_chat_api_url(self):
+        return self.chat_api_url
 
     def get_links_client(self):
         return self.links_client
@@ -27,6 +29,6 @@ class AppResources:
     def get_edge_tts_api_url(self):
         return self.edge_tts_api_url
 
-# Initialize only once when the server starts
+# Only instantiate once when running under Uvicorn/WSGI
 if os.environ.get("RUN_MAIN") == "true":
     resources = AppResources()

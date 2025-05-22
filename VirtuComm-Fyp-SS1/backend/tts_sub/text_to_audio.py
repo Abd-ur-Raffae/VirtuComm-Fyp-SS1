@@ -22,7 +22,6 @@ def generate_audio_for_sentence(speaker: str, line: str, idx: int, out_dir: str)
 
     print(f"Generating audio for {speaker}: {line}")
 
-    # Dispatch to speaker
     try:
         if speaker.lower() == "student":    student(line)
         elif speaker.lower() == "teacher":    teacher(line)
@@ -37,13 +36,11 @@ def generate_audio_for_sentence(speaker: str, line: str, idx: int, out_dir: str)
         print(f"[ERROR] Failed to generate audio for '{speaker}': {e}")
         return None
 
-    # Check if generated file exists
     gen_file = f"{speaker.lower()}_file.wav"
     if not os.path.exists(gen_file):
         print(f"[ERROR] Expected file not found for speaker '{speaker}': {gen_file}")
         return None
 
-    # Move and rename
     try:
         shutil.move(gen_file, tmp_path)
         os.rename(tmp_path, wav_path)
@@ -81,23 +78,21 @@ def process_conversation_pipeline(text: str, output_dir: str, post_workers: int 
                     all_audio_paths[i] = result
             except Exception as e:
                 print(f"[ERROR] Audio gen failed for index {i}: {e}")
-    # 🧼 Sanitize audio filenames — remove any `_tmp` before extension
+
     for filename in os.listdir(output_dir):
         if filename.endswith(".wav") and "_tmp.wav" in filename:
             clean_name = filename.replace("_tmp", "")
             src = os.path.join(output_dir, filename)
             dst = os.path.join(output_dir, clean_name)
 
-            # Make sure not to overwrite something
             if not os.path.exists(dst):
                 os.rename(src, dst)
                 print(f"[CLEANUP] Renamed {filename} ➜ {clean_name}")
             else:
                 print(f"[SKIPPED] {clean_name} already exists. Skipped renaming.")
 
-    # Refresh audio paths after cleanup
     valid_audio_files = list(all_audio_paths.values())
-    # C & D: Transcription and Lipsync in parallel
+    # C & D: 
     if post_workers is None:
         post_workers = len(all_audio_paths)
 
@@ -116,7 +111,6 @@ def process_conversation_pipeline(text: str, output_dir: str, post_workers: int 
             max_workers=post_workers
         )
 
-        # Launch lipsync
         lipsync_fut = master_exec.submit(generate_lipsync_batch, valid_audio_files)
 
         # Gather results
@@ -136,7 +130,7 @@ def process_conversation_pipeline(text: str, output_dir: str, post_workers: int 
             lipsync_map = lipsync_fut.result()
         except Exception as e:
             print(f"[ERROR] Lipsync stage failed: {e}")
-    # D) Assemble all results, including missing audio
+    # D) 
     results = []
     for i, (sp, ln) in enumerate(conv):
         wav = os.path.join(output_dir, f"{i:03d}_{sp}.wav")

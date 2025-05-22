@@ -1,57 +1,74 @@
-import os,re
+import os
 from .apps import resources 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import subprocess
+import requests
 import shutil
-from gradio_client import Client
 from .audio_to_json import transcribe_audio_api
 from .voiceGen import student,teacher,applicant,interviewr,guest, host
 
 
-
-
 def gen_dialogue(text, scnerioTitle):
-    convo_client = resources.get_convo_client()
+    """
+    Generates a dialogue via the /chat endpoint IF no existing
+    '[' or ']' are found in the text.
+    """
     if "[" not in text or "]" not in text:
-        prompt = get_prompt_for(scnerioTitle) 
-        result = convo_client.predict(
-		message=text,
-		system_message=prompt,
-		max_tokens=512,
-		temperature=0.7,
-		top_p=0.95,
-		api_name="/chat"
-)
-        return result.strip()
-    
-    return
-    
+        prompt = get_prompt_for(scnerioTitle)
+        payload = {
+            "system_message": prompt,
+            "message": text,
+        }
+        resp = requests.post(
+            resources.get_chat_api_url(),
+            json=payload,
+            timeout=10
+        )
+        resp.raise_for_status()
+        return resp.json()["response"].strip()
+    return None
+
+
 def get_prompt_for(text):
-    if text.lower() == "podcast":
-        return """Generate a very short dialogue between two characters participating in the podcast. One character is the host, and the other is the guest. The dialogue should include discussion about the given topic(make it sound as practical as possible, even if the input is same try to generate different results).
-            use these labels ([host] and [guest]) at the start of every individual's turn.
-            The host asks general questions and the guest answers them, both keeping the dialogue interesting, engaging and natural.
-            End the dialogue in 10 to 15 lines.
-            example:
-            [guest] hello, thank you for coming!
-            [host] it's my pleasure."""
-    
-    elif text.lower() == "interview":
-        return """Generate a very short dialogue between two characters conducting an interview. One character is the interviewer, and the other is the applicant.
-            use these labels ([interviewer] and [Applicant]) at the start of every individual's turn.
-            The interviewer asks relevant and tough questions about given topic, and the applicant provides concise answers.
-            Keep the dialogue engaging, natural, and end the dialogue in 10 to 15 lines.
-            example:
-            [Interviewer] hello, thank you for coming!
-            [Applicant] it's my pleasure"""
-    
-    elif text.lower() == "stu_teach":
-        return """You are a chatbot which only replies shortly. You give different results every time 
-        and in the form of a dialogue between two characters talking about the given topic in just 10 to 15 lines. When starting each person's dialogue, only start it with: '[student]' or '[teacher]'. If you mention the names again, don't use brackets,brackets only come when starting the sentence.
-        example:
-        [student] how are you teacher? 
-        [teacher] I am good what about you? what brought you here today?"""
-    
+    text = text.lower()
+    if text == "podcast":
+        return (
+            "Generate a very short dialogue between two characters "
+            "participating in the podcast. One character is the host, "
+            "and the other is the guest. The dialogue should include "
+            "discussion about the given topic (make it sound as practical "
+            "as possible, even if the input is the same try to generate "
+            "different results). Use these labels ([host] and [guest]) "
+            "at the start of every individual's turn. The host asks "
+            "general questions and the guest answers them, both keeping "
+            "the dialogue interesting, engaging and natural. End the "
+            "dialogue in 10 to 15 lines. example: [guest] hello, thank "
+            "you for coming! [host] it's my pleasure."
+        )
+    elif text == "interview":
+        return (
+            "Generate a very short dialogue between two characters "
+            "conducting an interview. One character is the interviewer, "
+            "and the other is the applicant. Use these labels "
+            "([interviewer] and [Applicant]) at the start of every "
+            "individual's turn. The interviewer asks relevant and tough "
+            "questions about the given topic, and the applicant provides "
+            "concise answers. Keep the dialogue engaging, natural, and "
+            "end the dialogue in 10 to 15 lines. example: "
+            "[Interviewer] hello, thank you for coming! [Applicant] it's "
+            "my pleasure"
+        )
+    elif text == "stu_teach":
+        return (
+            "You are a chatbot which only replies shortly. You give "
+            "different results every time and in the form of a dialogue "
+            "between two characters talking about the given topic in just "
+            "10 to 15 lines. When starting each person's dialogue, only "
+            "start it with: '[student]' or '[teacher]'. If you mention the "
+            "names again, don't use brackets—brackets only come when "
+            "starting the sentence. example: [student] how are you teacher? "
+            "[teacher] I am good what about you? what brought you here today?"
+        )
     else:
         return ""
 
@@ -69,7 +86,6 @@ def get_recommended_links(query):
             result = links.predict(query=query, api_name="/predict")
             print(f"Received result: {result}")
 
-            # Log detailed response for debugging
             if "web_links" in result and "youtube_links" in result:
                 print(f"Web Links: {result['web_links']}")
                 print(f"YouTube Links: {result['youtube_links']}")

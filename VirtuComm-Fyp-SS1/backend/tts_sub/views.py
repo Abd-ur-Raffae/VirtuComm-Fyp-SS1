@@ -18,8 +18,7 @@ def text_to_audio(request):
         if not text:
             return Response({"error": "No text provided"}, status=400)
 
-        # Generate dialogue if the input is a topic.
-        # convo_client = resources.get_convo_client()
+
         with ThreadPoolExecutor(max_workers=2) as executer:
                 dialogue = executer.submit(gen_dialogue,text, "stu_teach")
                 links =executer.submit(get_recommended_links, text)
@@ -32,15 +31,10 @@ def text_to_audio(request):
         output_folder = os.path.join(BASE_DIR, "../backend/media/stu_teach")
         output_folder = os.path.abspath(output_folder)
         
-        #whisper_client = resources.get_whisper_client()
-
-        # Process the pipeline for each conversation line concurrently.
         max_cores = os.cpu_count()
         pipeline_results = process_conversation_pipeline(result_text, output_folder, max_cores)
 
-        # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
-        #file_name = "media/stu_teach/metaDataPatches.json"
         final_data = {
             "prompt": text,
             "pipeline_results": pipeline_results,
@@ -66,8 +60,6 @@ def interview(request):
         if not text:
             return Response({"error": "No text provided"}, status=400)
  
-
-        # Generate dialogue if the input is a topic.
         
         with ThreadPoolExecutor(max_workers=2) as executer:
             dialogue = executer.submit(gen_dialogue, text, "interview")
@@ -82,11 +74,10 @@ def interview(request):
         output_folder = os.path.join(BASE_DIR, "../backend/media/interview")
         output_folder = os.path.abspath(output_folder)
 
-        # Process the pipeline for each conversation line concurrently.
+
         max_cores = os.cpu_count()
         pipeline_results = process_conversation_pipeline(result_text, output_folder)
 
-        # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
 
         final_data = {
@@ -116,7 +107,6 @@ def podcast(request):
         if not text:
             return Response({"error": "No text provided"}, status=400) 
 
-        # Generate dialogue if the input is a topic.
         
         with ThreadPoolExecutor(max_workers=2) as executer:
             dialogue = executer.submit(gen_dialogue, text, "podcast")
@@ -131,11 +121,9 @@ def podcast(request):
         output_folder = os.path.join(BASE_DIR, "../backend/media/podcast")
         output_folder = os.path.abspath(output_folder)
 
-        # Process the pipeline for each conversation line concurrently.
         max_cores = os.cpu_count()
         pipeline_results = process_conversation_pipeline(result_text, output_folder, max_cores)
 
-        # Optionally, save metadata for reference.
         file_name = os.path.join(output_folder, "metaDataPatches.json")
 
         final_data = {
