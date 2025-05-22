@@ -2,3 +2,4 @@ node_modules
 __pycache__
 media
 Rhubarb-Lip-Sync-1.13.0-Windows
+.env
