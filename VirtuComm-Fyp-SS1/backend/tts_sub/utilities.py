@@ -8,14 +8,18 @@ from dotenv import load_dotenv
 from .audio_to_json import transcribe_audio_api
 from .voiceGen import student,teacher,applicant,interviewr,guest, host
 
+  # assuming this contains get_chat_api_url()
 
 def gen_dialogue(text, scnerioTitle):
     """
     Generates a dialogue via the /chat endpoint IF no existing
     '[' or ']' are found in the text.
     """
-    load_dotenv() 
-    API_KEY = os.getenv("API_KEY")
+    load_dotenv()
+    API_KEY = os.getenv("API_key")  # NOTE: match the exact casing you used in .env
+
+    if not API_KEY:
+        raise RuntimeError("API_key not found in environment variables")
 
     if "[" not in text or "]" not in text:
         prompt = get_prompt_for(scnerioTitle)
@@ -26,12 +30,16 @@ def gen_dialogue(text, scnerioTitle):
         resp = requests.post(
             resources.get_chat_api_url(),
             json=payload,
-            headers={"Authorization": f"Bearer {API_KEY}"},
+            headers={
+                "x-api-key": API_KEY,
+                "Content-Type": "application/json"
+            },
             timeout=10
         )
         resp.raise_for_status()
         return resp.json()["response"].strip()
     return None
+
 
 
 def get_prompt_for(text):
@@ -47,7 +55,7 @@ def get_prompt_for(text):
             "at the start of every individual's turn. The host asks "
             "general questions and the guest answers them, both keeping "
             "the dialogue interesting, engaging and natural. End the "
-            "dialogue in 10 to 15 lines. example: [guest] hello, thank "
+            "dialogue in 10 to 15 lines. Dont add any kind of explanatory phrases. example: [guest] hello, thank "
             "you for coming! [host] it's my pleasure."
         )
     elif text == "interview":
