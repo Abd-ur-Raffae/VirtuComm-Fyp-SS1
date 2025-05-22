@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import subprocess
 import requests
 import shutil
+from dotenv import load_dotenv
 from .audio_to_json import transcribe_audio_api
 from .voiceGen import student,teacher,applicant,interviewr,guest, host
 
@@ -13,6 +14,9 @@ def gen_dialogue(text, scnerioTitle):
     Generates a dialogue via the /chat endpoint IF no existing
     '[' or ']' are found in the text.
     """
+    load_dotenv() 
+    API_KEY = os.getenv("API_KEY")
+
     if "[" not in text or "]" not in text:
         prompt = get_prompt_for(scnerioTitle)
         payload = {
@@ -22,6 +26,7 @@ def gen_dialogue(text, scnerioTitle):
         resp = requests.post(
             resources.get_chat_api_url(),
             json=payload,
+            headers={"Authorization": f"Bearer {API_KEY}"},
             timeout=10
         )
         resp.raise_for_status()
