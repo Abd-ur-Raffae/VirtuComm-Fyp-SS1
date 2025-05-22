@@ -93,7 +93,7 @@ const TtsForm = ({ apiEndpoint }) => {
                     </button>
                 </form>
             ) : (
-                <div className="loading-container">
+                <div>
                     <div className="progress-bar">
                         <div className="progress-fill" style={{ width: `${progress}%` }}></div>
                     </div>
@@ -169,15 +169,6 @@ const TtsForm = ({ apiEndpoint }) => {
                     background-color: rgba(40, 167, 69, 0.1);
                     color: #28a745;
                     border: 1px solid rgba(40, 167, 69, 0.2);
-                }
-
-                .loading-container {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    height: 100%;
-                    gap: 15px;
                 }
 
                 .progress-bar {
